@@ -12,12 +12,12 @@ namespace WebScrapingServices.Authenticated.Browser
     }
     public class WebClientFactory : IWebClientFactory
     {
-        private ILogger<SeleniumChromeClient> _seleniumChromeClientLogger;
+        private ILoggerFactory _loggerFactory;
         private ILogger _logger;
-        public WebClientFactory(ILogger<WebClientFactory> factoryLogger, ILogger<SeleniumChromeClient> seleniumChromeClientLogger)
+        public WebClientFactory(ILoggerFactory loggerFactory)
         {
-            _logger = factoryLogger;
-            _seleniumChromeClientLogger = seleniumChromeClientLogger;
+            _loggerFactory = loggerFactory;
+            _logger = _loggerFactory.CreateLogger<WebClientFactory>();
         }
         public async Task<IWebClient> LaunchAndConnectAsync()
         {
@@ -30,8 +30,7 @@ namespace WebScrapingServices.Authenticated.Browser
             {
                 case RdpClientImplementation.Any:
                 case RdpClientImplementation.Selenium:
-
-                    return new SeleniumChromeClient(_seleniumChromeClientLogger, settings);
+                    return new SeleniumChromeClient(_loggerFactory, settings);
 
                 default:
                     throw new NotImplementedException();

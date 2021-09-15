@@ -7,6 +7,7 @@ namespace WebScrapingServices.Authenticated.Browser
         public string UserProfileName;
         public bool UseProxy;
         public WebProxy? Proxy;
+        public bool IgnoreSslCertificateErrors;
         public RdpClientImplementation RdpClientImplementation;
     }
     public enum RdpClientImplementation

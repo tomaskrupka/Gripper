@@ -2,6 +2,7 @@
 using System;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
+using OpenQA.Selenium;
 
 namespace WebScrapingServices.Authenticated.Browser.Selenium
 {
@@ -10,11 +11,14 @@ namespace WebScrapingServices.Authenticated.Browser.Selenium
         private SeleniumRdpSession _rdpSession;
         private SeleniumChromeBrowserWindow _browserWindow;
 
+        private ILoggerFactory _loggerFactory;
         private ILogger _logger;
 
-        public SeleniumChromeClient(ILogger<SeleniumChromeClient> logger, WebClientSettings settings)
+
+        public SeleniumChromeClient(ILoggerFactory loggerFactory, WebClientSettings settings)
         {
-            _logger = logger;
+            _loggerFactory = loggerFactory;
+            _logger = loggerFactory.CreateLogger<SeleniumChromeClient>();
             (_browserWindow, _rdpSession) = LaunchAndConnect(settings);
         }
 
@@ -36,20 +40,41 @@ namespace WebScrapingServices.Authenticated.Browser.Selenium
 
             if (settings.UseProxy)
             {
-                throw new NotImplementedException();
+                var proxyAuthority = settings.Proxy?.Address?.Authority;
+                if (proxyAuthority == null)
+                {
+                    throw new ArgumentException("Invalid settings provided, proxy authority must not be null if UseProxy set to true.");
+                }
+
+                _logger.LogInformation("Launching Selenium Chrome with proxy.");
+
+                options.Proxy = new Proxy
+                {
+                    Kind = ProxyKind.Manual,
+                    IsAutoDetect = false,
+                    HttpProxy = proxyAuthority,
+                    SslProxy = proxyAuthority,
+                };
             }
             else
             {
                 _logger.LogInformation("Launching Selenium Chrome without proxy.");
-
-                var driver = new ChromeDriver(Environment.CurrentDirectory, options);
-                var session = driver.GetDevToolsSession();
-
-                var browserWindow = new SeleniumChromeBrowserWindow(driver);
-                var rdpSession = new SeleniumRdpSession(session);
-
-                return (browserWindow, rdpSession);
             }
+
+            if (settings.IgnoreSslCertificateErrors)
+            {
+                _logger.LogWarning("Launching Selenium Chrome with ignore-certificate-errors flag on.");
+                options.AddArgument("ignore-certificate-errors");
+            }
+
+            var driver = new ChromeDriver(Environment.CurrentDirectory, options);
+            var session = driver.GetDevToolsSession();
+            var seleniumRdpSessionLogger = _loggerFactory.CreateLogger<SeleniumRdpSession>();
+
+            var browserWindow = new SeleniumChromeBrowserWindow(driver);
+            var rdpSession = new SeleniumRdpSession(seleniumRdpSessionLogger, session);
+
+            return (browserWindow, rdpSession);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using OpenQA.Selenium.Chrome;
+﻿using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
 using System;
 using System.Threading.Tasks;
 
@@ -7,9 +8,11 @@ namespace WebScrapingServices.Authenticated.Browser.Selenium
     public class SeleniumChromeBrowserWindow : IBrowserWindow
     {
         private ChromeDriver _driver;
+        private INavigation _navigation;
         public SeleniumChromeBrowserWindow(ChromeDriver driver)
         {
             _driver = driver;
+            _navigation = _driver.Navigate();
         }
         public void Dispose()
         {
@@ -31,9 +34,9 @@ namespace WebScrapingServices.Authenticated.Browser.Selenium
             throw new NotImplementedException();
         }
 
-        public Task GoToUrlAsync(string address)
+        public async Task GoToUrlAsync(string address)
         {
-            throw new NotImplementedException();
+            _navigation.GoToUrl(address);
         }
 
         public Task ReloadAsync()

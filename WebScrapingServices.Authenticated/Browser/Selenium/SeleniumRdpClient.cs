@@ -2,6 +2,8 @@
 using Newtonsoft.Json.Linq;
 using OpenQA.Selenium.DevTools;
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 
 namespace WebScrapingServices.Authenticated.Browser.Selenium
@@ -29,14 +31,53 @@ namespace WebScrapingServices.Authenticated.Browser.Selenium
         {
             switch (e.EventName)
             {
-                case "Network.requestWillBeSent":
-                    Request request = new()
-                    {
+                case "requestWillBeSent":
 
-                    };
+                    var requestId = e.EventData["requestId"]?.ToString();
+                    if (requestId == null)
+                    {
+                        throw new ApplicationException("requestId cannot be null here.");
+                    }
+
+                    var method = e.EventData["request"]?["method"]?.ToString();
+                    if (method == null)
+                    {
+                        throw new ApplicationException("method cannot be null here.");
+                    }
+
+                    var headersDictionary = new Dictionary<string, string>();
+
+                    var rawHeadersDictionary = e.EventData["request"]?["headers"];
+                    if (rawHeadersDictionary != null && rawHeadersDictionary.HasValues)
+                    {
+                        foreach (JProperty header in rawHeadersDictionary.Children())
+                        {
+                            if (header.Value.Type == JTokenType.String)
+                            {
+                                headersDictionary.Add(header.Name, header.Value.ToString());
+                            }
+                            else
+                            {
+                                throw new NotImplementedException();
+                            }
+                        }
+
+                    }
+
+                    var headers = new ReadOnlyDictionary<string, string>(headersDictionary);
+
+                    var url = e.EventData["request"]?["url"]?.ToString();
+                    if (url == null)
+                    {
+                        throw new ApplicationException("request url cannot be null here");
+                    }
+
+                    Request request = new(requestId, headers, method, url);
 
                     RdpEvent(sender, new Network_RequestWillBeSentEventArgs(request));
+                    
                     break;
+
                 default:
                     RdpEvent(sender, new RdpEventArgs(e.DomainName, e.EventName, e.EventData));
                     break;
