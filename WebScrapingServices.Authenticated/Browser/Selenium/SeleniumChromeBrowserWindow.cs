@@ -24,14 +24,16 @@ namespace WebScrapingServices.Authenticated.Browser.Selenium
             throw new NotImplementedException();
         }
 
-        public Task<string> ExecuteScriptAsync(string script)
+        public async Task<string> ExecuteScriptAsync(string script)
         {
-            throw new NotImplementedException();
+            var result = _driver.ExecuteScript(script);
+            return result?.ToString() ?? "No result.";
         }
 
-        public Task<IElement> FindElementByCssSelectorAsync(string cssSelector)
+        public async Task<IElement> FindElementByCssSelectorAsync(string cssSelector)
         {
-            throw new NotImplementedException();
+            var element = _driver.FindElement(By.CssSelector(cssSelector));
+            return new SeleniumWebElement(element);
         }
 
         public async Task GoToUrlAsync(string address)
@@ -41,6 +43,7 @@ namespace WebScrapingServices.Authenticated.Browser.Selenium
 
         public Task ReloadAsync()
         {
+
             throw new NotImplementedException();
         }
     }

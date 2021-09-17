@@ -18,7 +18,7 @@ namespace WebScrapingServices.Authenticated.Browser
             StringBuilder sb = new StringBuilder()
                 .Append("document.querySelector(\"")
                 .Append(selector)
-                .Append("\".click()");
+                .Append("\").click()");
 
             return sb.ToString();
         }

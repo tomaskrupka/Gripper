@@ -4,6 +4,7 @@ using OpenQA.Selenium.DevTools;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace WebScrapingServices.Authenticated.Browser.Selenium
@@ -32,8 +33,9 @@ namespace WebScrapingServices.Authenticated.Browser.Selenium
             switch (e.EventName)
             {
                 case "requestWillBeSent":
-
+                    
                     var requestId = e.EventData["requestId"]?.ToString();
+
                     if (requestId == null)
                     {
                         throw new ApplicationException("requestId cannot be null here.");
@@ -115,6 +117,11 @@ namespace WebScrapingServices.Authenticated.Browser.Selenium
         public async Task<JToken> ExecuteRdpCommandAsync(string commandName, JToken commandParams)
         {
             return await _devToolsSession.SendCommand(commandName, commandParams);
+        }
+
+        public Task<CookieCollection> GetCookies()
+        {
+            throw new NotSupportedException($"Selenium does expose cookies directly through the browser window handler. Use your {nameof(IWebClient)} implementation instance.");
         }
     }
 }

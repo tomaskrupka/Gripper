@@ -3,11 +3,13 @@ using System;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using OpenQA.Selenium;
+using System.Net;
 
 namespace WebScrapingServices.Authenticated.Browser.Selenium
 {
     public class SeleniumChromeClient : IWebClient
     {
+        private ChromeDriver _driver;
         private SeleniumRdpSession _rdpSession;
         private SeleniumChromeBrowserWindow _browserWindow;
 
@@ -19,20 +21,34 @@ namespace WebScrapingServices.Authenticated.Browser.Selenium
         {
             _loggerFactory = loggerFactory;
             _logger = loggerFactory.CreateLogger<SeleniumChromeClient>();
-            (_browserWindow, _rdpSession) = LaunchAndConnect(settings);
+            (_driver, _browserWindow, _rdpSession) = LaunchAndConnect(settings);
         }
 
         public IRdpSession RdpClient => _rdpSession;
 
         public IBrowserWindow BrowserWindow => _browserWindow;
 
+        public CookieContainer Cookies
+        {
+            get
+            {
+                CookieContainer cookieContainer = new();
+                foreach (var cookie in _driver.Manage().Cookies.AllCookies)
+                {
+                    cookieContainer.Add(new System.Net.Cookie(cookie.Name, cookie.Value, cookie.Path, cookie.Domain));
+                }
+                return cookieContainer;
+            }
+        }
+
         public void Dispose()
         {
             _browserWindow.Dispose();
             _rdpSession.Dispose();
+            _driver.Dispose();
         }
 
-        private (SeleniumChromeBrowserWindow, SeleniumRdpSession) LaunchAndConnect(WebClientSettings settings)
+        private (ChromeDriver, SeleniumChromeBrowserWindow, SeleniumRdpSession) LaunchAndConnect(WebClientSettings settings)
         {
             ChromeOptions options = new ChromeOptions();
 
@@ -74,7 +90,7 @@ namespace WebScrapingServices.Authenticated.Browser.Selenium
             var browserWindow = new SeleniumChromeBrowserWindow(driver);
             var rdpSession = new SeleniumRdpSession(seleniumRdpSessionLogger, session);
 
-            return (browserWindow, rdpSession);
+            return (driver, browserWindow, rdpSession);
         }
     }
 }
