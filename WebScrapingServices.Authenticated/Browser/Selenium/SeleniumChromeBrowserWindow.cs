@@ -1,4 +1,5 @@
-﻿using OpenQA.Selenium;
+﻿using Microsoft.Extensions.Logging;
+using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using System;
 using System.Threading.Tasks;
@@ -7,10 +8,12 @@ namespace WebScrapingServices.Authenticated.Browser.Selenium
 {
     public class SeleniumChromeBrowserWindow : IBrowserWindow
     {
+        private ILogger _logger;
         private ChromeDriver _driver;
         private INavigation _navigation;
-        public SeleniumChromeBrowserWindow(ChromeDriver driver)
+        public SeleniumChromeBrowserWindow(ILogger<SeleniumChromeBrowserWindow> logger, ChromeDriver driver)
         {
+            _logger = logger;
             _driver = driver;
             _navigation = _driver.Navigate();
         }
@@ -26,14 +29,30 @@ namespace WebScrapingServices.Authenticated.Browser.Selenium
 
         public async Task<string> ExecuteScriptAsync(string script)
         {
-            var result = _driver.ExecuteScript(script);
-            return result?.ToString() ?? "No result.";
+            try
+            {
+                var result = _driver.ExecuteScript(script);
+                return result?.ToString() ?? "No result.";
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.ToString());
+                throw;
+            }
         }
 
-        public async Task<IElement> FindElementByCssSelectorAsync(string cssSelector)
+        public async Task<IElement?> FindElementByCssSelectorAsync(string cssSelector)
         {
             var element = _driver.FindElement(By.CssSelector(cssSelector));
-            return new SeleniumWebElement(element);
+
+            if (element == null)
+            {
+                return null;
+            }
+            else
+            {
+                return new SeleniumWebElement(element);
+            }
         }
 
         public async Task GoToUrlAsync(string address)
@@ -41,10 +60,9 @@ namespace WebScrapingServices.Authenticated.Browser.Selenium
             _navigation.GoToUrl(address);
         }
 
-        public Task ReloadAsync()
+        public async Task ReloadAsync()
         {
-
-            throw new NotImplementedException();
+            _navigation.Refresh();
         }
     }
 }

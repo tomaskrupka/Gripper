@@ -27,9 +27,37 @@ namespace WebScrapingServices.Authenticated.Browser.Selenium
             _devToolsSession.Dispose();
         }
 
+        internal void TriggerKeyboardCommandListener()
+        {
+            Task.Run(KeyboardListener);
+        }
+
+        private async Task KeyboardListener()
+        {
+            _logger.LogWarning("{} triggered keyboard command listener. You can try to kill it by typing 'q'.", nameof(SeleniumRdpSession));
+            while (true)
+            {
+                var key = Console.ReadKey();
+                if (key.KeyChar == 'd')
+                {
+                    await ExecuteRdpCommandAsync("Network.disable");;
+                }
+                if (key.KeyChar == 'e')
+                {
+                    await ExecuteRdpCommandAsync("Network.enable");
+                }
+                if (key.KeyChar == 'q')
+                {
+                    break;
+                }
+            }
+            _logger.LogInformation("Keyboard command listener exited.");
+        }
 
         private void DevToolsEventReceived(object? sender, DevToolsEventReceivedEventArgs e)
         {
+            _logger.LogInformation("Event received: {domainName}.{eventName}", e.DomainName, e.EventName);
+
             switch (e.EventName)
             {
                 case "requestWillBeSent":
@@ -76,12 +104,12 @@ namespace WebScrapingServices.Authenticated.Browser.Selenium
 
                     Request request = new(requestId, headers, method, url);
 
-                    RdpEvent(sender, new Network_RequestWillBeSentEventArgs(request));
-                    
+                    RdpEvent?.Invoke(sender, new Network_RequestWillBeSentEventArgs(request));
+
                     break;
 
                 default:
-                    RdpEvent(sender, new RdpEventArgs(e.DomainName, e.EventName, e.EventData));
+                    RdpEvent?.Invoke(sender, new RdpEventArgs(e.DomainName, e.EventName, e.EventData));
                     break;
             }
         }
@@ -91,10 +119,16 @@ namespace WebScrapingServices.Authenticated.Browser.Selenium
             // Try-catch, log and rethrow to prevent silent fails.
             try
             {
-                switch (commandName)
+                switch (commandName.ToLower())
                 {
-                    case "Network.enable":
+                    case "network.enable":
                         await _devToolsSession.Domains.Network.EnableNetwork();
+                        _logger.LogInformation("RDP domain enabled: Network.");
+                        return SeleniumRdpCommandResult.Success;
+
+                    case "network.disable":
+                        await _devToolsSession.Domains.Network.DisableNetwork();
+                        _logger.LogInformation("RDP domain disabled: Network.");
                         return SeleniumRdpCommandResult.Success;
 
                     default:

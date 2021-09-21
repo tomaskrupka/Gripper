@@ -87,7 +87,7 @@ namespace WebScrapingServices.Authenticated.Browser.Selenium
             var session = driver.GetDevToolsSession();
             var seleniumRdpSessionLogger = _loggerFactory.CreateLogger<SeleniumRdpSession>();
 
-            var browserWindow = new SeleniumChromeBrowserWindow(driver);
+            var browserWindow = new SeleniumChromeBrowserWindow(_loggerFactory.CreateLogger<SeleniumChromeBrowserWindow>(), driver);
             var rdpSession = new SeleniumRdpSession(seleniumRdpSessionLogger, session);
 
             return (driver, browserWindow, rdpSession);
