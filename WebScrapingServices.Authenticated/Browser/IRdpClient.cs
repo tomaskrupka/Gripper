@@ -17,6 +17,5 @@ namespace WebScrapingServices.Authenticated.Browser
         /// </summary>
         /// <returns></returns>
         public Task<CookieCollection> GetCookies();
-        public event EventHandler<RdpEventArgs> RdpEvent;
     }
 }

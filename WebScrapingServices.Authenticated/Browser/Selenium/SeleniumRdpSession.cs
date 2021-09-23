@@ -13,7 +13,7 @@ namespace WebScrapingServices.Authenticated.Browser.Selenium
     {
         private ILogger _logger;
         private DevToolsSession _devToolsSession;
-        public event EventHandler<RdpEventArgs> RdpEvent;
+        internal event EventHandler<RdpEventArgs> RdpEvent;
 
         public SeleniumRdpSession(ILogger<SeleniumRdpSession> logger, DevToolsSession devToolsSession)
         {
@@ -34,7 +34,7 @@ namespace WebScrapingServices.Authenticated.Browser.Selenium
 
         private async Task KeyboardListener()
         {
-            _logger.LogWarning("{} triggered keyboard command listener. You can try to kill it by typing 'q'.", nameof(SeleniumRdpSession));
+            _logger.LogWarning("{} triggered a keyboard command listener. You can try to kill it by typing 'q'.", nameof(SeleniumRdpSession));
             while (true)
             {
                 var key = Console.ReadKey();
@@ -75,7 +75,7 @@ namespace WebScrapingServices.Authenticated.Browser.Selenium
                         throw new ApplicationException("method cannot be null here.");
                     }
 
-                    var headersDictionary = new Dictionary<string, string>();
+                    var headers = new Dictionary<string, string>();
 
                     var rawHeadersDictionary = e.EventData["request"]?["headers"];
                     if (rawHeadersDictionary != null && rawHeadersDictionary.HasValues)
@@ -84,7 +84,7 @@ namespace WebScrapingServices.Authenticated.Browser.Selenium
                         {
                             if (header.Value.Type == JTokenType.String)
                             {
-                                headersDictionary.Add(header.Name, header.Value.ToString());
+                                headers.Add(header.Name, header.Value.ToString());
                             }
                             else
                             {
@@ -93,8 +93,6 @@ namespace WebScrapingServices.Authenticated.Browser.Selenium
                         }
 
                     }
-
-                    var headers = new ReadOnlyDictionary<string, string>(headersDictionary);
 
                     var url = e.EventData["request"]?["url"]?.ToString();
                     if (url == null)

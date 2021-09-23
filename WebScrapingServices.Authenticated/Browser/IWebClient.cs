@@ -13,5 +13,6 @@ namespace WebScrapingServices.Authenticated.Browser
         public IRdpSession RdpClient { get; }
         public IBrowserWindow BrowserWindow { get; }
         public CookieContainer Cookies { get; }
+        public event EventHandler WebClientEvent;
     }
 }

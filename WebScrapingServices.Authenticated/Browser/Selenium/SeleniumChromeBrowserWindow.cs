@@ -2,6 +2,8 @@
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using System;
+using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace WebScrapingServices.Authenticated.Browser.Selenium
@@ -17,6 +19,9 @@ namespace WebScrapingServices.Authenticated.Browser.Selenium
             _driver = driver;
             _navigation = _driver.Navigate();
         }
+
+        public string Url => _driver.Url;
+
         public void Dispose()
         {
             _driver.Dispose();
@@ -43,17 +48,19 @@ namespace WebScrapingServices.Authenticated.Browser.Selenium
 
         public async Task<IElement?> FindElementByCssSelectorAsync(string cssSelector)
         {
-            var element = _driver.FindElement(By.CssSelector(cssSelector));
-
-            if (element == null)
+            IWebElement? element;
+            try
+            {
+                element = _driver.FindElement(By.CssSelector(cssSelector));
+            }
+            catch (Exception e) when (e is NoSuchElementException || (e is AggregateException && e.InnerException is NoSuchElementException))
             {
                 return null;
             }
-            else
-            {
-                return new SeleniumWebElement(element);
-            }
+
+            return new SeleniumWebElement(element);
         }
+
 
         public async Task GoToUrlAsync(string address)
         {
@@ -63,6 +70,26 @@ namespace WebScrapingServices.Authenticated.Browser.Selenium
         public async Task ReloadAsync()
         {
             _navigation.Refresh();
+        }
+
+        public async Task<IElement?> WaitUntilElementPresentAsync(string cssSelector, CancellationToken cancellationToken, PollSettings pollSettings)
+        {
+            var stopwatch = Stopwatch.StartNew();
+
+            while (!cancellationToken.IsCancellationRequested && stopwatch.ElapsedMilliseconds < pollSettings.TimeoutMs)
+            {
+                var element = await FindElementByCssSelectorAsync(cssSelector);
+                if (element != null)
+                {
+                    return element;
+                }
+                else
+                {
+                    await Task.Delay(pollSettings.PeriodMs);
+                }
+            }
+
+            return null;
         }
     }
 }

@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using OpenQA.Selenium;
 using System.Net;
+using System.Collections.Generic;
 
 namespace WebScrapingServices.Authenticated.Browser.Selenium
 {
@@ -16,12 +17,18 @@ namespace WebScrapingServices.Authenticated.Browser.Selenium
         private ILoggerFactory _loggerFactory;
         private ILogger _logger;
 
-
+        public event EventHandler WebClientEvent;
         public SeleniumChromeClient(ILoggerFactory loggerFactory, WebClientSettings settings)
         {
+            WebClientEvent += WebClientEventHandler;
             _loggerFactory = loggerFactory;
             _logger = loggerFactory.CreateLogger<SeleniumChromeClient>();
             (_driver, _browserWindow, _rdpSession) = LaunchAndConnect(settings);
+        }
+
+        private void WebClientEventHandler(object? sender, EventArgs e)
+        {
+            throw new NotImplementedException();
         }
 
         public IRdpSession RdpClient => _rdpSession;
@@ -50,9 +57,9 @@ namespace WebScrapingServices.Authenticated.Browser.Selenium
 
         private (ChromeDriver, SeleniumChromeBrowserWindow, SeleniumRdpSession) LaunchAndConnect(WebClientSettings settings)
         {
-            ChromeOptions options = new ChromeOptions();
+            ChromeOptions chromeOptions = new ChromeOptions();
 
-            options.AddArgument($"user-data-dir={Environment.CurrentDirectory}\\SeleniumProfiles\\" + settings.UserProfileName + "\\");
+            chromeOptions.AddArgument($"user-data-dir={Environment.CurrentDirectory}\\SeleniumProfiles\\" + settings.UserProfileName + "\\");
 
             if (settings.UseProxy)
             {
@@ -64,7 +71,7 @@ namespace WebScrapingServices.Authenticated.Browser.Selenium
 
                 _logger.LogInformation("Launching Selenium Chrome with proxy.");
 
-                options.Proxy = new Proxy
+                chromeOptions.Proxy = new Proxy
                 {
                     Kind = ProxyKind.Manual,
                     IsAutoDetect = false,
@@ -80,17 +87,41 @@ namespace WebScrapingServices.Authenticated.Browser.Selenium
             if (settings.IgnoreSslCertificateErrors)
             {
                 _logger.LogWarning("Launching Selenium Chrome with ignore-certificate-errors flag on.");
-                options.AddArgument("ignore-certificate-errors");
+                chromeOptions.AddArgument("ignore-certificate-errors");
             }
 
-            var driver = new ChromeDriver(Environment.CurrentDirectory, options);
+            var driver = new ChromeDriver(Environment.CurrentDirectory, chromeOptions);
             var session = driver.GetDevToolsSession();
             var seleniumRdpSessionLogger = _loggerFactory.CreateLogger<SeleniumRdpSession>();
 
             var browserWindow = new SeleniumChromeBrowserWindow(_loggerFactory.CreateLogger<SeleniumChromeBrowserWindow>(), driver);
             var rdpSession = new SeleniumRdpSession(seleniumRdpSessionLogger, session);
 
+            // Selenium sends some events via the rdp session. Just relay these to the central event broadcast.
+            rdpSession.RdpEvent += (sender, eventArgs) => WebClientEvent(sender, eventArgs);
+
+            var driverOptions = driver.Manage();
+
+            driverOptions.Network.NetworkRequestSent += NetworkRequestSent;
+            //driverOptions.Network.NetworkResponseReceived += NetworkResponseReceived;
+
+            if (settings.TriggerKeyboardCommandListener)
+            {
+                rdpSession.TriggerKeyboardCommandListener();
+            }
+
             return (driver, browserWindow, rdpSession);
+        }
+
+        private void NetworkResponseReceived(object? sender, NetworkResponseReceivedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void NetworkRequestSent(object? sender, NetworkRequestSentEventArgs e)
+        {
+            var eventArgs = new Network_RequestWillBeSentEventArgs(e.RequestId, e.RequestHeaders, e.RequestMethod, e.RequestUrl);
+            WebClientEvent(sender, eventArgs);
         }
     }
 }

@@ -9,6 +9,7 @@ namespace WebScrapingServices.Authenticated.Browser
         public WebProxy? Proxy;
         public bool IgnoreSslCertificateErrors;
         public RdpClientImplementation RdpClientImplementation;
+        public bool TriggerKeyboardCommandListener;
     }
     public enum RdpClientImplementation
     {
