@@ -56,7 +56,7 @@ namespace WebScrapingServices.Authenticated.Browser.Selenium
 
         private void DevToolsEventReceived(object? sender, DevToolsEventReceivedEventArgs e)
         {
-            _logger.LogInformation("Event received: {domainName}.{eventName}", e.DomainName, e.EventName);
+            _logger.LogDebug("Event received: {domainName}.{eventName}", e.DomainName, e.EventName);
 
             switch (e.EventName)
             {

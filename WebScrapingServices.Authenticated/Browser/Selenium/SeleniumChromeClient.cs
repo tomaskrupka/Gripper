@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using OpenQA.Selenium;
 using System.Net;
 using System.Collections.Generic;
+using System.Threading;
+using System.Diagnostics;
 
 namespace WebScrapingServices.Authenticated.Browser.Selenium
 {
@@ -20,15 +22,9 @@ namespace WebScrapingServices.Authenticated.Browser.Selenium
         public event EventHandler WebClientEvent;
         public SeleniumChromeClient(ILoggerFactory loggerFactory, WebClientSettings settings)
         {
-            WebClientEvent += WebClientEventHandler;
             _loggerFactory = loggerFactory;
             _logger = loggerFactory.CreateLogger<SeleniumChromeClient>();
             (_driver, _browserWindow, _rdpSession) = LaunchAndConnect(settings);
-        }
-
-        private void WebClientEventHandler(object? sender, EventArgs e)
-        {
-            throw new NotImplementedException();
         }
 
         public IRdpSession RdpClient => _rdpSession;
@@ -120,8 +116,58 @@ namespace WebScrapingServices.Authenticated.Browser.Selenium
 
         private void NetworkRequestSent(object? sender, NetworkRequestSentEventArgs e)
         {
+            _logger.LogInformation("NetworkRequestSent event captured.");
             var eventArgs = new Network_RequestWillBeSentEventArgs(e.RequestId, e.RequestHeaders, e.RequestMethod, e.RequestUrl);
             WebClientEvent(sender, eventArgs);
+        }
+
+        public async Task<string> ExecuteScriptAsync(string script)
+        {
+            try
+            {
+                var result = _driver.ExecuteScript(script);
+                return result?.ToString() ?? "No result.";
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.ToString());
+                throw;
+            }
+        }
+
+        public async Task<IElement?> FindElementByCssSelectorAsync(string cssSelector)
+        {
+            IWebElement? element;
+            try
+            {
+                element = _driver.FindElement(By.CssSelector(cssSelector));
+            }
+            catch (Exception e) when (e is NoSuchElementException || (e is AggregateException && e.InnerException is NoSuchElementException))
+            {
+                return null;
+            }
+
+            return new SeleniumWebElement(element);
+        }
+
+        public async Task<IElement?> WaitUntilElementPresentAsync(string cssSelector, CancellationToken cancellationToken, PollSettings pollSettings)
+        {
+            var stopwatch = Stopwatch.StartNew();
+
+            while (!cancellationToken.IsCancellationRequested && stopwatch.ElapsedMilliseconds < pollSettings.TimeoutMs)
+            {
+                var element = await FindElementByCssSelectorAsync(cssSelector);
+                if (element != null)
+                {
+                    return element;
+                }
+                else
+                {
+                    await Task.Delay(pollSettings.PeriodMs);
+                }
+            }
+
+            return null;
         }
     }
 }

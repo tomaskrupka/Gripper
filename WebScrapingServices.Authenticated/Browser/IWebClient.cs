@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace WebScrapingServices.Authenticated.Browser
@@ -14,5 +15,10 @@ namespace WebScrapingServices.Authenticated.Browser
         public IBrowserWindow BrowserWindow { get; }
         public CookieContainer Cookies { get; }
         public event EventHandler WebClientEvent;
+
+
+        public Task<string> ExecuteScriptAsync(string script);
+        public Task<IElement?> FindElementByCssSelectorAsync(string cssSelector);
+        public Task<IElement?> WaitUntilElementPresentAsync(string cssSelector, CancellationToken cancellationToken, PollSettings pollSettings);
     }
 }

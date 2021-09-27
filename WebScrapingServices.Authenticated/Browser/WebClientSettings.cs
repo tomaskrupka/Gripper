@@ -10,9 +10,10 @@ namespace WebScrapingServices.Authenticated.Browser
         public bool IgnoreSslCertificateErrors;
         public RdpClientImplementation RdpClientImplementation;
         public bool TriggerKeyboardCommandListener;
+        public string BrowserLocation;
     }
     public enum RdpClientImplementation
     {
-        Any, Selenium
+        BaristaLabsCdtr, Selenium
     }
 }
