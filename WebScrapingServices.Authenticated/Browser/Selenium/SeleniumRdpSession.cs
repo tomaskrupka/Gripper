@@ -141,10 +141,6 @@ namespace WebScrapingServices.Authenticated.Browser.Selenium
             }
         }
 
-        public Task<IRdpCommandResult> ExecuteRdpCommandAsync(string commandName, WebClientCommandParam commandParam)
-        {
-            throw new NotImplementedException();
-        }
 
         public async Task<JToken> ExecuteRdpCommandAsync(string commandName, JToken commandParams)
         {

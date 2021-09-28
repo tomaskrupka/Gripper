@@ -8,12 +8,14 @@ namespace WebScrapingServices.Authenticated.Browser
         public bool UseProxy;
         public WebProxy? Proxy;
         public bool IgnoreSslCertificateErrors;
-        public RdpClientImplementation RdpClientImplementation;
+        public WebClientImplementation WebClientImplementation;
         public bool TriggerKeyboardCommandListener;
+
         public string BrowserLocation;
+        public int RemoteDebuggingPort;
     }
-    public enum RdpClientImplementation
+    public enum WebClientImplementation
     {
-        BaristaLabsCdtr, Selenium
+        Any, BaristaLabsCdtr, Selenium
     }
 }

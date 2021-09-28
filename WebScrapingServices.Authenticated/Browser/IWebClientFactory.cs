@@ -26,12 +26,15 @@ namespace WebScrapingServices.Authenticated.Browser
 
         public async Task<IWebClient> LaunchAndConnectAsync(WebClientSettings settings)
         {
-            switch (settings.RdpClientImplementation)
+            switch (settings.WebClientImplementation)
             {
-                case RdpClientImplementation.Any:
-                case RdpClientImplementation.Selenium:
+                case WebClientImplementation.BaristaLabsCdtr:
+                    return new BaristaLabsCdtr.CdtrChromeClient(settings);
+
+                case WebClientImplementation.Selenium:
                     return new SeleniumChromeClient(_loggerFactory, settings);
 
+                case WebClientImplementation.Any:
                 default:
                     throw new NotImplementedException();
             }

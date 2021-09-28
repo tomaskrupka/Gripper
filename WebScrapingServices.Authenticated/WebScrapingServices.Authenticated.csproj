@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,7 +13,7 @@
 
   <ItemGroup>
     <Reference Include="BaristaLabs.ChromeDevTools.Runtime">
-      <HintPath>..\..\chrome-dev-tools-runtime\BaristaLabs.ChromeDevTools.Runtime\bin\Debug\netstandard1.3\BaristaLabs.ChromeDevTools.Runtime.dll</HintPath>
+      <HintPath>..\..\chrome-dev-tools-runtime\BaristaLabs.ChromeDevTools.Runtime\bin\Debug\netstandard2.1\publish\BaristaLabs.ChromeDevTools.Runtime.dll</HintPath>
     </Reference>
   </ItemGroup>
 

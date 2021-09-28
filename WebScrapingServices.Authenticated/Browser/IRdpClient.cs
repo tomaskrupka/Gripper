@@ -9,7 +9,6 @@ namespace WebScrapingServices.Authenticated.Browser
     public interface IRdpSession : IDisposable
     {
         public Task<IRdpCommandResult> ExecuteRdpCommandAsync(string commandName);
-        public Task<IRdpCommandResult> ExecuteRdpCommandAsync(string commandName, WebClientCommandParam commandParam);
         public Task<JToken> ExecuteRdpCommandAsync(string commandName, JToken commandParams);
         /// <summary>
         /// Gets all cookies for current page URL and all of its subframes.

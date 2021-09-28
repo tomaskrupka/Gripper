@@ -12,15 +12,16 @@ using Newtonsoft.Json;
 using Page = BaristaLabs.ChromeDevTools.Runtime.Page;
 using Runtime = BaristaLabs.ChromeDevTools.Runtime.Runtime;
 using BaristaLabs.ChromeDevTools.Runtime.Browser;
+using System.Diagnostics;
 
-namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCDTR
+namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
 {
     public class CdtrChromeClient : IWebClient
     {
         private ChromeSession _chromeSession;
-        private long _executionContextId;
+        private CdtrRdpSession _rdpSession;
 
-        public IRdpSession RdpClient => throw new NotImplementedException();
+        public IRdpSession RdpClient => _rdpSession;
 
         public IBrowserWindow BrowserWindow => throw new NotImplementedException();
 
@@ -30,12 +31,20 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCDTR
 
         public CdtrChromeClient(WebClientSettings settings)
         {
-            (_chromeSession, _executionContextId) = LaunchAndConnectAsync(settings).Result;
+            (_chromeSession, _rdpSession) = LaunchAndConnectAsync(settings).Result;
         }
 
-        private async Task<(ChromeSession, long)> LaunchAndConnectAsync(WebClientSettings settings)
+        private async Task<(ChromeSession, CdtrRdpSession)> LaunchAndConnectAsync(WebClientSettings settings)
         {
             // see https://github.com/BaristaLabs/chrome-dev-tools-runtime/blob/master/ChromeDevToolsCLI/Program.cs
+
+            // "user-data-dir=C:\SeleniumProfiles\" + config.UserName + "\\"
+
+            var browserArgs = new StringBuilder()
+                .Append("--remote-debugging-port=").Append(settings.RemoteDebuggingPort)
+                .Append(@" --user-data-dir=C:\CdtrProfiles\").Append(settings.UserProfileName).Append('\\');
+
+            Process.Start(settings.BrowserLocation, browserArgs.ToString());
 
             using var httpClient = new HttpClient();
             var remoteSessions = await httpClient.GetStringAsync("http://localhost:9223/json");
@@ -52,24 +61,27 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCDTR
                 Url = "https://www.google.com"
             });
 
-            var enableRuntimeResult = await _chromeSession.Runtime.Enable(new Runtime.EnableCommand());
-
             //Find execution context id.
-            _chromeSession.Runtime.SubscribeToExecutionContextCreatedEvent((e) =>
+            chromeSession.Runtime.SubscribeToExecutionContextCreatedEvent((e) =>
             {
                 var auxData = e.Context.AuxData as JObject;
                 var frameId = auxData?["frameId"]?.Value<string>();
 
-                if (e.Context.Origin == "https://www.amazon.com" && frameId == navigateResult.FrameId)
+                if (frameId == navigateResult.FrameId)
                 {
                     executionContextId = e.Context.Id;
                     s.Release();
                 }
             });
 
+            var enableRuntimeResult = await chromeSession.Runtime.Enable(new Runtime.EnableCommand());
+
             await s.WaitAsync();
 
-            return (_chromeSession, executionContextId);
+            var rdpSession = new CdtrRdpSession(chromeSession);
+            var browserWindow = new CdtrChromeBrowserWindow(chromeSession);
+
+            return (chromeSession, rdpSession);
         }
 
         public void Dispose()
@@ -99,26 +111,28 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCDTR
             throw new NotImplementedException();
         }
     }
-    public class CdtRdpSession : IRdpSession
+    public class CdtrRdpSession : IRdpSession
     {
+        private ChromeSession _chromeSession;
+        public CdtrRdpSession(ChromeSession chromeSession)
+        {
+            _chromeSession = chromeSession;
+        }
         public void Dispose()
         {
-            throw new NotImplementedException();
+            _chromeSession.Dispose();
         }
 
-        public Task<IRdpCommandResult> ExecuteRdpCommandAsync(string commandName)
+        public async Task<JToken> ExecuteRdpCommandAsync(string commandName, JToken commandParams)
         {
-            throw new NotImplementedException();
+            var resultToken = await Task.Run(() => _chromeSession.SendCommand(commandName, commandParams));
+            return resultToken;
         }
 
-        public Task<IRdpCommandResult> ExecuteRdpCommandAsync(string commandName, WebClientCommandParam commandParam)
+        public async Task<IRdpCommandResult> ExecuteRdpCommandAsync(string commandName)
         {
-            throw new NotImplementedException();
-        }
-
-        public Task<JToken> ExecuteRdpCommandAsync(string commandName, JToken commandParams)
-        {
-            throw new NotImplementedException();
+            var resultToken = await Task.Run(() => _chromeSession.SendCommand(commandName, JToken.Parse("{}")));
+            return new CdtrRdpCommandResult(resultToken);
         }
 
         public Task<CookieCollection> GetCookies()
@@ -127,9 +141,23 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCDTR
         }
     }
 
-    public class CdtChromeBrowserWindow : IBrowserWindow
+    public class CdtrRdpCommandResult : IRdpCommandResult
+    {
+        public CdtrRdpCommandResult(JToken resultToken)
+        {
+            throw new NotImplementedException();
+        }
+        public string Message => throw new NotImplementedException();
+    }
+
+    public class CdtrChromeBrowserWindow : IBrowserWindow
     {
         public string Url => throw new NotImplementedException();
+
+        public CdtrChromeBrowserWindow(ChromeSession chromeSession)
+        {
+            throw new NotImplementedException();
+        }
 
         public void Dispose()
         {
