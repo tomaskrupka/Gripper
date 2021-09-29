@@ -14,10 +14,13 @@ namespace WebScrapingServices.Authenticated.Browser
     {
         private ILoggerFactory _loggerFactory;
         private ILogger _logger;
-        public WebClientFactory(ILoggerFactory loggerFactory)
+        private IJsBuilder _jsBuilder;
+
+        public WebClientFactory(ILoggerFactory loggerFactory, IJsBuilder jsBuilder)
         {
             _loggerFactory = loggerFactory;
             _logger = _loggerFactory.CreateLogger<WebClientFactory>();
+            _jsBuilder = jsBuilder;
         }
         public async Task<IWebClient> LaunchAndConnectAsync()
         {
@@ -29,7 +32,7 @@ namespace WebScrapingServices.Authenticated.Browser
             switch (settings.WebClientImplementation)
             {
                 case WebClientImplementation.BaristaLabsCdtr:
-                    return new BaristaLabsCdtr.CdtrChromeClient(settings);
+                    return new BaristaLabsCdtr.CdtrChromeClient(_loggerFactory, _jsBuilder, settings);
 
                 case WebClientImplementation.Selenium:
                     return new SeleniumChromeClient(_loggerFactory, settings);

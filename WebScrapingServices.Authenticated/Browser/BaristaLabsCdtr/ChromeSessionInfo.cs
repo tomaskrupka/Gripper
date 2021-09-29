@@ -5,42 +5,42 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
     internal class ChromeSessionInfo
     {
         [JsonProperty("description")]
-        public string Description
+        public string? Description
         {
             get;
             set;
         }
 
         [JsonProperty("devtoolsFrontendUrl")]
-        public string DevToolsFrontendUrl
+        public string? DevToolsFrontendUrl
         {
             get;
             set;
         }
 
         [JsonProperty("id")]
-        public string Id
+        public string? Id
         {
             get;
             set;
         }
 
         [JsonProperty("title")]
-        public string Title
+        public string? Title
         {
             get;
             set;
         }
 
         [JsonProperty("type")]
-        public string Type
+        public string? Type
         {
             get;
             set;
         }
 
         [JsonProperty("webSocketDebuggerUrl")]
-        public string WebSocketDebuggerUrl
+        public string? WebSocketDebuggerUrl
         {
             get;
             set;
