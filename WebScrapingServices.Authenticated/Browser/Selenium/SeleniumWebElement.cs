@@ -1,4 +1,5 @@
 ﻿using OpenQA.Selenium;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,11 +24,12 @@ namespace WebScrapingServices.Authenticated.Browser.Selenium
             _webElement.SendKeys(keys);
         }
 
-        public async Task SendKeysAsync(string keys, int delayEachMs)
+
+        public async Task SendKeysAsync(string keys, TimeSpan delayAfterStroke)
         {
             for (int i = 0; i < keys.Length; i++)
             {
-                await Task.Delay(delayEachMs);
+                await Task.Delay(delayAfterStroke);
                 _webElement.SendKeys(keys[i].ToString());
             }
         }

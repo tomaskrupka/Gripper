@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace WebScrapingServices.Authenticated.Browser
 {
@@ -6,7 +7,7 @@ namespace WebScrapingServices.Authenticated.Browser
     {
         public Task ClickAsync();
         public Task SendKeysAsync(string keys);
-        public Task SendKeysAsync(string keys, int delayEachMs);
+        public Task SendKeysAsync(string keys, TimeSpan delayAfterStroke);
         public Task SendSpecialKeyAsync(SpecialKey key);
     }
 }

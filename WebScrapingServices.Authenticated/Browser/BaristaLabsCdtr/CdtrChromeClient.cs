@@ -14,7 +14,7 @@ using Runtime = BaristaLabs.ChromeDevTools.Runtime.Runtime;
 using BaristaLabs.ChromeDevTools.Runtime.Browser;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
-using BaristaLabs.ChromeDevTools.Runtime.Input;
+using BaristaLabs.ChromeDevTools.Runtime.DOM;
 
 namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
 {
@@ -25,23 +25,33 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
         private ChromeSession _chromeSession;
 
         private ILogger _logger;
-
         private ILoggerFactory _loggerFactory;
-        private IJsBuilder _jsBuilder;
+        private ICdtrElementFactory _cdtrElementFactory;
+
+        //private IJsBuilder _jsBuilder;
+
+        private async Task<Node> GetDocumentNodeAsync()
+        {
+            var getDocumentResult = await _chromeSession.DOM.GetDocument(new GetDocumentCommand
+            {
+                Depth = 1
+            });
+
+            return getDocumentResult.Root;
+        }
 
         public IRdpSession RdpClient => _rdpSession;
-
         public IBrowserWindow BrowserWindow => _browserWindow;
 
         public CookieContainer Cookies => throw new NotImplementedException();
 
         public event EventHandler WebClientEvent;
 
-        public CdtrChromeClient(ILoggerFactory loggerFactory, IJsBuilder jsBuilder, WebClientSettings settings)
+        internal CdtrChromeClient(ILoggerFactory loggerFactory, ICdtrElementFactory cdtrElementFactory, WebClientSettings settings)
         {
             _loggerFactory = loggerFactory;
-            _jsBuilder = jsBuilder;
             _logger = loggerFactory.CreateLogger<CdtrChromeClient>();
+            _cdtrElementFactory = cdtrElementFactory;
             (_chromeSession, _browserWindow, _rdpSession) = LaunchAndConnectAsync(settings).Result;
         }
 
@@ -146,28 +156,24 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
 
         public async Task<IElement?> FindElementByCssSelectorAsync(string cssSelector)
         {
-
             try
             {
-                var result = await _chromeSession.Runtime.Evaluate(new Runtime.EvaluateCommand
+                var documentNode = await GetDocumentNodeAsync();
+
+                if (documentNode.NodeId == 0)
                 {
-                    Expression = _jsBuilder.DocumentQuerySelector(cssSelector)
+                    throw new ApplicationException("Document node id cannot be 0");
+                }
+
+                var querySelectorResult = await _chromeSession.DOM.QuerySelector(new QuerySelectorCommand
+                {
+                    Selector = cssSelector,
+                    NodeId = documentNode.NodeId
                 });
 
-                if (result.ExceptionDetails != null)
-                {
-                    return null;
-                }
+                _logger.LogDebug("Resolved node id: {nodeId}", querySelectorResult.NodeId);
 
-                var objectId = result.Result.ObjectId;
-
-                if (objectId == null)
-                {
-                    return null;
-                }
-
-                return new CdtrElement(objectId, _chromeSession, _jsBuilder);
-
+                return _cdtrElementFactory.CreateCdtrElement(querySelectorResult.NodeId, _chromeSession);
             }
             catch (Exception e)
             {
@@ -195,124 +201,6 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
             }
 
             return null;
-        }
-    }
-
-    public class CdtrElement : IElement
-    {
-        private string _objectId;
-        private ChromeSession _chromeSession;
-
-        public CdtrElement(string objectId, ChromeSession chromeSession, IJsBuilder jsBuilder)
-        {
-            _objectId = objectId ?? throw new ArgumentNullException(nameof(objectId));
-            _chromeSession = chromeSession;
-        }
-        public async Task ClickAsync()
-        {
-            await _chromeSession.Runtime.CallFunctionOn(new Runtime.CallFunctionOnCommand
-            {
-                ObjectId = _objectId,
-                FunctionDeclaration = "function() {this.click();}"
-            });
-        }
-
-        public async Task SendKeysAsync(string keys)
-        {
-            await _chromeSession.Input.InsertText(new InsertTextCommand
-            {
-                Text = keys
-            });
-        }
-
-        public async Task SendKeysAsync(string keys, int delayEachMs)
-        {
-            for (int i = 0; i < keys.Length; i++)
-            {
-                var key = keys[i];
-                await _chromeSession.Input.DispatchKeyEvent(new DispatchKeyEventCommand
-                {
-                    Type = "char",
-                    Key = key.ToString()
-                });
-                await Task.Delay(delayEachMs);
-            }
-        }
-
-        public async Task SendSpecialKeyAsync(SpecialKey key)
-        {
-            await _chromeSession.Input.DispatchKeyEvent(key.ToDispatchKeyEventCommand());
-        }
-    }
-
-    /// <summary>
-    /// This is a description of the element when the DOM was last seen, not a reference to it.
-    /// Every call the selector is evaluated against the current state of the DOM.
-    /// Two subsequent calls to the same <see cref="CdtrElementDescriptor"/> instance may therefore result in interactions with two different objects in the DOM.
-    /// </summary>
-    public class CdtrElementDescriptor : IElement
-    {
-        private string _cssSelector;
-        private ChromeSession _chromeSession;
-        private IJsBuilder _jsBuilder;
-        public CdtrElementDescriptor(string cssSelector, ChromeSession chromeSession, IJsBuilder jsBuilder)
-        {
-            _cssSelector = cssSelector;
-            _chromeSession = chromeSession;
-            _jsBuilder = jsBuilder;
-        }
-        public async Task ClickAsync()
-        {
-            await _chromeSession.Runtime.Evaluate(new Runtime.EvaluateCommand
-            {
-                Expression = _jsBuilder.ClickFirstByCssSelector(_cssSelector)
-            });
-        }
-
-        public async Task SendKeysAsync(string keys)
-        {
-            await _chromeSession.Input.InsertText(new BaristaLabs.ChromeDevTools.Runtime.Input.InsertTextCommand
-            {
-                Text = keys
-            });
-            //await _chromeSession.Input.DispatchKeyEvent(new BaristaLabs.ChromeDevTools.Runtime.Input.DispatchKeyEventCommand
-            //{
-            //    Text = keys
-            //});
-        }
-
-        public async Task SendKeysAsync(string keys, int delayEachMs)
-        {
-            for (int i = 0; i < keys.Length; i++)
-            {
-                var key = keys[i];
-                await _chromeSession.Input.DispatchKeyEvent(new BaristaLabs.ChromeDevTools.Runtime.Input.DispatchKeyEventCommand
-                {
-                    Key = key.ToString()
-                });
-                await Task.Delay(delayEachMs);
-            }
-        }
-
-        public async Task SendSpecialKeyAsync(SpecialKey key)
-        {
-            await _chromeSession.Input.DispatchKeyEvent(key.ToDispatchKeyEventCommand());
-        }
-    }
-    internal static class CdtrExtensions
-    {
-        // For complete map see https://pkg.go.dev/github.com/unixpickle/muniverse/chrome
-        internal static DispatchKeyEventCommand ToDispatchKeyEventCommand(this SpecialKey specialKey)
-        {
-            return specialKey switch
-            {
-                SpecialKey.Backspace => new DispatchKeyEventCommand { Code = "Backspace", Type = "char" },
-                SpecialKey.Enter => new DispatchKeyEventCommand { Code = "Enter", Type = "char" },
-                SpecialKey.Escape => new DispatchKeyEventCommand { NativeVirtualKeyCode = 27, WindowsVirtualKeyCode = 27, Type = "char" },
-                SpecialKey.Tab => new DispatchKeyEventCommand { Code = "Tab", Type = "char" },
-                _ => throw new NotImplementedException()
-            };
-
         }
     }
 

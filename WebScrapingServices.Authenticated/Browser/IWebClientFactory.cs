@@ -32,7 +32,8 @@ namespace WebScrapingServices.Authenticated.Browser
             switch (settings.WebClientImplementation)
             {
                 case WebClientImplementation.BaristaLabsCdtr:
-                    return new BaristaLabsCdtr.CdtrChromeClient(_loggerFactory, _jsBuilder, settings);
+                    var cdtrElementFactory = new BaristaLabsCdtr.CdtrElementFactory();
+                    return new BaristaLabsCdtr.CdtrChromeClient(_loggerFactory, cdtrElementFactory, settings);
 
                 case WebClientImplementation.Selenium:
                     return new SeleniumChromeClient(_loggerFactory, settings);
