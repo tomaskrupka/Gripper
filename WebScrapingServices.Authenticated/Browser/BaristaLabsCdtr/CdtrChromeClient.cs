@@ -156,31 +156,30 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
 
         public async Task<IElement?> FindElementByCssSelectorAsync(string cssSelector)
         {
-            try
+            var documentNode = await GetDocumentNodeAsync();
+
+            _logger.LogDebug("Resolved documentNode id: {documentNodeId}", documentNode.NodeId);
+
+            if (documentNode.NodeId == 0)
             {
-                var documentNode = await GetDocumentNodeAsync();
-
-                if (documentNode.NodeId == 0)
-                {
-                    throw new ApplicationException("Document node id cannot be 0");
-                }
-
-                var querySelectorResult = await _chromeSession.DOM.QuerySelector(new QuerySelectorCommand
-                {
-                    Selector = cssSelector,
-                    NodeId = documentNode.NodeId
-                });
-
-                _logger.LogDebug("Resolved node id: {nodeId}", querySelectorResult.NodeId);
-
-                return _cdtrElementFactory.CreateCdtrElement(querySelectorResult.NodeId, _chromeSession);
-            }
-            catch (Exception e)
-            {
-                ;
-                throw new NotImplementedException();
+                return null;
             }
 
+            var querySelectorResult = await _chromeSession.DOM.QuerySelector(new QuerySelectorCommand
+            {
+                Selector = cssSelector,
+                NodeId = documentNode.NodeId
+            });
+
+            _logger.LogDebug("Resolved node id: {nodeId}", querySelectorResult.NodeId);
+
+            if (querySelectorResult.NodeId == 0)
+            {
+                _logger.LogWarning("Node id resolved as 0: {cssSelector}", cssSelector);
+                return null;
+            }
+
+            return _cdtrElementFactory.CreateCdtrElement(querySelectorResult.NodeId, _chromeSession);
         }
 
         public async Task<IElement?> WaitUntilElementPresentAsync(string cssSelector, CancellationToken cancellationToken, PollSettings pollSettings)

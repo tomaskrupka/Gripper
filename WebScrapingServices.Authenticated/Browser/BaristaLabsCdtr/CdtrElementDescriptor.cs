@@ -11,18 +11,20 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
     /// Every call the selector is evaluated against the current state of the DOM.
     /// Two subsequent calls to the same <see cref="CdtrElementDescriptor"/> instance may therefore result in interactions with two different objects in the DOM.
     /// </summary>
-    public class CdtrElementDescriptor : IElement
+    public class CdtrElementDescriptor : ElementBase
     {
         private string _cssSelector;
         private ChromeSession _chromeSession;
         private IJsBuilder _jsBuilder;
-        public CdtrElementDescriptor(string cssSelector, ChromeSession chromeSession, IJsBuilder jsBuilder)
+        public CdtrElementDescriptor(string cssSelector, ChromeSession chromeSession, IJsBuilder jsBuilder) : base(chromeSession)
         {
+            throw new NotImplementedException($"This implementation is missing the focus functionality. Mouse and keyboard inputs won't be directed to the correct DOM nodes. Use {nameof(CdtrElement)} instead.");
+
             _cssSelector = cssSelector;
             _chromeSession = chromeSession;
             _jsBuilder = jsBuilder;
         }
-        public async Task ClickAsync()
+        public override async Task ClickAsync()
         {
             await _chromeSession.Runtime.Evaluate(new Runtime.EvaluateCommand
             {
@@ -30,19 +32,15 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
             });
         }
 
-        public async Task SendKeysAsync(string keys)
+        public override async Task SendKeysAsync(string keys)
         {
             await _chromeSession.Input.InsertText(new InsertTextCommand
             {
                 Text = keys
             });
-            //await _chromeSession.Input.DispatchKeyEvent(new BaristaLabs.ChromeDevTools.Runtime.Input.DispatchKeyEventCommand
-            //{
-            //    Text = keys
-            //});
         }
 
-        public async Task SendKeysAsync(string keys, TimeSpan delayAfterStroke)
+        public override async Task SendKeysAsync(string keys, TimeSpan delayAfterStroke)
         {
             for (int i = 0; i < keys.Length; i++)
             {
@@ -56,10 +54,7 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
             }
         }
 
-        public async Task SendSpecialKeyAsync(SpecialKey key)
-        {
-            await _chromeSession.Input.DispatchKeyEvent(key.ToDispatchKeyEventCommand());
-        }
+
     }
 
 }

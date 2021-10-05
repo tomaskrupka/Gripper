@@ -4,33 +4,44 @@ using BaristaLabs.ChromeDevTools.Runtime;
 using Runtime = BaristaLabs.ChromeDevTools.Runtime.Runtime;
 using BaristaLabs.ChromeDevTools.Runtime.Input;
 using BaristaLabs.ChromeDevTools.Runtime.DOM;
+using Microsoft.Extensions.Logging;
 
 namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
 {
-    public class CdtrElement : IElement
+    public class CdtrElement : ElementBase
     {
+        private ILogger _logger;
         private long _nodeId;
         private ChromeSession _chromeSession;
 
         private async Task FocusAsync()
         {
-            await _chromeSession.DOM.Focus(new FocusCommand
+            try
             {
-                NodeId = _nodeId
-            });
+                await ChromeSession.DOM.Focus(new FocusCommand
+                {
+                    NodeId = _nodeId
+                });
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Focus error. _nodeId: {_nodeId}. Exception: {e}", _nodeId, e);
+                throw;
+            }
         }
 
-        public CdtrElement(long nodeId, ChromeSession chromeSession)
+        public CdtrElement(ILogger<CdtrElement> logger, long nodeId, ChromeSession chromeSession) : base(chromeSession)
         {
+            _logger = logger;
             _nodeId = nodeId;
-            _chromeSession = chromeSession;
+            _chromeSession = base.ChromeSession;
         }
-        public async Task ClickAsync()
+        public override async Task ClickAsync()
         {
             try
             {
 
-                var boxModel = await _chromeSession.DOM.GetBoxModel(new GetBoxModelCommand
+                var boxModel = await ChromeSession.DOM.GetBoxModel(new GetBoxModelCommand
                 {
                     NodeId = _nodeId
                 });
@@ -71,42 +82,37 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
 
         }
 
-        public async Task SendKeysAsync(string keys)
+        private async Task SendKeysAsync(DispatchKeyEventCommand command)
         {
             await FocusAsync();
 
-            var response = await _chromeSession.Input.InsertText(new InsertTextCommand
+            var commandResponse = await _chromeSession.Input.DispatchKeyEvent(command);
+        }
+
+        public override async Task SendKeysAsync(string keys)
+        {
+            await SendKeysAsync(new DispatchKeyEventCommand
             {
+                Type = "char",
                 Text = keys
             });
-            ;
         }
 
 
-        public async Task SendKeysAsync(string keys, TimeSpan delayAfterStroke)
+        public override async Task SendKeysAsync(string keys, TimeSpan delayAfterStroke)
         {
-            await FocusAsync();
-
             for (int i = 0; i < keys.Length; i++)
             {
                 var key = keys[i];
-                var dispatchKeyEventResponse = await _chromeSession.Input.DispatchKeyEvent(new DispatchKeyEventCommand
+
+                await SendKeysAsync(new DispatchKeyEventCommand
                 {
                     Type = "char",
-                    Key = key.ToString()
+                    Text = key.ToString()
                 });
+
                 await Task.Delay(delayAfterStroke);
             }
-            ;
-        }
-
-        public async Task SendSpecialKeyAsync(SpecialKey key)
-        {
-            await FocusAsync();
-
-            await _chromeSession.Input.DispatchKeyEvent(key.ToDispatchKeyEventCommand());
-            ;
         }
     }
-
 }
