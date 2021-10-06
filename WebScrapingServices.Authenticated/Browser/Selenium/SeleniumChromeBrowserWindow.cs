@@ -20,8 +20,6 @@ namespace WebScrapingServices.Authenticated.Browser.Selenium
             _navigation = _driver.Navigate();
         }
 
-        public string Url => _driver.Url;
-
         public void Dispose()
         {
             _driver.Dispose();
@@ -30,6 +28,11 @@ namespace WebScrapingServices.Authenticated.Browser.Selenium
         public Task EnterFullScreenAsync()
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<string> GetCurrentUrlAsync()
+        {
+            return _driver.Url;
         }
 
         public async Task GoToUrlAsync(string address)

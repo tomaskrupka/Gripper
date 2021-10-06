@@ -2,9 +2,9 @@
 
 namespace WebScrapingServices.Authenticated.Browser
 {
-    public class Request
+    public class HttpRequest
     {
-        public Request(string id, IReadOnlyDictionary<string, string> headers, string method, string url)
+        public HttpRequest(string id, IReadOnlyDictionary<string, string> headers, string method, string url)
         {
             Id = id;
             Headers = headers;

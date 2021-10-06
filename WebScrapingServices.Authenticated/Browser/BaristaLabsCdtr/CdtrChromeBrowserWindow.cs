@@ -10,7 +10,6 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
     {
         private ILogger _logger;
         private ChromeSession _chromeSession;
-        public string Url => throw new NotImplementedException();
 
         public CdtrChromeBrowserWindow(ILogger<CdtrChromeBrowserWindow> logger, ChromeSession chromeSession)
         {
@@ -49,6 +48,17 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
             {
 
             });
+        }
+
+        public async Task<string> GetCurrentUrlAsync()
+        {
+            var navigationHistory = await _chromeSession.Page.GetNavigationHistory(new Page.GetNavigationHistoryCommand
+            {
+                
+            });
+
+            var currentEntry = navigationHistory.Entries[navigationHistory.CurrentIndex];
+            return currentEntry.Url;
         }
     }
 }

@@ -19,7 +19,7 @@ namespace WebScrapingServices.Authenticated.Browser.Selenium
         private ILoggerFactory _loggerFactory;
         private ILogger _logger;
 
-        public event EventHandler WebClientEvent;
+        public event EventHandler<RdpEventArgs> WebClientEvent;
         public SeleniumChromeClient(ILoggerFactory loggerFactory, WebClientSettings settings)
         {
             _loggerFactory = loggerFactory;

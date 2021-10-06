@@ -100,7 +100,7 @@ namespace WebScrapingServices.Authenticated.Browser.Selenium
                         throw new ApplicationException("request url cannot be null here");
                     }
 
-                    Request request = new(requestId, headers, method, url);
+                    HttpRequest request = new(requestId, headers, method, url);
 
                     RdpEvent?.Invoke(sender, new Network_RequestWillBeSentEventArgs(request));
 

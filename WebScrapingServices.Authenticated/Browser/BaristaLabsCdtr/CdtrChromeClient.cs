@@ -45,7 +45,7 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
 
         public CookieContainer Cookies => throw new NotImplementedException();
 
-        public event EventHandler WebClientEvent;
+        public event EventHandler<RdpEventArgs>? WebClientEvent;
 
         internal CdtrChromeClient(ILoggerFactory loggerFactory, ICdtrElementFactory cdtrElementFactory, WebClientSettings settings)
         {
@@ -53,6 +53,18 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
             _logger = loggerFactory.CreateLogger<CdtrChromeClient>();
             _cdtrElementFactory = cdtrElementFactory;
             (_chromeSession, _browserWindow, _rdpSession) = LaunchAndConnectAsync(settings).Result;
+
+            SubscribeToRdpEvents();
+        }
+
+        private void SubscribeToRdpEvents()
+        {
+            _chromeSession.Network.Enable(new BaristaLabs.ChromeDevTools.Runtime.Network.EnableCommand
+            {
+                
+            });
+
+            _chromeSession.Network.SubscribeToRequestWillBeSentEvent(x => WebClientEvent?.Invoke(this, new Network_RequestWillBeSentEventArgs(x.RequestId, x.Request.Headers, x.Request.Method, x.Request.Url)));
         }
 
         private async Task<(ChromeSession, CdtrChromeBrowserWindow, CdtrRdpSession)> LaunchAndConnectAsync(WebClientSettings settings)
@@ -80,31 +92,16 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
 
             var chromeSession = new ChromeSession(sessionInfos.First(x => x.Type == "page").WebSocketDebuggerUrl);
 
-            long executionContextId = -1;
-            var s = new SemaphoreSlim(0, 1);
-
             //Navigate to homepage.
             var navigateResult = await chromeSession.Page.Navigate(new Page.NavigateCommand
             {
                 Url = "https://www.google.com"
             });
 
-            //Find execution context id.
-            chromeSession.Runtime.SubscribeToExecutionContextCreatedEvent((e) =>
-            {
-                var auxData = e.Context.AuxData as JObject;
-                var frameId = auxData?["frameId"]?.Value<string>();
-
-                if (frameId == navigateResult.FrameId)
-                {
-                    executionContextId = e.Context.Id;
-                    s.Release();
-                }
-            });
-
             var enableRuntimeResult = await chromeSession.Runtime.Enable(new Runtime.EnableCommand());
+            var enableNetworkResult = await chromeSession.Network.Enable(new BaristaLabs.ChromeDevTools.Runtime.Network.EnableCommand { });
 
-            await s.WaitAsync();
+            await chromeSession.Network.SubscribeToLoadingFinishedEvent(/*TODO*/)
 
             var rdpSession = new CdtrRdpSession(chromeSession);
 

@@ -4,12 +4,12 @@ namespace WebScrapingServices.Authenticated.Browser
 {
     public class Network_RequestWillBeSentEventArgs : RdpEventArgs
     {
-        public Request Request { get; set; }
-        public Network_RequestWillBeSentEventArgs(string id, IReadOnlyDictionary<string, string> headers, string method, string url) : base("Network", "requestWillBeSent")
+        public HttpRequest Request { get; set; }
+        public Network_RequestWillBeSentEventArgs(string requestId, IReadOnlyDictionary<string, string> requestHeaders, string requestMethod, string requestUrl) : base("Network", "requestWillBeSent")
         {
-            Request = new Request(id, headers, method, url);
+            Request = new HttpRequest(requestId, requestHeaders, requestMethod, requestUrl);
         }
-        public Network_RequestWillBeSentEventArgs(Request request) : base("Network", "requestWillBeSent")
+        public Network_RequestWillBeSentEventArgs(HttpRequest request) : base("Network", "requestWillBeSent")
         {
             Request = request;
         }

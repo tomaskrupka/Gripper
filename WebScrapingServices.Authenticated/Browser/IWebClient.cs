@@ -14,7 +14,7 @@ namespace WebScrapingServices.Authenticated.Browser
         public IRdpSession RdpClient { get; }
         public IBrowserWindow BrowserWindow { get; }
         public CookieContainer Cookies { get; }
-        public event EventHandler WebClientEvent;
+        public event EventHandler<RdpEventArgs> WebClientEvent;
 
 
         public Task<string> ExecuteScriptAsync(string script);
