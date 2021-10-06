@@ -18,7 +18,7 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
         IElement ICdtrElementFactory.CreateCdtrElement(long nodeId, ChromeSession chromeSession)
         {
             var logger = _loggerFactory.CreateLogger<CdtrElement>();
-            return new CdtrElement(logger, nodeId, chromeSession);
+            return new CdtrElement(logger, chromeSession, nodeId);
         }
     }
 

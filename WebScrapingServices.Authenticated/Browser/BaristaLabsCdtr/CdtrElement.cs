@@ -8,17 +8,17 @@ using Microsoft.Extensions.Logging;
 
 namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
 {
-    public class CdtrElement : ElementBase
+    public class CdtrElement : IElement
     {
         private ILogger _logger;
-        private long _nodeId;
         private ChromeSession _chromeSession;
+        private long _nodeId;
 
         private async Task FocusAsync()
         {
             try
             {
-                await ChromeSession.DOM.Focus(new FocusCommand
+                await _chromeSession.DOM.Focus(new FocusCommand
                 {
                     NodeId = _nodeId
                 });
@@ -30,18 +30,18 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
             }
         }
 
-        public CdtrElement(ILogger<CdtrElement> logger, long nodeId, ChromeSession chromeSession) : base(chromeSession)
+        public CdtrElement(ILogger<CdtrElement> logger, ChromeSession chromeSession, long nodeId)
         {
             _logger = logger;
+            _chromeSession = chromeSession;
             _nodeId = nodeId;
-            _chromeSession = base.ChromeSession;
         }
-        public override async Task ClickAsync()
+
+        public async Task ClickAsync()
         {
             try
             {
-
-                var boxModel = await ChromeSession.DOM.GetBoxModel(new GetBoxModelCommand
+                var boxModel = await _chromeSession.DOM.GetBoxModel(new GetBoxModelCommand
                 {
                     NodeId = _nodeId
                 });
@@ -77,9 +77,8 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
             }
             catch (Exception e)
             {
-                ;
+                _logger.LogError("Error clicking. Node id: {_nodeId}, Exception: {e}", _nodeId, e);
             }
-
         }
 
         private async Task SendKeysAsync(DispatchKeyEventCommand command)
@@ -89,7 +88,7 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
             var commandResponse = await _chromeSession.Input.DispatchKeyEvent(command);
         }
 
-        public override async Task SendKeysAsync(string keys)
+        public async Task SendKeysAsync(string keys)
         {
             await SendKeysAsync(new DispatchKeyEventCommand
             {
@@ -98,8 +97,7 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
             });
         }
 
-
-        public override async Task SendKeysAsync(string keys, TimeSpan delayAfterStroke)
+        public async Task SendKeysAsync(string keys, TimeSpan delayAfterStroke)
         {
             for (int i = 0; i < keys.Length; i++)
             {
@@ -112,6 +110,16 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
                 });
 
                 await Task.Delay(delayAfterStroke);
+            }
+        }
+        public async Task SendSpecialKeyAsync(SpecialKey key)
+        {
+            await FocusAsync();
+
+            var commands = key.ToDispatchKeyEventCommands();
+            foreach (var command in commands)
+            {
+                await _chromeSession.Input.DispatchKeyEvent(command);
             }
         }
     }
