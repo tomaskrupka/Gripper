@@ -9,13 +9,11 @@ namespace WebScrapingServices.Authenticated.Browser
         public WebProxy? Proxy;
         public bool IgnoreSslCertificateErrors;
         public WebClientImplementation WebClientImplementation;
+        public TargetAttachment TargetAttachment;
         public bool TriggerKeyboardCommandListener;
+        public string Homepage;
 
         public string BrowserLocation;
         public int RemoteDebuggingPort;
-    }
-    public enum WebClientImplementation
-    {
-        Any, BaristaLabsCdtr, Selenium
     }
 }

@@ -40,40 +40,85 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
             return getDocumentResult.Root;
         }
 
-        public IRdpSession RdpClient => _rdpSession;
-        public IBrowserWindow BrowserWindow => _browserWindow;
-
-        public CookieContainer Cookies => throw new NotImplementedException();
-
-        public event EventHandler<RdpEventArgs>? WebClientEvent;
-
-        internal CdtrChromeClient(ILoggerFactory loggerFactory, ICdtrElementFactory cdtrElementFactory, WebClientSettings settings)
+        private async Task SubscribeToRdpEventsAsync()
         {
-            _loggerFactory = loggerFactory;
-            _logger = loggerFactory.CreateLogger<CdtrChromeClient>();
-            _cdtrElementFactory = cdtrElementFactory;
-            (_chromeSession, _browserWindow, _rdpSession) = LaunchAndConnectAsync(settings).Result;
-
-            SubscribeToRdpEvents();
-        }
-
-        private void SubscribeToRdpEvents()
-        {
-            _chromeSession.Network.Enable(new BaristaLabs.ChromeDevTools.Runtime.Network.EnableCommand
+            await _chromeSession.Network.Enable(new BaristaLabs.ChromeDevTools.Runtime.Network.EnableCommand
             {
-                
+
             });
 
-            _chromeSession.Network.SubscribeToRequestWillBeSentEvent(x => WebClientEvent?.Invoke(this, new Network_RequestWillBeSentEventArgs(x.RequestId, x.Request.Headers, x.Request.Method, x.Request.Url)));
+            _chromeSession.Network.SubscribeToRequestWillBeSentEvent(x =>
+            {
+                _logger.LogDebug("frameId: {frameId}", x.FrameId);
+                WebClientEvent?.Invoke(this, new Network_RequestWillBeSentEventArgs(x.RequestId, x.Request.Headers, x.Request.Method, x.Request.Url));
+            });
+        }
+
+        private async Task AttachFramesAsync(TargetAttachment targetAttachment)
+        {
+            switch (targetAttachment)
+            {
+                case TargetAttachment.Default:
+                case TargetAttachment.Auto:
+                    await _chromeSession.Target.SetAutoAttach(new BaristaLabs.ChromeDevTools.Runtime.Target.SetAutoAttachCommand
+                    {
+                        AutoAttach = true,
+                        WaitForDebuggerOnStart = true,
+                        Flatten = true
+                    });
+                    break;
+
+                case TargetAttachment.SeekAndAttach:
+                    LoopSeekAndAttachTargetsAsync(TimeSpan.FromSeconds(10));
+                    break;
+
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        private async Task LoopSeekAndAttachTargetsAsync(TimeSpan loopPeriod)
+        {
+            while (true)
+            {
+                await Task.Delay(loopPeriod);
+                var targets = await _chromeSession.Target.GetTargets(new BaristaLabs.ChromeDevTools.Runtime.Target.GetTargetsCommand
+                {
+
+                });
+
+                _logger.LogDebug("Found targets: {targetsCount} of which attached: {attachedTargetsCount}", targets.TargetInfos.Length, targets.TargetInfos.Count(x => x.Attached));
+
+                foreach (var target in targets.TargetInfos.Where(x => !x.Attached))
+                {
+                    _logger.LogDebug("Attaching to target: {targetId}", target.TargetId);
+                    await _chromeSession.Target.AttachToTarget(new BaristaLabs.ChromeDevTools.Runtime.Target.AttachToTargetCommand
+                    {
+                        TargetId = target.TargetId
+                    });
+                }
+            }
         }
 
         private async Task<(ChromeSession, CdtrChromeBrowserWindow, CdtrRdpSession)> LaunchAndConnectAsync(WebClientSettings settings)
         {
-            // see https://github.com/BaristaLabs/chrome-dev-tools-runtime/blob/master/ChromeDevToolsCLI/Program.cs
-
             var browserArgs = new StringBuilder()
                 .Append("--remote-debugging-port=").Append(settings.RemoteDebuggingPort)
                 .Append(@" --user-data-dir=C:\CdtrProfiles\").Append(settings.UserProfileName).Append('\\');
+
+            switch (settings.TargetAttachment)
+            {
+                case TargetAttachment.Default:
+                case TargetAttachment.Auto:
+                    browserArgs.Append(" --disable-features=IsolateOrigins,site-per-process");
+                    break;
+
+                case TargetAttachment.SeekAndAttach:
+                    break;
+
+                default:
+                    throw new NotImplementedException();
+            }
 
             if (settings.UseProxy)
             {
@@ -95,20 +140,39 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
             //Navigate to homepage.
             var navigateResult = await chromeSession.Page.Navigate(new Page.NavigateCommand
             {
-                Url = "https://www.google.com"
+                Url = settings.Homepage
             });
 
             var enableRuntimeResult = await chromeSession.Runtime.Enable(new Runtime.EnableCommand());
-            var enableNetworkResult = await chromeSession.Network.Enable(new BaristaLabs.ChromeDevTools.Runtime.Network.EnableCommand { });
 
-            await chromeSession.Network.SubscribeToLoadingFinishedEvent(/*TODO*/)
+            //await chromeSession.Network.SubscribeToLoadingFinishedEvent(/*TODO*/)
 
             var rdpSession = new CdtrRdpSession(chromeSession);
 
             var browserLogger = _loggerFactory.CreateLogger<CdtrChromeBrowserWindow>();
             var browserWindow = new CdtrChromeBrowserWindow(browserLogger, chromeSession);
 
+
             return (chromeSession, browserWindow, rdpSession);
+        }
+
+        public IRdpSession RdpClient => _rdpSession;
+        public IBrowserWindow BrowserWindow => _browserWindow;
+
+        public CookieContainer Cookies => throw new NotImplementedException();
+
+        public event EventHandler<RdpEventArgs>? WebClientEvent;
+
+        internal CdtrChromeClient(ILoggerFactory loggerFactory, ICdtrElementFactory cdtrElementFactory, WebClientSettings settings)
+        {
+            _loggerFactory = loggerFactory;
+            _logger = loggerFactory.CreateLogger<CdtrChromeClient>();
+            _cdtrElementFactory = cdtrElementFactory;
+
+            (_chromeSession, _browserWindow, _rdpSession) = LaunchAndConnectAsync(settings).Result;
+
+            SubscribeToRdpEventsAsync();
+            AttachFramesAsync(settings.TargetAttachment);
         }
 
         public void Dispose()
