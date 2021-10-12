@@ -21,7 +21,8 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
                 await _chromeSession.DOM.Focus(new FocusCommand
                 {
                     NodeId = _nodeId
-                });
+                },
+                throwExceptionIfResponseNotReceived: false);
             }
             catch (Exception e)
             {
@@ -44,7 +45,8 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
                 var boxModel = await _chromeSession.DOM.GetBoxModel(new GetBoxModelCommand
                 {
                     NodeId = _nodeId
-                });
+                },
+                throwExceptionIfResponseNotReceived: false);
 
                 var contentQuad = boxModel.Model.Content;
 
@@ -60,7 +62,8 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
                     Button = MouseButton.Left,
                     X = contentX,
                     Y = contentY
-                });
+                },
+                throwExceptionIfResponseNotReceived: false);
 
                 // TODO: randomize delay.
 
@@ -73,7 +76,8 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
                     Button = MouseButton.Left,
                     X = contentX,
                     Y = contentY
-                });
+                },
+                throwExceptionIfResponseNotReceived: false);
             }
             catch (Exception e)
             {
@@ -85,7 +89,7 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
         {
             await FocusAsync();
 
-            var commandResponse = await _chromeSession.Input.DispatchKeyEvent(command);
+            var commandResponse = await _chromeSession.Input.DispatchKeyEvent(command, throwExceptionIfResponseNotReceived: false);
         }
 
         public async Task SendKeysAsync(string keys)
@@ -117,9 +121,18 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
             await FocusAsync();
 
             var commands = key.ToDispatchKeyEventCommands();
-            foreach (var command in commands)
+            try
             {
-                await _chromeSession.Input.DispatchKeyEvent(command);
+                foreach (var command in commands)
+                {
+
+                    await _chromeSession.Input.DispatchKeyEvent(command, throwExceptionIfResponseNotReceived: false);
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Failed to send special keys: {e}", e);
+                throw;
             }
         }
     }

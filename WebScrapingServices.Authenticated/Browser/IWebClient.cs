@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,14 +12,25 @@ namespace WebScrapingServices.Authenticated.Browser
 {
     public interface IWebClient : IDisposable
     {
-        public IRdpSession RdpClient { get; }
-        public IBrowserWindow BrowserWindow { get; }
-        public CookieContainer Cookies { get; }
         public event EventHandler<RdpEventArgs> WebClientEvent;
-
 
         public Task<string> ExecuteScriptAsync(string script);
         public Task<IElement?> FindElementByCssSelectorAsync(string cssSelector);
         public Task<IElement?> WaitUntilElementPresentAsync(string cssSelector, CancellationToken cancellationToken, PollSettings pollSettings);
+        public Task<CookieContainer> GetAllCookiesAsync();
+        public CookieContainer Cookies { get; }
+
+
+        public Task<string> GetCurrentUrlAsync();
+        public Task GoToUrlAsync(string address);
+        public Task ReloadAsync();
+        public Task EnterFullScreenAsync();
+        public Task<IRdpCommandResult> ExecuteRdpCommandAsync(string commandName);
+        public Task<JToken> ExecuteRdpCommandAsync(string commandName, JToken commandParams);
+        /// <summary>
+        /// Gets all cookies for current page URL and all of its subframes.
+        /// https://chromedevtools.github.io/devtools-protocol/tot/Network/#method-getCookies
+        /// </summary>
+        /// <returns></returns>
     }
 }

@@ -7,51 +7,37 @@ using System.Net;
 using System.Collections.Generic;
 using System.Threading;
 using System.Diagnostics;
+using OpenQA.Selenium.DevTools;
+using Newtonsoft.Json.Linq;
 
 namespace WebScrapingServices.Authenticated.Browser.Selenium
 {
     public class SeleniumChromeClient : IWebClient
     {
         private ChromeDriver _driver;
-        private SeleniumRdpSession _rdpSession;
-        private SeleniumChromeBrowserWindow _browserWindow;
+        private DevToolsSession _devToolsSession;
 
         private ILoggerFactory _loggerFactory;
         private ILogger _logger;
+        private INavigation _navigation;
+
+        public CookieContainer Cookies => GetAllCookiesAsync().Result;
 
         public event EventHandler<RdpEventArgs> WebClientEvent;
         public SeleniumChromeClient(ILoggerFactory loggerFactory, WebClientSettings settings)
         {
             _loggerFactory = loggerFactory;
             _logger = loggerFactory.CreateLogger<SeleniumChromeClient>();
-            (_driver, _browserWindow, _rdpSession) = LaunchAndConnect(settings);
-        }
-
-        public IRdpSession RdpClient => _rdpSession;
-
-        public IBrowserWindow BrowserWindow => _browserWindow;
-
-        public CookieContainer Cookies
-        {
-            get
-            {
-                CookieContainer cookieContainer = new();
-                foreach (var cookie in _driver.Manage().Cookies.AllCookies)
-                {
-                    cookieContainer.Add(new System.Net.Cookie(cookie.Name, cookie.Value, cookie.Path, cookie.Domain));
-                }
-                return cookieContainer;
-            }
+            (_driver, _devToolsSession) = LaunchAndConnect(settings);
+            _navigation = _driver.Navigate();
         }
 
         public void Dispose()
         {
-            _browserWindow.Dispose();
-            _rdpSession.Dispose();
             _driver.Dispose();
         }
 
-        private (ChromeDriver, SeleniumChromeBrowserWindow, SeleniumRdpSession) LaunchAndConnect(WebClientSettings settings)
+        private (ChromeDriver, DevToolsSession) LaunchAndConnect(WebClientSettings settings)
         {
             ChromeOptions chromeOptions = new ChromeOptions();
 
@@ -87,14 +73,11 @@ namespace WebScrapingServices.Authenticated.Browser.Selenium
             }
 
             var driver = new ChromeDriver(Environment.CurrentDirectory, chromeOptions);
-            var session = driver.GetDevToolsSession();
-            var seleniumRdpSessionLogger = _loggerFactory.CreateLogger<SeleniumRdpSession>();
+            var devToolsSession = driver.GetDevToolsSession();
 
-            var browserWindow = new SeleniumChromeBrowserWindow(_loggerFactory.CreateLogger<SeleniumChromeBrowserWindow>(), driver);
-            var rdpSession = new SeleniumRdpSession(seleniumRdpSessionLogger, session);
 
             // Selenium sends some events via the rdp session. Just relay these to the central event broadcast.
-            rdpSession.RdpEvent += (sender, eventArgs) => WebClientEvent(sender, eventArgs);
+            WebClientEvent += (sender, eventArgs) => WebClientEvent(sender, eventArgs);
 
             var driverOptions = driver.Manage();
 
@@ -103,10 +86,10 @@ namespace WebScrapingServices.Authenticated.Browser.Selenium
 
             if (settings.TriggerKeyboardCommandListener)
             {
-                rdpSession.TriggerKeyboardCommandListener();
+                TriggerKeyboardCommandListener();
             }
 
-            return (driver, browserWindow, rdpSession);
+            return (driver, devToolsSession);
         }
 
         private void NetworkResponseReceived(object? sender, NetworkResponseReceivedEventArgs e)
@@ -168,6 +151,154 @@ namespace WebScrapingServices.Authenticated.Browser.Selenium
             }
 
             return null;
+        }
+
+        public async Task<CookieContainer> GetAllCookiesAsync()
+        {
+            CookieContainer cookieContainer = new();
+            foreach (var cookie in _driver.Manage().Cookies.AllCookies)
+            {
+                cookieContainer.Add(new System.Net.Cookie(cookie.Name, cookie.Value, cookie.Path, cookie.Domain));
+            }
+            return cookieContainer;
+        }
+        public Task EnterFullScreenAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<string> GetCurrentUrlAsync()
+        {
+            return _driver.Url;
+        }
+
+        public async Task GoToUrlAsync(string address)
+        {
+            _navigation.GoToUrl(address);
+        }
+
+        public async Task ReloadAsync()
+        {
+            _navigation.Refresh();
+        }
+        internal void TriggerKeyboardCommandListener()
+        {
+            Task.Run(KeyboardListener);
+        }
+
+        private async Task KeyboardListener()
+        {
+            _logger.LogWarning("{name} triggered a keyboard command listener. You can try to kill it by typing 'q'.", nameof(SeleniumChromeClient));
+            while (true)
+            {
+                var key = Console.ReadKey();
+                if (key.KeyChar == 'd')
+                {
+                    await ExecuteRdpCommandAsync("Network.disable"); ;
+                }
+                if (key.KeyChar == 'e')
+                {
+                    await ExecuteRdpCommandAsync("Network.enable");
+                }
+                if (key.KeyChar == 'q')
+                {
+                    break;
+                }
+            }
+            _logger.LogInformation("Keyboard command listener exited.");
+        }
+
+        private void DevToolsEventReceived(object? sender, DevToolsEventReceivedEventArgs e)
+        {
+            _logger.LogDebug("Event received: {domainName}.{eventName}", e.DomainName, e.EventName);
+
+            switch (e.EventName)
+            {
+                case "requestWillBeSent":
+
+                    var requestId = e.EventData["requestId"]?.ToString();
+
+                    if (requestId == null)
+                    {
+                        throw new ApplicationException("requestId cannot be null here.");
+                    }
+
+                    var method = e.EventData["request"]?["method"]?.ToString();
+                    if (method == null)
+                    {
+                        throw new ApplicationException("method cannot be null here.");
+                    }
+
+                    var headers = new Dictionary<string, string>();
+
+                    var rawHeadersDictionary = e.EventData["request"]?["headers"];
+                    if (rawHeadersDictionary != null && rawHeadersDictionary.HasValues)
+                    {
+                        foreach (JProperty header in rawHeadersDictionary.Children())
+                        {
+                            if (header.Value.Type == JTokenType.String)
+                            {
+                                headers.Add(header.Name, header.Value.ToString());
+                            }
+                            else
+                            {
+                                throw new NotImplementedException();
+                            }
+                        }
+
+                    }
+
+                    var url = e.EventData["request"]?["url"]?.ToString();
+                    if (url == null)
+                    {
+                        throw new ApplicationException("request url cannot be null here");
+                    }
+
+                    HttpRequest request = new(requestId, headers, method, url);
+
+                    WebClientEvent?.Invoke(sender, new Network_RequestWillBeSentEventArgs(request));
+
+                    break;
+
+                default:
+                    WebClientEvent?.Invoke(sender, new RdpEventArgs(e.DomainName, e.EventName, e.EventData));
+                    break;
+            }
+        }
+
+        public async Task<IRdpCommandResult> ExecuteRdpCommandAsync(string commandName)
+        {
+            // Try-catch, log and rethrow to prevent silent fails.
+            try
+            {
+                switch (commandName.ToLower())
+                {
+                    case "network.enable":
+                        await _devToolsSession.Domains.Network.EnableNetwork();
+                        _logger.LogInformation("RDP domain enabled: Network.");
+                        return SeleniumRdpCommandResult.Success;
+
+                    case "network.disable":
+                        await _devToolsSession.Domains.Network.DisableNetwork();
+                        _logger.LogInformation("RDP domain disabled: Network.");
+                        return SeleniumRdpCommandResult.Success;
+
+                    default:
+                        throw new NotImplementedException();
+                }
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to execute command: {commandName}", commandName);
+                throw;
+            }
+        }
+
+
+        public async Task<JToken> ExecuteRdpCommandAsync(string commandName, JToken commandParams)
+        {
+            return await _devToolsSession.SendCommand(commandName, commandParams);
         }
     }
 }

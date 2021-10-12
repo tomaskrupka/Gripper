@@ -20,22 +20,26 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
 {
     public class CdtrChromeClient : IWebClient
     {
-        private CdtrRdpSession _rdpSession;
-        private CdtrChromeBrowserWindow _browserWindow;
         private ChromeSession _chromeSession;
 
         private ILogger _logger;
         private ILoggerFactory _loggerFactory;
         private ICdtrElementFactory _cdtrElementFactory;
 
-        //private IJsBuilder _jsBuilder;
+        private CookieContainer _cookies;
+        private Process _chromeProcess;
+
+        public CookieContainer Cookies => _cookies;
+
+        //private AutoResetEvent _pageLoaded;
 
         private async Task<Node> GetDocumentNodeAsync()
         {
             var getDocumentResult = await _chromeSession.DOM.GetDocument(new GetDocumentCommand
             {
                 Depth = 1
-            });
+            },
+            throwExceptionIfResponseNotReceived: false);
 
             return getDocumentResult.Root;
         }
@@ -45,13 +49,21 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
             await _chromeSession.Network.Enable(new BaristaLabs.ChromeDevTools.Runtime.Network.EnableCommand
             {
 
-            });
+            }
+            , throwExceptionIfResponseNotReceived: false);
 
             _chromeSession.Network.SubscribeToRequestWillBeSentEvent(x =>
             {
-                _logger.LogDebug("frameId: {frameId}", x.FrameId);
                 WebClientEvent?.Invoke(this, new Network_RequestWillBeSentEventArgs(x.RequestId, x.Request.Headers, x.Request.Method, x.Request.Url));
             });
+
+            await _chromeSession.Page.Enable(throwExceptionIfResponseNotReceived: false);
+
+            //_chromeSession.Network.SubscribeToLoadingFinishedEvent(x =>
+            //{
+            //    _logger.LogDebug("Page loaded for request id: {requestId}", x.RequestId);
+            //    _pageLoaded.Set();
+            //});
         }
 
         private async Task AttachFramesAsync(TargetAttachment targetAttachment)
@@ -65,7 +77,8 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
                         AutoAttach = true,
                         WaitForDebuggerOnStart = true,
                         Flatten = true
-                    });
+                    }, 
+                    throwExceptionIfResponseNotReceived: false);
                     break;
 
                 case TargetAttachment.SeekAndAttach:
@@ -85,7 +98,8 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
                 var targets = await _chromeSession.Target.GetTargets(new BaristaLabs.ChromeDevTools.Runtime.Target.GetTargetsCommand
                 {
 
-                });
+                },
+                throwExceptionIfResponseNotReceived: false);
 
                 _logger.LogDebug("Found targets: {targetsCount} of which attached: {attachedTargetsCount}", targets.TargetInfos.Length, targets.TargetInfos.Count(x => x.Attached));
 
@@ -95,12 +109,12 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
                     await _chromeSession.Target.AttachToTarget(new BaristaLabs.ChromeDevTools.Runtime.Target.AttachToTargetCommand
                     {
                         TargetId = target.TargetId
-                    });
+                    },
+                    throwExceptionIfResponseNotReceived: false);
                 }
             }
         }
-
-        private async Task<(ChromeSession, CdtrChromeBrowserWindow, CdtrRdpSession)> LaunchAndConnectAsync(WebClientSettings settings)
+        private async Task<(Process, ChromeSession)> LaunchAndConnectAsync(WebClientSettings settings)
         {
             var browserArgs = new StringBuilder()
                 .Append("--remote-debugging-port=").Append(settings.RemoteDebuggingPort)
@@ -122,20 +136,34 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
 
             if (settings.UseProxy)
             {
+                _logger.LogDebug("{this} launching chrome with proxy: {proxy}.", nameof(CdtrChromeClient), settings.Proxy?.Address?.ToString() ?? "null");
                 browserArgs.Append(" --proxy-server=").Append(settings.Proxy?.Address ?? throw new ApplicationException("Null proxy when UseProxy flag was up."));
+
                 if (browserArgs[^1] == '/')
                 {
                     browserArgs.Remove(browserArgs.Length - 1, 1);
                 }
             }
+            else
+            {
+                _logger.LogDebug("{this} launching chrome without proxy.", nameof(CdtrChromeClient));
 
-            Process.Start(settings.BrowserLocation, browserArgs.ToString());
+            }
+
+            var chromeProcess = Process.Start(settings.BrowserLocation, browserArgs.ToString());
 
             using var httpClient = new HttpClient();
-            var remoteSessions = await httpClient.GetStringAsync($"http://localhost:{settings.RemoteDebuggingPort}/json");
-            var sessionInfos = JsonConvert.DeserializeObject<List<ChromeSessionInfo>>(remoteSessions);
+            var remoteSessions = await httpClient.GetAsync($"http://localhost:{settings.RemoteDebuggingPort}/json");
 
-            var chromeSession = new ChromeSession(sessionInfos.First(x => x.Type == "page").WebSocketDebuggerUrl);
+            _logger.LogDebug("sessions response: {status}", remoteSessions.StatusCode);
+
+            var remoteSessionsContent = await remoteSessions.Content.ReadAsStringAsync();
+
+            var sessionInfos = JsonConvert.DeserializeObject<List<ChromeSessionInfo>>(remoteSessionsContent);
+
+            _logger.LogDebug("Remote session infos: {remoteSessions}", remoteSessionsContent);
+
+            var chromeSession = new ChromeSession(_loggerFactory.CreateLogger<ChromeSession>(), sessionInfos.First(x => x.Type == "page").WebSocketDebuggerUrl);
 
             //Navigate to homepage.
             var navigateResult = await chromeSession.Page.Navigate(new Page.NavigateCommand
@@ -143,25 +171,11 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
                 Url = settings.Homepage
             });
 
-            var enableRuntimeResult = await chromeSession.Runtime.Enable(new Runtime.EnableCommand());
+            _logger.LogDebug("ChromeSession launched and connected to Chrome RDP server");
 
-            //await chromeSession.Network.SubscribeToLoadingFinishedEvent(/*TODO*/)
-
-            var rdpSession = new CdtrRdpSession(chromeSession);
-
-            var browserLogger = _loggerFactory.CreateLogger<CdtrChromeBrowserWindow>();
-            var browserWindow = new CdtrChromeBrowserWindow(browserLogger, chromeSession);
-
-
-            return (chromeSession, browserWindow, rdpSession);
+            return (chromeProcess, chromeSession);
         }
 
-        public IRdpSession RdpClient => _rdpSession;
-        public IBrowserWindow BrowserWindow => _browserWindow;
-
-        public CookieContainer Cookies => throw new NotImplementedException();
-
-        public event EventHandler<RdpEventArgs>? WebClientEvent;
 
         internal CdtrChromeClient(ILoggerFactory loggerFactory, ICdtrElementFactory cdtrElementFactory, WebClientSettings settings)
         {
@@ -169,78 +183,84 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
             _logger = loggerFactory.CreateLogger<CdtrChromeClient>();
             _cdtrElementFactory = cdtrElementFactory;
 
-            (_chromeSession, _browserWindow, _rdpSession) = LaunchAndConnectAsync(settings).Result;
+            (_chromeProcess, _chromeSession) = LaunchAndConnectAsync(settings).Result;
+
+            _cookies = new CookieContainer();
 
             SubscribeToRdpEventsAsync();
             AttachFramesAsync(settings.TargetAttachment);
+
+            if (Debugger.IsAttached)
+            {
+                Task.Run(LoopMonitorWebSockets);
+                Task.Run(KeyboardListener);
+            }
+            _logger.LogDebug("Exiting {this} constructor.", nameof(CdtrChromeClient));
         }
 
-        public void Dispose()
-        {
-            try
-            {
-                _rdpSession.Dispose();
-            }
-            catch (ObjectDisposedException)
-            {
-                _logger.LogDebug("ObjectDisposedException when disposing {object} at {this}.", nameof(_rdpSession), nameof(CdtrChromeClient));
-            }
 
-            try
-            {
-                _browserWindow.Dispose();
-            }
-            catch (ObjectDisposedException)
-            {
-                _logger.LogDebug("ObjectDisposedException when disposing {object} at {this}.", nameof(_browserWindow), nameof(CdtrChromeClient));
-            }
-
-            try
-            {
-                _chromeSession.Dispose();
-            }
-            catch (ObjectDisposedException)
-            {
-                _logger.LogDebug("ObjectDisposedException when disposing {object} at {this}.", nameof(_chromeSession), nameof(CdtrChromeClient));
-            }
-        }
+        public event EventHandler<RdpEventArgs>? WebClientEvent;
 
         public async Task<string> ExecuteScriptAsync(string script)
         {
-            var result = await _chromeSession.Runtime.Evaluate(new Runtime.EvaluateCommand
+            try
             {
-                Expression = script
-            });
+                var result = await _chromeSession.Runtime.Evaluate(new Runtime.EvaluateCommand
+                {
+                    Expression = script
+                },
+                throwExceptionIfResponseNotReceived: false);
 
-            return result.Result.Description;
+                return result?.Result?.Description ?? "null";
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Failed to execute script: {e}", e);
+                throw;
+
+            }
         }
 
         public async Task<IElement?> FindElementByCssSelectorAsync(string cssSelector)
         {
-            var documentNode = await GetDocumentNodeAsync();
-
-            _logger.LogDebug("Resolved documentNode id: {documentNodeId}", documentNode.NodeId);
-
-            if (documentNode.NodeId == 0)
+            try
             {
-                return null;
+
+                var documentNode = await GetDocumentNodeAsync();
+
+                if (documentNode == null)
+                {
+                    return null;
+                }
+
+                //_logger.LogDebug("Resolved documentNode id: {documentNodeId}", documentNode.NodeId);
+
+                if (documentNode.NodeId == 0)
+                {
+                    return null;
+                }
+
+                var querySelectorResult = await _chromeSession.DOM.QuerySelector(new QuerySelectorCommand
+                {
+                    Selector = cssSelector,
+                    NodeId = documentNode.NodeId
+                }, throwExceptionIfResponseNotReceived: false);
+
+                //_logger.LogDebug("Resolved node id: {nodeId}", querySelectorResult.NodeId);
+
+                if (querySelectorResult.NodeId == 0)
+                {
+                    _logger.LogWarning("Node id resolved as 0: {cssSelector}", cssSelector);
+                    return null;
+                }
+
+                return _cdtrElementFactory.CreateCdtrElement(querySelectorResult.NodeId, _chromeSession);
             }
-
-            var querySelectorResult = await _chromeSession.DOM.QuerySelector(new QuerySelectorCommand
+            catch (Exception e)
             {
-                Selector = cssSelector,
-                NodeId = documentNode.NodeId
-            });
-
-            _logger.LogDebug("Resolved node id: {nodeId}", querySelectorResult.NodeId);
-
-            if (querySelectorResult.NodeId == 0)
-            {
-                _logger.LogWarning("Node id resolved as 0: {cssSelector}", cssSelector);
-                return null;
+                _logger.LogError("Failed to {name}: {e}.", nameof(FindElementByCssSelectorAsync), e);
+                throw;
             }
-
-            return _cdtrElementFactory.CreateCdtrElement(querySelectorResult.NodeId, _chromeSession);
         }
 
         public async Task<IElement?> WaitUntilElementPresentAsync(string cssSelector, CancellationToken cancellationToken, PollSettings pollSettings)
@@ -262,6 +282,245 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
 
             return null;
         }
+
+        public async Task<CookieContainer> GetAllCookiesAsync()
+        {
+            try
+            {
+                var rawCookies = await _chromeSession.Network.GetAllCookies(new BaristaLabs.ChromeDevTools.Runtime.Network.GetAllCookiesCommand { }, throwExceptionIfResponseNotReceived: false);
+
+                _logger.LogDebug("raw cookies: {rawCookies}", rawCookies?.Cookies?.Length.ToString() ?? "null");
+
+                var cookieContainer = new CookieContainer();
+
+                if (rawCookies?.Cookies == null)
+                {
+                    return cookieContainer;
+                }
+
+                foreach (var cookie in rawCookies.Cookies)
+                {
+                    if (cookie == null)
+                    {
+                        continue;
+                    }
+
+                    cookieContainer.Add(new Cookie(cookie.Name, cookie.Value, cookie.Path, cookie.Domain));
+                }
+
+                return cookieContainer;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Exception getting all cookies: {e}", e);
+                throw;
+            }
+
+        }
+        private async Task<CookieContainer> TestSession(CancellationToken token)
+        {
+            try
+            {
+                var rawCookies = await _chromeSession.Network.GetAllCookies(new BaristaLabs.ChromeDevTools.Runtime.Network.GetAllCookiesCommand { }, throwExceptionIfResponseNotReceived: false);
+
+                _logger.LogDebug("raw cookies: {rawCookies}", rawCookies?.Cookies?.Length.ToString() ?? "null");
+
+                var cookieContainer = new CookieContainer();
+
+                if (rawCookies?.Cookies == null)
+                {
+                    return cookieContainer;
+                }
+
+                foreach (var cookie in rawCookies.Cookies)
+                {
+                    if (cookie == null)
+                    {
+                        continue;
+                    }
+
+                    cookieContainer.Add(new Cookie(cookie.Name, cookie.Value, cookie.Path, cookie.Domain));
+                }
+
+                return cookieContainer;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Exception getting all cookies: {e}", e);
+                throw;
+            }
+
+        }
+
+        public async Task<string> GetCurrentUrlAsync()
+        {
+            try
+            {
+
+                var navigationHistory = await _chromeSession.Page.GetNavigationHistory(new Page.GetNavigationHistoryCommand
+                {
+
+                }, 
+                throwExceptionIfResponseNotReceived: false);
+
+                var currentEntry = navigationHistory.Entries[navigationHistory.CurrentIndex];
+                return currentEntry.Url;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Failed to get current Url: {e}", e);
+                throw;
+            }
+        }
+
+        public async Task GoToUrlAsync(string address)
+        {
+            try
+            {
+
+                await _chromeSession.Page.Navigate(new Page.NavigateCommand
+                {
+                    Url = address
+                },
+                throwExceptionIfResponseNotReceived: false);
+                //await Task.Run(() => _pageLoaded.WaitOne());
+            }
+            catch (Exception e)
+            {
+
+                _logger.LogError("Failed to go to url: {e}", e);
+                throw;
+            }
+        }
+
+        public async Task ReloadAsync()
+        {
+            try
+            {
+                await _chromeSession.Page.Reload(new Page.ReloadCommand { }, throwExceptionIfResponseNotReceived: false);
+                //await Task.Run(() => _pageLoaded.WaitOne());
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Failed to reload: {e}", e);
+                throw;
+            }
+        }
+
+        public Task EnterFullScreenAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<IRdpCommandResult> ExecuteRdpCommandAsync(string commandName)
+        {
+            try
+            {
+                var resultToken = await Task.Run(() => _chromeSession.SendCommand(commandName, JToken.Parse("{}"), throwExceptionIfResponseNotReceived: false));
+                return new CdtrRdpCommandResult(resultToken);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Failed to execute rdp command: {e}", e);
+                throw;
+            }
+        }
+
+        public async Task<JToken> ExecuteRdpCommandAsync(string commandName, JToken commandParams)
+        {
+            try
+            {
+                var resultToken = await Task.Run(() => _chromeSession.SendCommand(commandName, commandParams, throwExceptionIfResponseNotReceived: false));
+                return resultToken;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Failed to execute rdp command: {e}", e);
+                throw;
+            }
+        }
+        public void Dispose()
+        {
+            _logger.LogWarning("Disposing {this}.", nameof(CdtrChromeClient));
+
+            try
+            {
+                _chromeProcess.Close(); 
+            }
+            catch (ObjectDisposedException)
+            {
+                _logger.LogDebug("ObjectDisposedException when disposing {object} at {this}.", nameof(_chromeProcess), nameof(CdtrChromeClient));
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Error disposing {this}: {e}", nameof(_chromeProcess), e);
+            }
+
+            try
+            {
+                _chromeSession.Dispose();
+            }
+            catch (ObjectDisposedException)
+            {
+                _logger.LogDebug("ObjectDisposedException when disposing {object} at {this}.", nameof(_chromeSession), nameof(CdtrChromeClient));
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Error disposing {this}: {e}", nameof(_chromeSession), e);
+            }
+
+            //GC.SuppressFinalize(this);
+        }
+
+
+
+        private async Task LoopMonitorWebSockets()
+        {
+            using var httpClient = new HttpClient();
+
+            while (true)
+            {
+                await Task.Delay(500);
+
+                var remoteSessions = await httpClient.GetStringAsync($"http://localhost:9223/json");
+                var sessionInfos = JsonConvert.DeserializeObject<List<ChromeSessionInfo>>(remoteSessions);
+
+                bool clientAlive = true;
+
+                try
+                {
+                    _cookies = await this.GetAllCookiesAsync();
+                }
+                catch (Exception)
+                {
+                    clientAlive = false;
+                }
+
+                _logger.LogDebug("Alive: {clientAlive}, sockets: {sockets}", clientAlive, string.Join(" | ", sessionInfos.Select(x => x?.WebSocketDebuggerUrl?.Replace("ws://localhost:9223/devtools/page/", ""))));
+            }
+        }
+        private async Task KeyboardListener()
+        {
+            _logger.LogWarning("{name} triggered a keyboard command listener. You can try to kill it by typing 'q'.", nameof(CdtrChromeClient));
+            while (true)
+            {
+                var key = Console.ReadKey();
+                if (key.KeyChar == 'd')
+                {
+                    await ExecuteRdpCommandAsync("Network.disable"); ;
+                }
+                if (key.KeyChar == 'e')
+                {
+                    await ExecuteRdpCommandAsync("Network.enable");
+                }
+                if (key.KeyChar == 'q')
+                {
+                    break;
+                }
+            }
+            _logger.LogWarning("Keyboard command listener exited.");
+        }
+
     }
 
 }
