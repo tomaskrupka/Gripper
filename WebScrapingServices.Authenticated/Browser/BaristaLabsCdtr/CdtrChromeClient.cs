@@ -240,7 +240,6 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
         {
             try
             {
-
                 var documentNode = await GetDocumentNodeAsync();
 
                 if (documentNode == null)
@@ -248,7 +247,7 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
                     return null;
                 }
 
-                //_logger.LogDebug("Resolved documentNode id: {documentNodeId}", documentNode.NodeId);
+                _logger.LogDebug("Resolved documentNode id: {documentNodeId}", documentNode.NodeId);
 
                 if (documentNode.NodeId == 0)
                 {
@@ -263,8 +262,8 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
                 throwExceptionIfResponseNotReceived: false,
                 cancellationToken: _cancellationToken);
 
-                //_logger.LogDebug("Resolved node id: {nodeId}", querySelectorResult.NodeId);
-
+                _logger.LogDebug("Resolved node id: {nodeId}", querySelectorResult.NodeId);
+                
                 if (querySelectorResult.NodeId == 0)
                 {
                     _logger.LogWarning("Node id resolved as 0: {cssSelector}", cssSelector);
@@ -273,6 +272,7 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
 
                 return _cdtrElementFactory.CreateCdtrElement(querySelectorResult.NodeId, _chromeSession, _cancellationToken);
             }
+
             catch (Exception e)
             {
                 _logger.LogError("Failed to {name}: {e}.", nameof(FindElementByCssSelectorAsync), e);
