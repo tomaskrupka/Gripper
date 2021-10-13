@@ -5,6 +5,7 @@ using Runtime = BaristaLabs.ChromeDevTools.Runtime.Runtime;
 using BaristaLabs.ChromeDevTools.Runtime.Input;
 using BaristaLabs.ChromeDevTools.Runtime.DOM;
 using Microsoft.Extensions.Logging;
+using System.Threading;
 
 namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
 {
@@ -13,6 +14,7 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
         private ILogger _logger;
         private ChromeSession _chromeSession;
         private long _nodeId;
+        private CancellationToken _cancellationToken;
 
         private async Task FocusAsync()
         {
@@ -31,11 +33,12 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
             }
         }
 
-        public CdtrElement(ILogger<CdtrElement> logger, ChromeSession chromeSession, long nodeId)
+        public CdtrElement(ILogger<CdtrElement> logger, ChromeSession chromeSession, long nodeId, CancellationToken cancellationToken)
         {
             _logger = logger;
             _chromeSession = chromeSession;
             _nodeId = nodeId;
+            _cancellationToken = cancellationToken;
         }
 
         public async Task ClickAsync()
@@ -46,7 +49,8 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
                 {
                     NodeId = _nodeId
                 },
-                throwExceptionIfResponseNotReceived: false);
+                throwExceptionIfResponseNotReceived: false,
+                cancellationToken: _cancellationToken);
 
                 var contentQuad = boxModel.Model.Content;
 
@@ -63,7 +67,8 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
                     X = contentX,
                     Y = contentY
                 },
-                throwExceptionIfResponseNotReceived: false);
+                throwExceptionIfResponseNotReceived: false,
+                cancellationToken: _cancellationToken);
 
                 // TODO: randomize delay.
 
@@ -77,7 +82,8 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
                     X = contentX,
                     Y = contentY
                 },
-                throwExceptionIfResponseNotReceived: false);
+                throwExceptionIfResponseNotReceived: false,
+                cancellationToken: _cancellationToken);
             }
             catch (Exception e)
             {
@@ -89,7 +95,7 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
         {
             await FocusAsync();
 
-            var commandResponse = await _chromeSession.Input.DispatchKeyEvent(command, throwExceptionIfResponseNotReceived: false);
+            var commandResponse = await _chromeSession.Input.DispatchKeyEvent(command, throwExceptionIfResponseNotReceived: false, cancellationToken: _cancellationToken);
         }
 
         public async Task SendKeysAsync(string keys)
@@ -126,7 +132,7 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
                 foreach (var command in commands)
                 {
 
-                    await _chromeSession.Input.DispatchKeyEvent(command, throwExceptionIfResponseNotReceived: false);
+                    await _chromeSession.Input.DispatchKeyEvent(command, throwExceptionIfResponseNotReceived: false, cancellationToken: _cancellationToken);
                 }
             }
             catch (Exception e)

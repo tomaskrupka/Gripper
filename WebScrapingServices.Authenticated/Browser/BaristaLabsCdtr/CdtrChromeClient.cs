@@ -18,9 +18,12 @@ using BaristaLabs.ChromeDevTools.Runtime.DOM;
 
 namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
 {
-    public class CdtrChromeClient : IWebClient
+    public partial class CdtrChromeClient : IWebClient
     {
         private ChromeSession _chromeSession;
+        private CancellationTokenSource _cancellationTokenSource;
+        private CancellationToken _cancellationToken;
+        private bool _hasDisposalStarted;
 
         private ILogger _logger;
         private ILoggerFactory _loggerFactory;
@@ -39,7 +42,8 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
             {
                 Depth = 1
             },
-            throwExceptionIfResponseNotReceived: false);
+            throwExceptionIfResponseNotReceived: false,
+            cancellationToken: _cancellationToken);
 
             return getDocumentResult.Root;
         }
@@ -50,14 +54,15 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
             {
 
             }
-            , throwExceptionIfResponseNotReceived: false);
+            , throwExceptionIfResponseNotReceived: false,
+            cancellationToken: _cancellationToken);
 
             _chromeSession.Network.SubscribeToRequestWillBeSentEvent(x =>
             {
                 WebClientEvent?.Invoke(this, new Network_RequestWillBeSentEventArgs(x.RequestId, x.Request.Headers, x.Request.Method, x.Request.Url));
             });
 
-            await _chromeSession.Page.Enable(throwExceptionIfResponseNotReceived: false);
+            await _chromeSession.Page.Enable(throwExceptionIfResponseNotReceived: false, cancellationToken: _cancellationToken);
 
             //_chromeSession.Network.SubscribeToLoadingFinishedEvent(x =>
             //{
@@ -77,8 +82,9 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
                         AutoAttach = true,
                         WaitForDebuggerOnStart = true,
                         Flatten = true
-                    }, 
-                    throwExceptionIfResponseNotReceived: false);
+                    },
+                    throwExceptionIfResponseNotReceived: false,
+                    cancellationToken: _cancellationToken);
                     break;
 
                 case TargetAttachment.SeekAndAttach:
@@ -99,7 +105,8 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
                 {
 
                 },
-                throwExceptionIfResponseNotReceived: false);
+                throwExceptionIfResponseNotReceived: false,
+                cancellationToken: _cancellationToken);
 
                 _logger.LogDebug("Found targets: {targetsCount} of which attached: {attachedTargetsCount}", targets.TargetInfos.Length, targets.TargetInfos.Count(x => x.Attached));
 
@@ -110,7 +117,8 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
                     {
                         TargetId = target.TargetId
                     },
-                    throwExceptionIfResponseNotReceived: false);
+                    throwExceptionIfResponseNotReceived: false,
+                    cancellationToken: _cancellationToken);
                 }
             }
         }
@@ -195,6 +203,12 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
                 Task.Run(LoopMonitorWebSockets);
                 Task.Run(KeyboardListener);
             }
+
+            _cancellationTokenSource = new CancellationTokenSource();
+            _cancellationToken = _cancellationTokenSource.Token;
+
+            _hasDisposalStarted = false;
+
             _logger.LogDebug("Exiting {this} constructor.", nameof(CdtrChromeClient));
         }
 
@@ -209,7 +223,8 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
                 {
                     Expression = script
                 },
-                throwExceptionIfResponseNotReceived: false);
+                throwExceptionIfResponseNotReceived: false,
+                cancellationToken: _cancellationToken);
 
                 return result?.Result?.Description ?? "null";
             }
@@ -244,7 +259,9 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
                 {
                     Selector = cssSelector,
                     NodeId = documentNode.NodeId
-                }, throwExceptionIfResponseNotReceived: false);
+                },
+                throwExceptionIfResponseNotReceived: false,
+                cancellationToken: _cancellationToken);
 
                 //_logger.LogDebug("Resolved node id: {nodeId}", querySelectorResult.NodeId);
 
@@ -254,7 +271,7 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
                     return null;
                 }
 
-                return _cdtrElementFactory.CreateCdtrElement(querySelectorResult.NodeId, _chromeSession);
+                return _cdtrElementFactory.CreateCdtrElement(querySelectorResult.NodeId, _chromeSession, _cancellationToken);
             }
             catch (Exception e)
             {
@@ -287,7 +304,7 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
         {
             try
             {
-                var rawCookies = await _chromeSession.Network.GetAllCookies(new BaristaLabs.ChromeDevTools.Runtime.Network.GetAllCookiesCommand { }, throwExceptionIfResponseNotReceived: false);
+                var rawCookies = await _chromeSession.Network.GetAllCookies(new BaristaLabs.ChromeDevTools.Runtime.Network.GetAllCookiesCommand { }, throwExceptionIfResponseNotReceived: false, cancellationToken: _cancellationToken);
 
                 _logger.LogDebug("raw cookies: {rawCookies}", rawCookies?.Cookies?.Length.ToString() ?? "null");
 
@@ -321,7 +338,7 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
         {
             try
             {
-                var rawCookies = await _chromeSession.Network.GetAllCookies(new BaristaLabs.ChromeDevTools.Runtime.Network.GetAllCookiesCommand { }, throwExceptionIfResponseNotReceived: false);
+                var rawCookies = await _chromeSession.Network.GetAllCookies(new BaristaLabs.ChromeDevTools.Runtime.Network.GetAllCookiesCommand { }, throwExceptionIfResponseNotReceived: false, cancellationToken: _cancellationToken);
 
                 _logger.LogDebug("raw cookies: {rawCookies}", rawCookies?.Cookies?.Length.ToString() ?? "null");
 
@@ -360,8 +377,9 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
                 var navigationHistory = await _chromeSession.Page.GetNavigationHistory(new Page.GetNavigationHistoryCommand
                 {
 
-                }, 
-                throwExceptionIfResponseNotReceived: false);
+                },
+                throwExceptionIfResponseNotReceived: false,
+                cancellationToken: _cancellationToken);
 
                 var currentEntry = navigationHistory.Entries[navigationHistory.CurrentIndex];
                 return currentEntry.Url;
@@ -382,7 +400,8 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
                 {
                     Url = address
                 },
-                throwExceptionIfResponseNotReceived: false);
+                throwExceptionIfResponseNotReceived: false,
+                cancellationToken: _cancellationToken);
                 //await Task.Run(() => _pageLoaded.WaitOne());
             }
             catch (Exception e)
@@ -397,7 +416,7 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
         {
             try
             {
-                await _chromeSession.Page.Reload(new Page.ReloadCommand { }, throwExceptionIfResponseNotReceived: false);
+                await _chromeSession.Page.Reload(new Page.ReloadCommand { }, throwExceptionIfResponseNotReceived: false, cancellationToken: _cancellationToken);
                 //await Task.Run(() => _pageLoaded.WaitOne());
             }
             catch (Exception e)
@@ -416,7 +435,7 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
         {
             try
             {
-                var resultToken = await Task.Run(() => _chromeSession.SendCommand(commandName, JToken.Parse("{}"), throwExceptionIfResponseNotReceived: false));
+                var resultToken = await Task.Run(() => _chromeSession.SendCommand(commandName, JToken.Parse("{}"), throwExceptionIfResponseNotReceived: false, cancellationToken: _cancellationToken));
                 return new CdtrRdpCommandResult(resultToken);
             }
             catch (Exception e)
@@ -430,7 +449,7 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
         {
             try
             {
-                var resultToken = await Task.Run(() => _chromeSession.SendCommand(commandName, commandParams, throwExceptionIfResponseNotReceived: false));
+                var resultToken = await Task.Run(() => _chromeSession.SendCommand(commandName, commandParams, throwExceptionIfResponseNotReceived: false, cancellationToken: _cancellationToken));
                 return resultToken;
             }
             catch (Exception e)
@@ -439,13 +458,33 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
                 throw;
             }
         }
+
         public void Dispose()
         {
+            if (_hasDisposalStarted)
+            {
+                _logger.LogDebug("Not trigerring {this} dispose. Disposal already started on another thread.", nameof(CdtrChromeClient));
+                return;
+            }
+
+            _hasDisposalStarted = true;
+
             _logger.LogWarning("Disposing {this}.", nameof(CdtrChromeClient));
+
+            _cancellationTokenSource.Cancel();
 
             try
             {
-                _chromeProcess.Close(); 
+                _chromeProcess.KillTree();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Failed to kill chrome process tree: {e}", e);
+            }
+
+            try
+            {
+                _chromeProcess.Close();
             }
             catch (ObjectDisposedException)
             {
@@ -468,57 +507,6 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
             {
                 _logger.LogError("Error disposing {this}: {e}", nameof(_chromeSession), e);
             }
-
-            //GC.SuppressFinalize(this);
-        }
-
-
-
-        private async Task LoopMonitorWebSockets()
-        {
-            using var httpClient = new HttpClient();
-
-            while (true)
-            {
-                await Task.Delay(500);
-
-                var remoteSessions = await httpClient.GetStringAsync($"http://localhost:9223/json");
-                var sessionInfos = JsonConvert.DeserializeObject<List<ChromeSessionInfo>>(remoteSessions);
-
-                bool clientAlive = true;
-
-                try
-                {
-                    _cookies = await this.GetAllCookiesAsync();
-                }
-                catch (Exception)
-                {
-                    clientAlive = false;
-                }
-
-                _logger.LogDebug("Alive: {clientAlive}, sockets: {sockets}", clientAlive, string.Join(" | ", sessionInfos.Select(x => x?.WebSocketDebuggerUrl?.Replace("ws://localhost:9223/devtools/page/", ""))));
-            }
-        }
-        private async Task KeyboardListener()
-        {
-            _logger.LogWarning("{name} triggered a keyboard command listener. You can try to kill it by typing 'q'.", nameof(CdtrChromeClient));
-            while (true)
-            {
-                var key = Console.ReadKey();
-                if (key.KeyChar == 'd')
-                {
-                    await ExecuteRdpCommandAsync("Network.disable"); ;
-                }
-                if (key.KeyChar == 'e')
-                {
-                    await ExecuteRdpCommandAsync("Network.enable");
-                }
-                if (key.KeyChar == 'q')
-                {
-                    break;
-                }
-            }
-            _logger.LogWarning("Keyboard command listener exited.");
         }
 
     }

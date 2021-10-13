@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
@@ -15,10 +16,10 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
         {
             _loggerFactory = loggerFactory;
         }
-        IElement ICdtrElementFactory.CreateCdtrElement(long nodeId, ChromeSession chromeSession)
+        IElement ICdtrElementFactory.CreateCdtrElement(long nodeId, ChromeSession chromeSession, CancellationToken cancellationToken)
         {
             var logger = _loggerFactory.CreateLogger<CdtrElement>();
-            return new CdtrElement(logger, chromeSession, nodeId);
+            return new CdtrElement(logger, chromeSession, nodeId, cancellationToken);
         }
     }
 
@@ -27,6 +28,6 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
     /// </summary>
     internal interface ICdtrElementFactory
     {
-        internal IElement CreateCdtrElement(long nodeId, ChromeSession chromeSession);
+        internal IElement CreateCdtrElement(long nodeId, ChromeSession chromeSession, CancellationToken cancellationToken);
     }
 }
