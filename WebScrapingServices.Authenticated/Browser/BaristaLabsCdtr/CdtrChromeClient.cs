@@ -198,11 +198,11 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
             SubscribeToRdpEventsAsync();
             AttachFramesAsync(settings.TargetAttachment);
 
-            if (Debugger.IsAttached)
-            {
-                Task.Run(LoopMonitorWebSockets);
-                Task.Run(KeyboardListener);
-            }
+            //if (Debugger.IsAttached)
+            //{
+            //    Task.Run(LoopMonitorWebSockets);
+            //    Task.Run(KeyboardListener);
+            //}
 
             _cancellationTokenSource = new CancellationTokenSource();
             _cancellationToken = _cancellationTokenSource.Token;
