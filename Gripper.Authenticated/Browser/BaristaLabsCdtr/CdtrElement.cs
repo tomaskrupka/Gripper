@@ -63,7 +63,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
                 {
                     Type = "mousePressed",
                     ClickCount = 1,
-                    Button = MouseButton.Left,
+                    Button = "left",
                     X = contentX,
                     Y = contentY
                 },
@@ -78,7 +78,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
                 {
                     Type = "mouseReleased",
                     ClickCount = 1,
-                    Button = MouseButton.Left,
+                    Button = "left",
                     X = contentX,
                     Y = contentY
                 },
