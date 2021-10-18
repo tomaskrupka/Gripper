@@ -8,7 +8,7 @@
     <NeutralLanguage>en-GB</NeutralLanguage>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Description>A web scraping toolbox that operates in a browser window under its control.</Description>
+    <Description>Web scraping toolbox that operates in a browser window under its control. Uses the chrome devtools protocol (CDP) to control a browser window. Gripper is configurable to use either Selenium or chrome-dev-tools-runtime as the CDP client.</Description>
   </PropertyGroup>
 
   <ItemGroup>
