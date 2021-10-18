@@ -15,6 +15,7 @@ using BaristaLabs.ChromeDevTools.Runtime.Browser;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using BaristaLabs.ChromeDevTools.Runtime.DOM;
+using WebScrapingServices.Authenticated.Browser.ProcessManagement;
 
 namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
 {
@@ -159,6 +160,8 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
             }
 
             var chromeProcess = Process.Start(settings.BrowserLocation, browserArgs.ToString());
+
+            ChildProcessTracker.AddProcess(chromeProcess);
 
             using var httpClient = new HttpClient();
             var remoteSessions = await httpClient.GetAsync($"http://localhost:{settings.RemoteDebuggingPort}/json");
@@ -481,20 +484,6 @@ namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
             {
                 _logger.LogError("Failed to kill chrome process tree: {e}", e);
             }
-
-            try
-            {
-                _chromeProcess.Close();
-            }
-            catch (ObjectDisposedException)
-            {
-                _logger.LogDebug("ObjectDisposedException when disposing {object} at {this}.", nameof(_chromeProcess), nameof(CdtrChromeClient));
-            }
-            catch (Exception e)
-            {
-                _logger.LogError("Error disposing {this}: {e}", nameof(_chromeProcess), e);
-            }
-
             try
             {
                 _chromeSession.Dispose();

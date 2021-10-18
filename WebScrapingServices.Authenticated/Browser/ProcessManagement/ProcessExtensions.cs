@@ -9,7 +9,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
-namespace WebScrapingServices.Authenticated.Browser
+namespace WebScrapingServices.Authenticated.Browser.ProcessManagement
 {
     public static class ProcessExtensions
     {
@@ -77,7 +77,7 @@ namespace WebScrapingServices.Authenticated.Browser
 
         private static void KillProcessUnix(int processId, TimeSpan timeout)
         {
-            string stdout;
+            string? stdout = null;
             RunProcessAndWaitForExit(
                 "kill",
                 $"-TERM {processId}",
@@ -85,7 +85,7 @@ namespace WebScrapingServices.Authenticated.Browser
                 out stdout);
         }
 
-        private static int RunProcessAndWaitForExit(string fileName, string arguments, TimeSpan timeout, out string stdout)
+        private static int RunProcessAndWaitForExit(string fileName, string arguments, TimeSpan timeout, out string? stdout)
         {
             var startInfo = new ProcessStartInfo
             {
@@ -98,6 +98,7 @@ namespace WebScrapingServices.Authenticated.Browser
             var process = Process.Start(startInfo);
 
             stdout = null;
+
             if (process.WaitForExit((int)timeout.TotalMilliseconds))
             {
                 stdout = process.StandardOutput.ReadToEnd();
