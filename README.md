@@ -9,4 +9,4 @@ or [chrome-dev-tools-runtime](https://github.com/BaristaLabs/chrome-dev-tools-ru
 
 ## Interface
 
-The CDP has a rich interface and countless use cases. The WSS reduces its depth and width greatly with a solely web-scraping-focused facade.
+The CDP has a rich interface and countless use cases. Gripper reduces its depth and width greatly with a solely web-scraping-focused facade.
