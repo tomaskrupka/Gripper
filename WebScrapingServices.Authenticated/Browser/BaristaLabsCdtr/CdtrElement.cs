@@ -7,7 +7,7 @@ using BaristaLabs.ChromeDevTools.Runtime.DOM;
 using Microsoft.Extensions.Logging;
 using System.Threading;
 
-namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
+namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
 {
     public class CdtrElement : IElement
     {

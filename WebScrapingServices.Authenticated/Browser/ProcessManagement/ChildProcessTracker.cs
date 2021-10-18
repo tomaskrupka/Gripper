@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WebScrapingServices.Authenticated.Browser.ProcessManagement
+namespace Gripper.Authenticated.Browser.ProcessManagement
 {/// <summary>
  /// Allows processes to be automatically killed if this parent process unexpectedly quits.
  /// This feature requires Windows 8 or greater. On Windows 7, nothing is done.</summary>

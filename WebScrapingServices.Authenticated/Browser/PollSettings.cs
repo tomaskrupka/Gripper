@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WebScrapingServices.Authenticated.Browser
+namespace Gripper.Authenticated.Browser
 {
     public struct PollSettings
     {

@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
+namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
 {
     internal class ChromeSessionInfo
     {

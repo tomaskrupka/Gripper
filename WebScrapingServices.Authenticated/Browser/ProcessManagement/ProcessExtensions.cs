@@ -9,7 +9,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
-namespace WebScrapingServices.Authenticated.Browser.ProcessManagement
+namespace Gripper.Authenticated.Browser.ProcessManagement
 {
     public static class ProcessExtensions
     {

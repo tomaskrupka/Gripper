@@ -8,7 +8,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace WebScrapingServices.Authenticated.Browser
+namespace Gripper.Authenticated.Browser
 {
     public interface IWebClient : IDisposable
     {

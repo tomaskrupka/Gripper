@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
 
-namespace WebScrapingServices.Authenticated.Browser
+namespace Gripper.Authenticated.Browser
 {
     public class RdpEventArgs : EventArgs
     {

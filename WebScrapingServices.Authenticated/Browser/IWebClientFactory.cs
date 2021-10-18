@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
-using WebScrapingServices.Authenticated.Browser.Selenium;
+using Gripper.Authenticated.Browser.Selenium;
 
-namespace WebScrapingServices.Authenticated.Browser
+namespace Gripper.Authenticated.Browser
 {
     public interface IWebClientFactory
     {

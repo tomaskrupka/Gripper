@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace WebScrapingServices.Authenticated.Browser
+namespace Gripper.Authenticated.Browser
 {
     public class WebClientCommandParam
     {

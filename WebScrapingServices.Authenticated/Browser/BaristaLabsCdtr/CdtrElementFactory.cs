@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
+namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
 {
     internal class CdtrElementFactory : ICdtrElementFactory
     {

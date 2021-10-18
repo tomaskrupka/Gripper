@@ -1,7 +1,7 @@
 ﻿using OpenQA.Selenium;
 using System;
 
-namespace WebScrapingServices.Authenticated.Browser.Selenium
+namespace Gripper.Authenticated.Browser.Selenium
 {
     public static class SeleniumExtensions
     {

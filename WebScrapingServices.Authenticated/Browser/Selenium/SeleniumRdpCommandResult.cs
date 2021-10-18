@@ -1,4 +1,4 @@
-﻿namespace WebScrapingServices.Authenticated.Browser.Selenium
+﻿namespace Gripper.Authenticated.Browser.Selenium
 {
     public class SeleniumRdpCommandResult : IRdpCommandResult
     {

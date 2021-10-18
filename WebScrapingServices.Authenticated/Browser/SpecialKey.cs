@@ -1,4 +1,4 @@
-﻿namespace WebScrapingServices.Authenticated.Browser
+﻿namespace Gripper.Authenticated.Browser
 {
     public enum SpecialKey
     {

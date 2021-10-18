@@ -10,7 +10,7 @@ using System.Diagnostics;
 using OpenQA.Selenium.DevTools;
 using Newtonsoft.Json.Linq;
 
-namespace WebScrapingServices.Authenticated.Browser.Selenium
+namespace Gripper.Authenticated.Browser.Selenium
 {
     public class SeleniumChromeClient : IWebClient
     {

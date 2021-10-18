@@ -15,9 +15,9 @@ using BaristaLabs.ChromeDevTools.Runtime.Browser;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using BaristaLabs.ChromeDevTools.Runtime.DOM;
-using WebScrapingServices.Authenticated.Browser.ProcessManagement;
+using Gripper.Authenticated.Browser.ProcessManagement;
 
-namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
+namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
 {
     public partial class CdtrChromeClient : IWebClient
     {

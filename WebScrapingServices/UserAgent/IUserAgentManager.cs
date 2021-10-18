@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace WebScrapingServices.Anonymous.UserAgent
+namespace Gripper.Anonymous.UserAgent
 {
     public interface IUserAgentManager
     {

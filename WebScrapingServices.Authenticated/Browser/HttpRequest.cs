@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace WebScrapingServices.Authenticated.Browser
+namespace Gripper.Authenticated.Browser
 {
     public class HttpRequest
     {

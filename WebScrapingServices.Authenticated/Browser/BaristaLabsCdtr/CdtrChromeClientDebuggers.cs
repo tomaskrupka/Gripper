@@ -7,8 +7,11 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
+namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
 {
+    /// <summary>
+    /// Private debugging methods.
+    /// </summary>
     public partial class CdtrChromeClient
     {
         private async Task LoopMonitorWebSockets()

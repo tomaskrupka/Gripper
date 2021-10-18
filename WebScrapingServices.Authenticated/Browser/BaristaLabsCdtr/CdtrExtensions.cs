@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using BaristaLabs.ChromeDevTools.Runtime.Input;
 
-namespace WebScrapingServices.Authenticated.Browser.BaristaLabsCdtr
+namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
 {
     internal static class CdtrExtensions
     {
