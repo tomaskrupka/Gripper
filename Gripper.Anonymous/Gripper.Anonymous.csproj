@@ -6,6 +6,8 @@
     <AssemblyName>Gripper.Anonymous</AssemblyName>
     <RootNamespace>Gripper.Anonymous</RootNamespace>
     <RepositoryUrl>https://github.com/tomaskrupka/Gripper</RepositoryUrl>
+    <Version>0.0.1</Version>
+    <PackageTags>Latest</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
