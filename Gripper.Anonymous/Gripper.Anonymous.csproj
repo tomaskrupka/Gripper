@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <AssemblyName>Gripper.Anonymous</AssemblyName>
     <RootNamespace>Gripper.Anonymous</RootNamespace>
+    <RepositoryUrl>https://github.com/tomaskrupka/Gripper</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
