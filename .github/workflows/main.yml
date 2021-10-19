@@ -34,12 +34,9 @@ jobs:
         
     - name: Restore dependencies
       run: dotnet restore
-    
-    - name: Build
-      run: dotnet build --no-restore --configuration="Release"
-      
+
     - name: Pack
-      run: dotnet pack  
+      run: dotnet pack --configuration="Release"
       
     - name: Add github source to nuget
       run: dotnet nuget add source --username ${{ github.repository_owner }} --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
