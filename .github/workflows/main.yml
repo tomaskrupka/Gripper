@@ -39,7 +39,7 @@ jobs:
       run: dotnet build --no-restore
       
     - name: Publish Github Package
-      run: dotnet nuget push ${{ github.workspace }}/Gripper.Authenticated/bin/Release/Gripper.Authenticated*.nupkg  --api-key ${{ secrets.GITHUB_TOKEN }} --source github
+      run: dotnet nuget push ${{ github.workspace }}/Gripper.Authenticated/bin/Release/Gripper.Authenticated*.nupkg  --api-key ${{ secrets.GITHUB_TOKEN }} --source "github"
            
       
     - name: Publish NuGet
