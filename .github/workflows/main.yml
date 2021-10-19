@@ -39,8 +39,7 @@ jobs:
       run: dotnet build --no-restore
       
     - name: Publish Github Package
-      run: dotnet nuget add source --username ${{ GITHUB_ACTOR }} --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github https://nuget.pkg.github.com/${{ GITHUB_ACTOR }}/index.json
-           dotnet nuget push ${{ github.workspace }}/Gripper.Authenticated/bin/Release/Gripper.Authenticated*.nupkg  --api-key YOUR_GITHUB_PAT --source github
+      run: dotnet nuget push ${{ github.workspace }}/Gripper.Authenticated/bin/Release/Gripper.Authenticated*.nupkg  --api-key ${{ secrets.GITHUB_TOKEN }} --source github
            
       
     - name: Publish NuGet
