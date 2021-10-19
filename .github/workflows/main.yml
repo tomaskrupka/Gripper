@@ -32,13 +32,16 @@ jobs:
       with:
         dotnet-version: 5.0.x
         
-    - name: Restore dependencies
-      run: dotnet restore
-    
-    - name: Build
-      run: dotnet build --no-restore
+    - name: Pack
+      run: dotnet pack --configuration="Release"
       
-    - name: Publish NuGet
+    - name: Add github source to nuget
+      run: dotnet nuget add source --username ${{ github.repository_owner }} --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
+      
+    - name: Publish to github
+      run: dotnet nuget push ${{ github.workspace }}/Gripper.Authenticated/bin/Release/Gripper.Authenticated*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source github
+    
+    - name: Publish to nuget gallery
       uses: brandedoutcast/publish-nuget@v2.5.5
       with:
         # Filepath of the project to be packaged, relative to root of repository
@@ -61,3 +64,4 @@ jobs:
         NUGET_SOURCE: 'https://api.nuget.org'
         # Flag to toggle pushing symbols along with nuget package to the server, disabled by default
         # INCLUDE_SYMBOLS: # optional
+      
