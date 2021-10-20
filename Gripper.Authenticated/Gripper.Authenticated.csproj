@@ -4,13 +4,26 @@
     <TargetFramework>net5.0</TargetFramework>
     <Nullable>enable</Nullable>
     <Authors>Tomáš Krupka</Authors>
-    <Version>0.0.3</Version>
+    <Version>0.0.4</Version>
     <NeutralLanguage>en-GB</NeutralLanguage>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Description>Gripper is a web scraping toolbox that operates in a browser window under its control. Gripper uses the chrome devtools protocol (CDP) and is configurable to use either Selenium or chrome-dev-tools-runtime as the CDP client.</Description>
     <RepositoryUrl>https://github.com/tomaskrupka/Gripper</RepositoryUrl>
     <PackageTags></PackageTags>
+    <PackageReleaseNotes>With this pre-release, Gripper will with reasonable reliability
+
+    behave nicely with Chrome,
+    kill an attached browser window on unexpected exit,
+    attach all targets (iFrames) within the main tab automatically and relay the RDP events,
+    let you know what's going on in the Debug verbosity setting.
+
+As of now, Gripper still
+
+    might misbehave with Firefox or Edge on pages with many iFrames,
+    uses a static class for process monitoring,
+    might leave hanging browser windows on Linux.
+</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
