@@ -54,8 +54,8 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
 
                 var contentQuad = boxModel.Model.Content;
 
-                var contentX = 0.5 * (contentQuad[0] + contentQuad[1]);
-                var contentY = 0.5 * (contentQuad[0] + contentQuad[2]);
+                var contentX = 0.5 * (contentQuad[0] + contentQuad[2]);
+                var contentY = 0.5 * (contentQuad[1] + contentQuad[5]);
 
                 // TODO: randomize click position.
 

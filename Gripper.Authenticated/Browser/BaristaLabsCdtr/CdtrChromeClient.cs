@@ -65,11 +65,10 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
 
             await _chromeSession.Page.Enable(throwExceptionIfResponseNotReceived: false, cancellationToken: _cancellationToken);
 
-            //_chromeSession.Network.SubscribeToLoadingFinishedEvent(x =>
-            //{
-            //    _logger.LogDebug("Page loaded for request id: {requestId}", x.RequestId);
-            //    _pageLoaded.Set();
-            //});
+            _chromeSession.Page.SubscribeToFrameNavigatedEvent(x =>
+            {
+                _logger.LogDebug("Frame navigated: frameId: {frameId}, loaderId: {loaderId}.", x.Frame.Id, x.Frame.LoaderId);
+            });
         }
 
         private async Task AttachFramesAsync(TargetAttachment targetAttachment)
@@ -123,7 +122,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
                 }
             }
         }
-        private async Task<(Process, ChromeSession)> LaunchAndConnectAsync(WebClientSettings settings)
+        private async Task<(Process, ChromeSession)> LaunchAsync(WebClientSettings settings)
         {
             var browserArgs = new StringBuilder()
                 .Append("--remote-debugging-port=").Append(settings.RemoteDebuggingPort)
@@ -176,12 +175,6 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
 
             var chromeSession = new ChromeSession(_loggerFactory.CreateLogger<ChromeSession>(), sessionInfos.First(x => x.Type == "page").WebSocketDebuggerUrl);
 
-            //Navigate to homepage.
-            var navigateResult = await chromeSession.Page.Navigate(new Page.NavigateCommand
-            {
-                Url = settings.Homepage
-            });
-
             _logger.LogDebug("ChromeSession launched and connected to Chrome RDP server");
 
             return (chromeProcess, chromeSession);
@@ -194,7 +187,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
             _logger = loggerFactory.CreateLogger<CdtrChromeClient>();
             _cdtrElementFactory = cdtrElementFactory;
 
-            (_chromeProcess, _chromeSession) = LaunchAndConnectAsync(settings).Result;
+            (_chromeProcess, _chromeSession) = LaunchAsync(settings).Result;
 
             _cookies = new CookieContainer();
 
@@ -211,6 +204,8 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
             _cancellationToken = _cancellationTokenSource.Token;
 
             _hasDisposalStarted = false;
+
+            GoToUrlAsync(settings.Homepage).Wait();
 
             _logger.LogDebug("Exiting {this} constructor.", nameof(CdtrChromeClient));
         }
@@ -279,6 +274,9 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
             catch (Exception e)
             {
                 _logger.LogError("Failed to {name}: {e}.", nameof(FindElementByCssSelectorAsync), e);
+
+                //var documentNode = await GetDocumentNodeAsync();
+
                 throw;
             }
         }
@@ -399,13 +397,14 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
             try
             {
 
-                await _chromeSession.Page.Navigate(new Page.NavigateCommand
+                var navigateCommandResponse = await _chromeSession.Page.Navigate(new Page.NavigateCommand
                 {
                     Url = address
                 },
                 throwExceptionIfResponseNotReceived: false,
                 cancellationToken: _cancellationToken);
-                //await Task.Run(() => _pageLoaded.WaitOne());
+
+                _logger.LogDebug("{command} response received with frameId: {frameId}, loaderId: {loaderId}", nameof(Page.NavigateCommand), navigateCommandResponse.FrameId, navigateCommandResponse.LoaderId);
             }
             catch (Exception e)
             {
