@@ -191,8 +191,12 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
 
             _cookies = new CookieContainer();
 
-            SubscribeToRdpEventsAsync();
-            AttachFramesAsync(settings.TargetAttachment);
+            _logger.LogDebug("Subscribing to rdp events.");
+
+            // Blocking until subscription and frames attachment tasks are completed is necessary here.
+            // Random SocketExceptions inside the _chromeSession happen when this is done in parallel with client code already using the _chromeSession (like navigate, reload).
+            SubscribeToRdpEventsAsync().Wait();
+            AttachFramesAsync(settings.TargetAttachment).Wait();
 
             //if (Debugger.IsAttached)
             //{
@@ -261,7 +265,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
                 cancellationToken: _cancellationToken);
 
                 _logger.LogDebug("Resolved node id: {nodeId}", querySelectorResult.NodeId);
-                
+
                 if (querySelectorResult.NodeId == 0)
                 {
                     _logger.LogWarning("Node id resolved as 0: {cssSelector}", cssSelector);
@@ -275,7 +279,9 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
             {
                 _logger.LogError("Failed to {name}: {e}.", nameof(FindElementByCssSelectorAsync), e);
 
-                //var documentNode = await GetDocumentNodeAsync();
+                // TODO: This is to test if the NoSuchNode exception is due to the document node id changing during the method run.
+                // Remove this when the bug is solved.
+                var documentNode = await GetDocumentNodeAsync();
 
                 throw;
             }
@@ -374,7 +380,6 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
         {
             try
             {
-
                 var navigationHistory = await _chromeSession.Page.GetNavigationHistory(new Page.GetNavigationHistoryCommand
                 {
 
@@ -409,7 +414,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
             catch (Exception e)
             {
 
-                _logger.LogError("Failed to go to url: {e}", e);
+                _logger.LogError("Failed to {name}: {e}", nameof(GoToUrlAsync), e);
                 throw;
             }
         }
