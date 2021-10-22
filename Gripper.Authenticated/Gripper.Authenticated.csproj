@@ -4,21 +4,21 @@
     <TargetFramework>net5.0</TargetFramework>
     <Nullable>enable</Nullable>
     <Authors>Tomáš Krupka</Authors>
-    <Version>0.0.5</Version>
+    <Version>0.0.6</Version>
     <NeutralLanguage>en-GB</NeutralLanguage>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Description>Gripper is a web scraping toolbox that operates in a browser window under its control. Gripper uses the chrome devtools protocol (CDP) and is configurable to use either Selenium or chrome-dev-tools-runtime as the CDP client.</Description>
     <RepositoryUrl>https://github.com/tomaskrupka/Gripper</RepositoryUrl>
     <PackageTags></PackageTags>
-    <PackageReleaseNotes>Client code is guaranteed to run after all the internals have been set up.</PackageReleaseNotes>
+    <PackageReleaseNotes>Patch -- stalled browser due to premature attempts to attach targets now fixed. See related commit for the full story.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="BaristaLabs.ChromeDevTools.Runtime" Version="70.0.3538.77" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
-    <PackageReference Include="Selenium.WebDriver" Version="4.0.0-rc1" />
-    <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="93.0.4577.1500" />
+    <PackageReference Include="Selenium.WebDriver" Version="4.0.1" />
+    <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="95.0.4638.1700" />
   </ItemGroup>
 
 </Project>

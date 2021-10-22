@@ -71,20 +71,27 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
             });
         }
 
-        private async Task AttachFramesAsync(TargetAttachment targetAttachment)
+        /// <summary>
+        /// Continuously enforce that events triggered on children iFrames are captured.
+        /// Make sure to <see cref="SubscribeToRdpEventsAsync"/>
+        /// </summary>
+        /// <param name="targetAttachment">What strategy shall be used.</param>
+        /// <returns></returns>
+        private void SetupTargetAttachment(TargetAttachment targetAttachment)
         {
             switch (targetAttachment)
             {
                 case TargetAttachment.Default:
                 case TargetAttachment.Auto:
-                    await _chromeSession.Target.SetAutoAttach(new BaristaLabs.ChromeDevTools.Runtime.Target.SetAutoAttachCommand
-                    {
-                        AutoAttach = true,
-                        WaitForDebuggerOnStart = true,
-                        Flatten = true
-                    },
-                    throwExceptionIfResponseNotReceived: false,
-                    cancellationToken: _cancellationToken);
+                    _chromeSession.Page.SubscribeToFrameNavigatedEvent(async x =>
+                        await _chromeSession.Target.SetAutoAttach(new BaristaLabs.ChromeDevTools.Runtime.Target.SetAutoAttachCommand
+                        {
+                            AutoAttach = true,
+                            WaitForDebuggerOnStart = true,
+                            Flatten = true
+                        },
+                        throwExceptionIfResponseNotReceived: false,
+                        cancellationToken: _cancellationToken));
                     break;
 
                 case TargetAttachment.SeekAndAttach:
@@ -196,8 +203,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
             // Blocking until subscription and frames attachment tasks are completed is necessary here.
             // Random SocketExceptions inside the _chromeSession happen when this is done in parallel with client code already using the _chromeSession (like navigate, reload).
             SubscribeToRdpEventsAsync().Wait();
-            AttachFramesAsync(settings.TargetAttachment).Wait();
-
+            SetupTargetAttachment(settings.TargetAttachment);
             //if (Debugger.IsAttached)
             //{
             //    Task.Run(LoopMonitorWebSockets);
