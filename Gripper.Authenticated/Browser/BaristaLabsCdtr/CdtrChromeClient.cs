@@ -33,6 +33,8 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
         private CookieContainer _cookies;
         private Process _chromeProcess;
 
+        private Action<string> _frameStoppedLoading;
+
         public CookieContainer Cookies => _cookies;
 
         //private AutoResetEvent _pageLoaded;
@@ -65,9 +67,9 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
 
             await _chromeSession.Page.Enable(throwExceptionIfResponseNotReceived: false, cancellationToken: _cancellationToken);
 
-            _chromeSession.Page.SubscribeToFrameNavigatedEvent(x =>
+            _chromeSession.Page.SubscribeToFrameStoppedLoadingEvent(x =>
             {
-                _logger.LogDebug("Frame navigated: frameId: {frameId}, loaderId: {loaderId}.", x.Frame.Id, x.Frame.LoaderId);
+                _frameStoppedLoading?.Invoke(x.FrameId);
             });
         }
 
@@ -214,6 +216,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
             _cancellationToken = _cancellationTokenSource.Token;
 
             _hasDisposalStarted = false;
+            _frameStoppedLoading = x => _logger.LogDebug("{name}: {frameId}", nameof(_frameStoppedLoading), x);
 
             GoToUrlAsync(settings.Homepage).Wait();
 
@@ -280,14 +283,14 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
 
                 return _cdtrElementFactory.CreateCdtrElement(querySelectorResult.NodeId, _chromeSession, _cancellationToken);
             }
-
+            catch (CommandResponseException e)
+            {
+                _logger.LogWarning("{name} while page was loading resulted in an exception: {e}.", nameof(FindElementByCssSelectorAsync), e);
+                return null;
+            }
             catch (Exception e)
             {
                 _logger.LogError("Failed to {name}: {e}.", nameof(FindElementByCssSelectorAsync), e);
-
-                // TODO: This is to test if the NoSuchNode exception is due to the document node id changing during the method run.
-                // Remove this when the bug is solved.
-                var documentNode = await GetDocumentNodeAsync();
 
                 throw;
             }
@@ -407,6 +410,31 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
         {
             try
             {
+                var frameLoaded = new ManualResetEventSlim(false);
+
+                var frameTree = await _chromeSession.Page.GetFrameTree(new Page.GetFrameTreeCommand());
+                var frameTreeId = frameTree?.FrameTree?.Frame?.Id;
+
+                Action<string> frameStoppedLoading = x =>
+                {
+                    if (x == frameTreeId)
+                    {
+                        frameLoaded?.Set();
+                    }
+                };
+
+                // If we know the frame id, register the stoppedLoading event handler before triggering the navigation
+                // to make sure the eventhandler is run no matter how quick the navigation response is.
+
+                if (frameTreeId == null)
+                {
+                    _logger.LogWarning("{name} with no original frame tree id.", nameof(GoToUrlAsync));
+                }
+                else
+                {
+                    _logger.LogDebug("{name} registered frameStoppedLoading event handler with original frameTreeId: {frameTreeId}", nameof(GoToUrlAsync), frameTreeId);
+                    _frameStoppedLoading += frameStoppedLoading;
+                }
 
                 var navigateCommandResponse = await _chromeSession.Page.Navigate(new Page.NavigateCommand
                 {
@@ -415,11 +443,34 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
                 throwExceptionIfResponseNotReceived: false,
                 cancellationToken: _cancellationToken);
 
-                _logger.LogDebug("{command} response received with frameId: {frameId}, loaderId: {loaderId}", nameof(Page.NavigateCommand), navigateCommandResponse.FrameId, navigateCommandResponse.LoaderId);
+                if (frameTreeId != navigateCommandResponse.FrameId)
+                {
+                    _logger.LogError("{navigateCommand} response frame id {frameId} does not match original frame tree root id {originalFrameId}.", nameof(Page.NavigateCommand), navigateCommandResponse.FrameId, frameTreeId);
+                }
+
+                // If we didn't know the frame id in the first place,
+                // we had to run the navigation first, then get the frame id from its response
+                // and use it to capture the right stoppedLoading event.
+
+                if (frameTreeId == null)
+                {
+                    frameTreeId = navigateCommandResponse.FrameId;
+                    _logger.LogDebug("{name} registered frameStoppedLoading event handler with frameTreeId from navigate command response: {frameTreeId}", nameof(GoToUrlAsync), frameTreeId);
+                    _frameStoppedLoading += frameStoppedLoading;
+                }
+
+                _logger.LogDebug("{name} waiting for {frameLoaded} event", nameof(GoToUrlAsync), nameof(frameLoaded));
+
+                // TODO: add Timespan/CancellationToken param to prevent stall. Will require interface amendment.
+                // TODO: wrap asynchronously. Maybe https://github.com/StephenCleary/AsyncEx/blob/8a73d0467d40ca41f9f9cf827c7a35702243abb8/src/Nito.AsyncEx.Interop.WaitHandles/Interop/WaitHandleAsyncFactory.cs
+                frameLoaded.Wait();
+
+                _logger.LogDebug("{name} received {frameLoaded} event. Removing delegate from execution list.", nameof(GoToUrlAsync), nameof(frameLoaded));
+
+                Delegate.Remove(_frameStoppedLoading, frameStoppedLoading);
             }
             catch (Exception e)
             {
-
                 _logger.LogError("Failed to {name}: {e}", nameof(GoToUrlAsync), e);
                 throw;
             }
