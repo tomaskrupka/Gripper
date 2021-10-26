@@ -7,8 +7,8 @@ namespace Gripper.Authenticated.Browser
 {
     public interface IWebClientFactory
     {
-        public Task<IWebClient> LaunchAndConnectAsync();
-        public Task<IWebClient> LaunchAndConnectAsync(WebClientSettings settings);
+        public Task<IWebClient> LaunchAsync();
+        public Task<IWebClient> LaunchAsync(WebClientSettings settings);
     }
     public class WebClientFactory : IWebClientFactory
     {
@@ -22,12 +22,12 @@ namespace Gripper.Authenticated.Browser
             _logger = _loggerFactory.CreateLogger<WebClientFactory>();
             _jsBuilder = jsBuilder;
         }
-        public async Task<IWebClient> LaunchAndConnectAsync()
+        public async Task<IWebClient> LaunchAsync()
         {
             throw new System.NotImplementedException();
         }
 
-        public async Task<IWebClient> LaunchAndConnectAsync(WebClientSettings settings)
+        public async Task<IWebClient> LaunchAsync(WebClientSettings settings)
         {
             switch (settings.WebClientImplementation)
             {

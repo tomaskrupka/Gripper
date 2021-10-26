@@ -221,7 +221,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
             _hasDisposalStarted = false;
             _frameStoppedLoading = x => _logger.LogDebug("{name}: {frameId}", nameof(_frameStoppedLoading), x);
 
-            GoToUrlAsync(settings.Homepage, CancellationToken.None, PollSettings.Default).Wait();
+            GoToUrlAsync(settings.Homepage, CancellationToken.None, PollSettings.FrameDetectionDefault).Wait();
 
             _logger.LogDebug("Exiting {this} constructor.", nameof(CdtrChromeClient));
         }
@@ -231,6 +231,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
         #region Public IWebClient implementation
 
         public event EventHandler<RdpEventArgs>? WebClientEvent;
+     
         public async Task<string> ExecuteScriptAsync(string script)
         {
             try
@@ -251,6 +252,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
 
             }
         }
+      
         public async Task<IElement?> FindElementByCssSelectorAsync(string cssSelector)
         {
             try
@@ -299,6 +301,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
                 throw;
             }
         }
+     
         public async Task<IElement?> WaitUntilElementPresentAsync(string cssSelector, CancellationToken cancellationToken, PollSettings pollSettings)
         {
             var stopwatch = Stopwatch.StartNew();
@@ -318,6 +321,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
 
             return null;
         }
+      
         public async Task<CookieContainer> GetAllCookiesAsync()
         {
             try
@@ -352,6 +356,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
             }
 
         }
+      
         public async Task<string> GetCurrentUrlAsync()
         {
             try
@@ -372,17 +377,18 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
                 throw;
             }
         }
+      
         public async Task GoToUrlAsync(string address, CancellationToken cancellationToken, PollSettings pollSettings)
         {
             try
             {
-                var frameLoaded = new AutoResetEvent(false);
+                var loadStopwatch = Stopwatch.StartNew();
+
                 var loadedFramesIds = new ConcurrentDictionary<string, byte>();
 
                 Action<string> frameStoppedLoading = x =>
                 {
                     loadedFramesIds[x] = 0;
-                    frameLoaded?.Set();
                 };
 
                 _frameStoppedLoading += frameStoppedLoading;
@@ -398,23 +404,34 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
 
                 bool FramesLoaded(FrameTree frameTree)
                 {
+                    // empty or unloaded
                     if (frameTree?.Frame?.Id == null || !loadedFramesIds.ContainsKey(frameTree.Frame.Id))
                     {
                         return false;
                     }
 
+                    // leaf or loaded
                     return frameTree.ChildFrames == null || frameTree.ChildFrames.All(x => FramesLoaded(x));
                 }
 
-                while (true)
+                while (!cancellationToken.IsCancellationRequested && loadStopwatch.ElapsedMilliseconds < pollSettings.TimeoutMs)
                 {
-                    frameLoaded.WaitOne(TimeSpan.FromSeconds(30));
+                    await Task.Delay(pollSettings.PeriodMs);
 
                     var frameTreeResult = await _chromeSession.Page.GetFrameTree();
 
                     if (FramesLoaded(frameTreeResult.FrameTree))
                     {
-                        break;
+                        await Task.Delay(pollSettings.PeriodMs);
+
+                        // Some previously unseen frames might have fired during the delay.
+
+                        var verificationFrameTreeResult = await _chromeSession.Page.GetFrameTree();
+
+                        if (FramesLoaded(verificationFrameTreeResult.FrameTree))
+                        {
+                            break;
+                        }
                     }
                 }
 
@@ -428,6 +445,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
                 throw;
             }
         }
+      
         public async Task ReloadAsync(CancellationToken cancellationToken, PollSettings pollSettings)
         {
             try

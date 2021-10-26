@@ -41,8 +41,9 @@ namespace Gripper.Authenticated.Browser
             return new PollSettings(value.PeriodMs, value.TimeoutMs);
         }
 
-        public static PollSettings Long => (100, 30_000);
-        public static PollSettings Default => (100, 10_000);
-        public static PollSettings Short => (100, 3_000);
+        public static PollSettings ElementDetectionLong => (100, 30_000);
+        public static PollSettings ElementDetectionDefault => (100, 10_000);
+        public static PollSettings ElementDetectionShort => (100, 3_000);
+        public static PollSettings FrameDetectionDefault => (1_500, 15_000);
     }
 }
