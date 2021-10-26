@@ -6,7 +6,4 @@ It uses the [chrome devtools protocol](https://chromedevtools.github.io/devtools
 Gripper is configurable to use either [Selenium](https://github.com/SeleniumHQ)
 or [chrome-dev-tools-runtime](https://github.com/BaristaLabs/chrome-dev-tools-runtime) as the CDP client.
 
-
-## Interface
-
 The CDP has a rich interface and countless use cases. Gripper reduces its depth and width greatly with a solely web-scraping-focused facade.
