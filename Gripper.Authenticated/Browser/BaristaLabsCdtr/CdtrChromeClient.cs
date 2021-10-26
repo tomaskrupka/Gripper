@@ -11,7 +11,6 @@ using System.Net.Http;
 using Newtonsoft.Json;
 using Page = BaristaLabs.ChromeDevTools.Runtime.Page;
 using Runtime = BaristaLabs.ChromeDevTools.Runtime.Runtime;
-using BaristaLabs.ChromeDevTools.Runtime.Browser;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using BaristaLabs.ChromeDevTools.Runtime.DOM;
@@ -351,41 +350,6 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
             }
 
         }
-        private async Task<CookieContainer> TestSession(CancellationToken token)
-        {
-            try
-            {
-                var rawCookies = await _chromeSession.Network.GetAllCookies(new BaristaLabs.ChromeDevTools.Runtime.Network.GetAllCookiesCommand { }, throwExceptionIfResponseNotReceived: false, cancellationToken: _cancellationToken);
-
-                _logger.LogDebug("raw cookies: {rawCookies}", rawCookies?.Cookies?.Length.ToString() ?? "null");
-
-                var cookieContainer = new CookieContainer();
-
-                if (rawCookies?.Cookies == null)
-                {
-                    return cookieContainer;
-                }
-
-                foreach (var cookie in rawCookies.Cookies)
-                {
-                    if (cookie == null)
-                    {
-                        continue;
-                    }
-
-                    cookieContainer.Add(new Cookie(cookie.Name, cookie.Value, cookie.Path, cookie.Domain));
-                }
-
-                return cookieContainer;
-            }
-            catch (Exception e)
-            {
-                _logger.LogError("Exception getting all cookies: {e}", e);
-                throw;
-            }
-
-        }
-
         public async Task<string> GetCurrentUrlAsync()
         {
             try

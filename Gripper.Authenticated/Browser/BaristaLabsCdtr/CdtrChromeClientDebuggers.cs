@@ -3,8 +3,10 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
@@ -14,6 +16,41 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
     /// </summary>
     public partial class CdtrChromeClient
     {
+        private async Task<CookieContainer> TestSession(CancellationToken token)
+        {
+            try
+            {
+                var rawCookies = await _chromeSession.Network.GetAllCookies(new BaristaLabs.ChromeDevTools.Runtime.Network.GetAllCookiesCommand { }, throwExceptionIfResponseNotReceived: false, cancellationToken: _cancellationToken);
+
+                _logger.LogDebug("raw cookies: {rawCookies}", rawCookies?.Cookies?.Length.ToString() ?? "null");
+
+                var cookieContainer = new CookieContainer();
+
+                if (rawCookies?.Cookies == null)
+                {
+                    return cookieContainer;
+                }
+
+                foreach (var cookie in rawCookies.Cookies)
+                {
+                    if (cookie == null)
+                    {
+                        continue;
+                    }
+
+                    cookieContainer.Add(new Cookie(cookie.Name, cookie.Value, cookie.Path, cookie.Domain));
+                }
+
+                return cookieContainer;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Exception getting all cookies: {e}", e);
+                throw;
+            }
+
+        }
+
         private async Task LoopMonitorWebSockets()
         {
             using var httpClient = new HttpClient();
