@@ -22,6 +22,8 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
 {
     public partial class CdtrChromeClient : IWebClient
     {
+        #region Private
+
         private ChromeSession _chromeSession;
         private CancellationTokenSource _cancellationTokenSource;
         private CancellationToken _cancellationToken;
@@ -37,8 +39,6 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
         private Action<string> _frameStoppedLoading;
 
         public CookieContainer Cookies => _cookies;
-
-        //private AutoResetEvent _pageLoaded;
 
         private async Task<Node> GetDocumentNodeAsync()
         {
@@ -131,6 +131,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
                 }
             }
         }
+
         private async Task<(Process, ChromeSession)> LaunchAsync(WebClientSettings settings)
         {
             var browserArgs = new StringBuilder()
@@ -188,7 +189,9 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
 
             return (chromeProcess, chromeSession);
         }
+        #endregion
 
+        #region Ctor
 
         internal CdtrChromeClient(ILoggerFactory loggerFactory, ICdtrElementFactory cdtrElementFactory, WebClientSettings settings)
         {
@@ -218,14 +221,16 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
             _hasDisposalStarted = false;
             _frameStoppedLoading = x => _logger.LogDebug("{name}: {frameId}", nameof(_frameStoppedLoading), x);
 
-            GoToUrlAsync(settings.Homepage).Wait();
+            GoToUrlAsync(settings.Homepage, CancellationToken.None, PollSettings.Default).Wait();
 
             _logger.LogDebug("Exiting {this} constructor.", nameof(CdtrChromeClient));
         }
 
+        #endregion
+
+        #region Public IWebClient implementation
 
         public event EventHandler<RdpEventArgs>? WebClientEvent;
-
         public async Task<string> ExecuteScriptAsync(string script)
         {
             try
@@ -246,7 +251,6 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
 
             }
         }
-
         public async Task<IElement?> FindElementByCssSelectorAsync(string cssSelector)
         {
             try
@@ -295,7 +299,6 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
                 throw;
             }
         }
-
         public async Task<IElement?> WaitUntilElementPresentAsync(string cssSelector, CancellationToken cancellationToken, PollSettings pollSettings)
         {
             var stopwatch = Stopwatch.StartNew();
@@ -315,7 +318,6 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
 
             return null;
         }
-
         public async Task<CookieContainer> GetAllCookiesAsync()
         {
             try
@@ -370,8 +372,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
                 throw;
             }
         }
-
-        public async Task GoToUrlAsync(string address)
+        public async Task GoToUrlAsync(string address, CancellationToken cancellationToken, PollSettings pollSettings)
         {
             try
             {
@@ -427,8 +428,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
                 throw;
             }
         }
-
-        public async Task ReloadAsync()
+        public async Task ReloadAsync(CancellationToken cancellationToken, PollSettings pollSettings)
         {
             try
             {
@@ -511,6 +511,6 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
             }
         }
 
+        #endregion
     }
-
 }

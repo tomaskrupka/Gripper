@@ -22,8 +22,8 @@ namespace Gripper.Authenticated.Browser
 
 
         public Task<string> GetCurrentUrlAsync();
-        public Task GoToUrlAsync(string address);
-        public Task ReloadAsync();
+        public Task GoToUrlAsync(string address, CancellationToken cancellationToken, PollSettings pollSettings);
+        public Task ReloadAsync(CancellationToken cancellationToken, PollSettings pollSettings);
         public Task EnterFullScreenAsync();
         public Task<IRdpCommandResult> ExecuteRdpCommandAsync(string commandName);
         public Task<JToken> ExecuteRdpCommandAsync(string commandName, JToken commandParams);

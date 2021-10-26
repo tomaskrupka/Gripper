@@ -172,12 +172,12 @@ namespace Gripper.Authenticated.Browser.Selenium
             return _driver.Url;
         }
 
-        public async Task GoToUrlAsync(string address)
+        public async Task GoToUrlAsync(string address, CancellationToken cancellationToken, PollSettings pollSettings)
         {
             _navigation.GoToUrl(address);
         }
 
-        public async Task ReloadAsync()
+        public async Task ReloadAsync(CancellationToken cancellationToken, PollSettings pollSettings)
         {
             _navigation.Refresh();
         }
