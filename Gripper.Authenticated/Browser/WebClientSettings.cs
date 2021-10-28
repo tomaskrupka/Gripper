@@ -14,6 +14,7 @@ namespace Gripper.Authenticated.Browser
         public DirectoryInfo UserDataDir;
         public bool TriggerKeyboardCommandListener;
         public string Homepage;
+        public PollSettings DefaultPageLoadPollSettings;
         public string BrowserLocation;
         public int RemoteDebuggingPort;
     }

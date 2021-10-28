@@ -134,6 +134,12 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
         {
             try
             {
+                if (startupCleanup == BrowserCleanupSettings.None)
+                {
+                    _logger.LogDebug("{name} set to {value}. Exiting {this}.", nameof(BrowserCleanupSettings), BrowserCleanupSettings.None, nameof(DoPreStartupCleanup));
+                    return;
+                }
+
                 if (!userDataDir.Exists)
                 {
                     return;
@@ -272,7 +278,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
             _hasDisposalStarted = false;
             _frameStoppedLoading = x => _logger.LogDebug("{name}: {frameId}", nameof(_frameStoppedLoading), x);
 
-            GoToUrlAsync(settings.Homepage, CancellationToken.None, PollSettings.FrameDetectionDefault).Wait();
+            GoToUrlAsync(settings.Homepage, CancellationToken.None, settings.DefaultPageLoadPollSettings).Wait();
 
             _logger.LogDebug("Exiting {this} constructor.", nameof(CdtrChromeClient));
         }
@@ -469,25 +475,43 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
                         return false;
                     }
 
-                    // leaf or loaded
+                    // leaf or loaded children
                     return frameTree.ChildFrames == null || frameTree.ChildFrames.All(x => FramesLoaded(x));
                 }
 
-                while (!cancellationToken.IsCancellationRequested && loadStopwatch.ElapsedMilliseconds < pollSettings.TimeoutMs)
+                while (!cancellationToken.IsCancellationRequested)
                 {
+                    var timedOut = loadStopwatch.ElapsedMilliseconds > pollSettings.TimeoutMs;
+
+                    if (timedOut)
+                    {
+                        _logger.LogInformation("{name} waiting for new iFrames timed out. Some may have not been attached. Consider relaxing the {timeout} parameter.", nameof(GoToUrlAsync), nameof(PollSettings.TimeoutMs));
+                        break;
+                    }
+
                     await Task.Delay(pollSettings.PeriodMs);
 
                     var frameTreeResult = await _chromeSession.Page.GetFrameTree(throwExceptionIfResponseNotReceived: false);
 
-                    if (FramesLoaded(frameTreeResult.FrameTree))
+                    var framesCount = loadedFramesIds.Count;
+
+                    var framesLoaded = FramesLoaded(frameTreeResult.FrameTree);
+
+                    _logger.LogDebug("Loaded frames ids: {framesCount}. All loaded: {frameTreeResult}", framesCount, framesLoaded);
+
+                    if (framesLoaded)
                     {
                         await Task.Delay(pollSettings.PeriodMs);
 
-                        // Some previously unseen frames might have fired during the delay.
+                        // Some previously unseen frames might have been attached during the delay.
 
                         var verificationFrameTreeResult = await _chromeSession.Page.GetFrameTree(throwExceptionIfResponseNotReceived: false);
 
-                        if (FramesLoaded(verificationFrameTreeResult.FrameTree))
+                        var framesLoadedVerification = FramesLoaded(verificationFrameTreeResult.FrameTree);
+
+                        _logger.LogDebug("Verification: Loaded frames ids: {framesCount}. All loaded: {frameTreeResult}", loadedFramesIds.Count, framesLoadedVerification);
+
+                        if (framesLoadedVerification && loadedFramesIds.Count == framesCount)
                         {
                             break;
                         }
@@ -495,6 +519,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
                 }
 
                 _logger.LogDebug("{name} removing delegate from execution list.", nameof(GoToUrlAsync));
+                _logger.LogDebug("Exiting {name} in {elapsed}", nameof(GoToUrlAsync), loadStopwatch.Elapsed);
 
                 Delegate.Remove(_frameStoppedLoading, frameStoppedLoading);
             }

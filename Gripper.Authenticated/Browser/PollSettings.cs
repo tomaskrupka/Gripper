@@ -45,5 +45,6 @@ namespace Gripper.Authenticated.Browser
         public static PollSettings ElementDetectionDefault => (100, 10_000);
         public static PollSettings ElementDetectionShort => (100, 3_000);
         public static PollSettings FrameDetectionDefault => (1_500, 15_000);
+        public static PollSettings FrameDetectionLong => (5_000, 20_000);
     }
 }
