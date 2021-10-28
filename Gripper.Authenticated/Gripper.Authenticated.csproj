@@ -4,14 +4,14 @@
     <TargetFramework>net5.0</TargetFramework>
     <Nullable>enable</Nullable>
     <Authors>Tomáš Krupka</Authors>
-    <Version>0.2.0</Version>
+    <Version>0.2.1</Version>
     <NeutralLanguage>en-GB</NeutralLanguage>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Description>Gripper is a web scraping toolbox that operates in a browser window under its control. Gripper uses the chrome devtools protocol (CDP) and is configurable to use either Selenium or chrome-dev-tools-runtime as the CDP client.</Description>
     <RepositoryUrl>https://github.com/tomaskrupka/Gripper</RepositoryUrl>
     <PackageTags></PackageTags>
-    <PackageReleaseNotes>Backward incompatible changes to the API.</PackageReleaseNotes>
+    <PackageReleaseNotes>Options for profile directory cleanup pre-startup.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
