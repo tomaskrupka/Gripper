@@ -17,6 +17,7 @@ using BaristaLabs.ChromeDevTools.Runtime.DOM;
 using Gripper.Authenticated.Browser.ProcessManagement;
 using System.Collections.Concurrent;
 using BaristaLabs.ChromeDevTools.Runtime.Page;
+using System.IO;
 
 namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
 {
@@ -68,11 +69,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
 
             await _chromeSession.Page.Enable(throwExceptionIfResponseNotReceived: false, cancellationToken: _cancellationToken);
 
-            _chromeSession.Page.SubscribeToFrameStoppedLoadingEvent(x =>
-            {
-                _frameStoppedLoading?.Invoke(x.FrameId);
-            });
-
+            _chromeSession.Page.SubscribeToFrameStoppedLoadingEvent(x => _frameStoppedLoading?.Invoke(x.FrameId));
             _chromeSession.Page.SubscribeToFrameAttachedEvent(x => _logger.LogDebug("Frame attached: {frameId}", x.FrameId));
             _chromeSession.Page.SubscribeToFrameNavigatedEvent(x => _logger.LogDebug("Frame navigated: {frameId}", x.Frame.Id));
             _chromeSession.Page.SubscribeToFrameStartedLoadingEvent(x => _logger.LogDebug("Frame started loading: {frameId}", x.FrameId));
@@ -84,12 +81,12 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
         /// </summary>
         /// <param name="targetAttachment">What strategy shall be used.</param>
         /// <returns></returns>
-        private void SetupTargetAttachment(TargetAttachment targetAttachment)
+        private void SetupTargetAttachment(TargetAttachmentMode targetAttachment)
         {
             switch (targetAttachment)
             {
-                case TargetAttachment.Default:
-                case TargetAttachment.Auto:
+                case TargetAttachmentMode.Default:
+                case TargetAttachmentMode.Auto:
                     _chromeSession.Page.SubscribeToFrameStoppedLoadingEvent(async x =>
                         await _chromeSession.Target.SetAutoAttach(new BaristaLabs.ChromeDevTools.Runtime.Target.SetAutoAttachCommand
                         {
@@ -101,7 +98,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
                         cancellationToken: _cancellationToken));
                     break;
 
-                case TargetAttachment.SeekAndAttach:
+                case TargetAttachmentMode.SeekAndAttach:
                     LoopSeekAndAttachTargetsAsync(TimeSpan.FromSeconds(10));
                     break;
 
@@ -132,20 +129,79 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
             }
         }
 
-        private async Task<(Process, ChromeSession)> LaunchAsync(WebClientSettings settings)
+
+        public void DoPreStartupCleanup(DirectoryInfo userDataDir, BrowserCleanupSettings startupCleanup)
         {
+            try
+            {
+                if (!userDataDir.Exists)
+                {
+                    return;
+                }
+
+                var profileDirectory = userDataDir.GetDirectories().FirstOrDefault(x => x.Name.ToLower() == "default");
+
+                if (profileDirectory == null)
+                {
+                    return;
+                }
+
+                if (startupCleanup.HasFlag(BrowserCleanupSettings.Profile))
+                {
+                    profileDirectory.Delete(true);
+                    return;
+                }
+
+                if (startupCleanup.HasFlag(BrowserCleanupSettings.Cache))
+                {
+                    _logger.LogWarning("Clearing browser cache.");
+                    profileDirectory.GetDirectories().FirstOrDefault(x => x.Name.ToLower() == "cache")?.Delete(true);
+                    profileDirectory.GetDirectories().FirstOrDefault(x => x.Name.ToLower() == "storage")?.Delete(true);
+                    profileDirectory.GetDirectories().FirstOrDefault(x => x.Name.ToLower() == "session storage")?.Delete(true);
+                    profileDirectory.GetDirectories().FirstOrDefault(x => x.Name.ToLower() == "sessions")?.Delete(true);
+                    profileDirectory.GetDirectories().FirstOrDefault(x => x.Name.ToLower() == "local storage")?.Delete(true);
+                }
+
+                if (startupCleanup.HasFlag(BrowserCleanupSettings.Cookies))
+                {
+                    _logger.LogWarning("Clearing browser cookies.");
+                    profileDirectory.GetFiles().FirstOrDefault(x => x.Name.ToLower() == "cookies")?.Delete();
+                    profileDirectory.GetFiles().FirstOrDefault(x => x.Name.ToLower() == "cookies-journal")?.Delete();
+                }
+
+                if (startupCleanup.HasFlag(BrowserCleanupSettings.Logins))
+                {
+                    _logger.LogWarning("Clearing browser logins.");
+                    profileDirectory.GetFiles().FirstOrDefault(x => x.Name.ToLower() == "login data")?.Delete();
+                    profileDirectory.GetFiles().FirstOrDefault(x => x.Name.ToLower() == "login data for account")?.Delete();
+                    profileDirectory.GetFiles().FirstOrDefault(x => x.Name.ToLower() == "login data for account-journal")?.Delete();
+                    profileDirectory.GetFiles().FirstOrDefault(x => x.Name.ToLower() == "login data-journal")?.Delete();
+                }
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogCritical("Failed to {name}.", nameof(DoPreStartupCleanup));
+                throw;
+            }
+        }
+
+        public async Task<(Process, ChromeSession)> LaunchAsync(WebClientSettings settings)
+        {
+            DoPreStartupCleanup(settings.UserDataDir, settings.StartupCleanup);
+
             var browserArgs = new StringBuilder()
-                .Append("--remote-debugging-port=").Append(settings.RemoteDebuggingPort)
-                .Append(@" --user-data-dir=C:\CdtrProfiles\").Append(settings.UserProfileName).Append('\\');
+                .Append(" --remote-debugging-port=").Append(settings.RemoteDebuggingPort)
+                .Append(" --user-data-dir=").Append(settings.UserDataDir.FullName);
 
             switch (settings.TargetAttachment)
             {
-                case TargetAttachment.Default:
-                case TargetAttachment.Auto:
+                case TargetAttachmentMode.Default:
+                case TargetAttachmentMode.Auto:
                     browserArgs.Append(" --disable-features=IsolateOrigins,site-per-process");
                     break;
 
-                case TargetAttachment.SeekAndAttach:
+                case TargetAttachmentMode.SeekAndAttach:
                     break;
 
                 default:
@@ -187,6 +243,8 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
 
             _logger.LogDebug("ChromeSession launched and connected to Chrome RDP server");
 
+            //DoPostStartupCleanupAsync(chromeSession, settings.StartupCleanup).Wait();
+
             return (chromeProcess, chromeSession);
         }
         #endregion
@@ -199,21 +257,14 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
             _logger = loggerFactory.CreateLogger<CdtrChromeClient>();
             _cdtrElementFactory = cdtrElementFactory;
 
-            (_chromeProcess, _chromeSession) = LaunchAsync(settings).Result;
-
             _cookies = new CookieContainer();
+
+            (_chromeProcess, _chromeSession) = this. LaunchAsync(settings).Result;
 
             _logger.LogDebug("Subscribing to rdp events.");
 
-            // Blocking until subscription and frames attachment tasks are completed is necessary here.
-            // Random SocketExceptions inside the _chromeSession happen when this is done in parallel with client code already using the _chromeSession (like navigate, reload).
             SubscribeToRdpEventsAsync().Wait();
             SetupTargetAttachment(settings.TargetAttachment);
-            //if (Debugger.IsAttached)
-            //{
-            //    Task.Run(LoopMonitorWebSockets);
-            //    Task.Run(KeyboardListener);
-            //}
 
             _cancellationTokenSource = new CancellationTokenSource();
             _cancellationToken = _cancellationTokenSource.Token;
@@ -231,7 +282,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
         #region Public IWebClient implementation
 
         public event EventHandler<RdpEventArgs>? WebClientEvent;
-     
+
         public async Task<string> ExecuteScriptAsync(string script)
         {
             try
@@ -252,7 +303,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
 
             }
         }
-      
+
         public async Task<IElement?> FindElementByCssSelectorAsync(string cssSelector)
         {
             try
@@ -301,7 +352,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
                 throw;
             }
         }
-     
+
         public async Task<IElement?> WaitUntilElementPresentAsync(string cssSelector, CancellationToken cancellationToken, PollSettings pollSettings)
         {
             var stopwatch = Stopwatch.StartNew();
@@ -321,7 +372,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
 
             return null;
         }
-      
+
         public async Task<CookieContainer> GetAllCookiesAsync()
         {
             try
@@ -356,8 +407,8 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
             }
 
         }
-      
-        public async Task<string> GetCurrentUrlAsync()
+
+        public async Task<string?> GetCurrentUrlAsync()
         {
             try
             {
@@ -368,7 +419,15 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
                 throwExceptionIfResponseNotReceived: false,
                 cancellationToken: _cancellationToken);
 
-                var currentEntry = navigationHistory.Entries[navigationHistory.CurrentIndex];
+                var currentIndex = navigationHistory?.CurrentIndex;
+                var entries = navigationHistory?.Entries;
+
+                if (currentIndex == null || entries == null)
+                {
+                    return null;
+                }
+
+                var currentEntry = entries[(int)currentIndex];
                 return currentEntry.Url;
             }
             catch (Exception e)
@@ -377,7 +436,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
                 throw;
             }
         }
-      
+
         public async Task GoToUrlAsync(string address, CancellationToken cancellationToken, PollSettings pollSettings)
         {
             try
@@ -418,7 +477,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
                 {
                     await Task.Delay(pollSettings.PeriodMs);
 
-                    var frameTreeResult = await _chromeSession.Page.GetFrameTree();
+                    var frameTreeResult = await _chromeSession.Page.GetFrameTree(throwExceptionIfResponseNotReceived: false);
 
                     if (FramesLoaded(frameTreeResult.FrameTree))
                     {
@@ -426,7 +485,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
 
                         // Some previously unseen frames might have fired during the delay.
 
-                        var verificationFrameTreeResult = await _chromeSession.Page.GetFrameTree();
+                        var verificationFrameTreeResult = await _chromeSession.Page.GetFrameTree(throwExceptionIfResponseNotReceived: false);
 
                         if (FramesLoaded(verificationFrameTreeResult.FrameTree))
                         {
@@ -445,7 +504,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
                 throw;
             }
         }
-      
+
         public async Task ReloadAsync(CancellationToken cancellationToken, PollSettings pollSettings)
         {
             try

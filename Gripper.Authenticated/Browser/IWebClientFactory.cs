@@ -14,13 +14,11 @@ namespace Gripper.Authenticated.Browser
     {
         private ILoggerFactory _loggerFactory;
         private ILogger _logger;
-        private IJsBuilder _jsBuilder;
 
-        public WebClientFactory(ILoggerFactory loggerFactory, IJsBuilder jsBuilder)
+        public WebClientFactory(ILoggerFactory loggerFactory)
         {
             _loggerFactory = loggerFactory;
             _logger = _loggerFactory.CreateLogger<WebClientFactory>();
-            _jsBuilder = jsBuilder;
         }
         public async Task<IWebClient> LaunchAsync()
         {

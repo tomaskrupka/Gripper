@@ -21,7 +21,7 @@ namespace Gripper.Authenticated.Browser
         public CookieContainer Cookies { get; }
 
 
-        public Task<string> GetCurrentUrlAsync();
+        public Task<string?> GetCurrentUrlAsync();
         public Task GoToUrlAsync(string address, CancellationToken cancellationToken, PollSettings pollSettings);
         public Task ReloadAsync(CancellationToken cancellationToken, PollSettings pollSettings);
         public Task EnterFullScreenAsync();

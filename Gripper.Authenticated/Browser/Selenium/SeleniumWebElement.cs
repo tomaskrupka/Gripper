@@ -38,5 +38,10 @@ namespace Gripper.Authenticated.Browser.Selenium
         {
             _webElement.SendKeys(key.AsSeleniumKeys());
         }
+
+        public async Task<string> GetInnerTextAsync()
+        {
+            return _webElement.Text;
+        }
     }
 }

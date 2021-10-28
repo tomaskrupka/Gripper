@@ -6,6 +6,7 @@ namespace Gripper.Authenticated.Browser
     public interface IElement
     {
         public Task ClickAsync();
+        public Task<string> GetInnerTextAsync();
         public Task SendKeysAsync(string keys);
         public Task SendKeysAsync(string keys, TimeSpan delayAfterStroke);
         public Task SendSpecialKeyAsync(SpecialKey key);

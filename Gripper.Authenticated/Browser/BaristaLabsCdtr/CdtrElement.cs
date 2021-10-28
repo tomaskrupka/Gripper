@@ -141,5 +141,16 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
                 throw;
             }
         }
+
+        public async Task<string> GetInnerTextAsync()
+        {
+            throw new NotImplementedException();
+            var attributes = await _chromeSession.DOM.GetAttributes(new GetAttributesCommand { NodeId = _nodeId }, throwExceptionIfResponseNotReceived: false);
+            ;
+
+
+
+            return null;
+        }
     }
 }

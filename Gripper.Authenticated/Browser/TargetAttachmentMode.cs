@@ -4,7 +4,7 @@
     /// Configures response to the Chromium bug 924937 which affects how targets (iFrames) are attached.
     /// See https://bugs.chromium.org/p/chromium/issues/detail?id=924937#c13
     /// </summary>
-    public enum TargetAttachment
+    public enum TargetAttachmentMode
     {
         Default,
 

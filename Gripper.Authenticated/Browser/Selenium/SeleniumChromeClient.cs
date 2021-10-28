@@ -41,7 +41,7 @@ namespace Gripper.Authenticated.Browser.Selenium
         {
             ChromeOptions chromeOptions = new ChromeOptions();
 
-            chromeOptions.AddArgument($"user-data-dir={Environment.CurrentDirectory}\\SeleniumProfiles\\" + settings.UserProfileName + "\\");
+            chromeOptions.AddArgument($"user-data-dir={settings.UserDataDir.FullName}");
 
             if (settings.UseProxy)
             {

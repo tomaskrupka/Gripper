@@ -1,18 +1,19 @@
-﻿using System.Net;
+﻿using System.IO;
+using System.Net;
 
 namespace Gripper.Authenticated.Browser
 {
     public struct WebClientSettings
     {
-        public string UserProfileName;
         public bool UseProxy;
         public WebProxy? Proxy;
         public bool IgnoreSslCertificateErrors;
         public WebClientImplementation WebClientImplementation;
-        public TargetAttachment TargetAttachment;
+        public TargetAttachmentMode TargetAttachment;
+        public BrowserCleanupSettings StartupCleanup;
+        public DirectoryInfo UserDataDir;
         public bool TriggerKeyboardCommandListener;
         public string Homepage;
-
         public string BrowserLocation;
         public int RemoteDebuggingPort;
     }
