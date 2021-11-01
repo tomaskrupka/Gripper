@@ -15,11 +15,15 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
         public CdtrElementFactory(ILoggerFactory loggerFactory)
         {
             _loggerFactory = loggerFactory;
+
         }
         IElement ICdtrElementFactory.CreateCdtrElement(long nodeId, ChromeSession chromeSession, CancellationToken cancellationToken)
         {
             var logger = _loggerFactory.CreateLogger<CdtrElement>();
-            return new CdtrElement(logger, chromeSession, nodeId, cancellationToken);
+
+            var element = new CdtrElement(logger, chromeSession, nodeId, cancellationToken);
+
+            return element;
         }
     }
 

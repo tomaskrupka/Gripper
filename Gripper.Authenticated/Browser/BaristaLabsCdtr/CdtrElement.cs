@@ -33,7 +33,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
             }
         }
 
-        private async Task FocusAsync()
+        public async Task FocusAsync()
         {
             try
             {
@@ -191,5 +191,6 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
 
             return null;
         }
+
     }
 }

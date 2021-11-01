@@ -43,5 +43,10 @@ namespace Gripper.Authenticated.Browser.Selenium
         {
             return _webElement.Text;
         }
+
+        public Task FocusAsync()
+        {
+            throw new NotSupportedException();
+        }
     }
 }
