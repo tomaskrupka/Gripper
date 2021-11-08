@@ -18,6 +18,7 @@ using Gripper.Authenticated.Browser.ProcessManagement;
 using System.Collections.Concurrent;
 using BaristaLabs.ChromeDevTools.Runtime.Page;
 using System.IO;
+using BaristaLabs.ChromeDevTools.Runtime.Runtime;
 
 namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
 {
@@ -38,6 +39,8 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
         private Process _chromeProcess;
 
         private Action<string> _frameStoppedLoading;
+        private ConcurrentDictionary<long, ExecutionContextDescription> _executionContexts;
+        private ConcurrentDictionary<string, long> _framesContexts;
 
         public CookieContainer Cookies => _cookies;
 
@@ -70,9 +73,34 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
             await _chromeSession.Page.Enable(throwExceptionIfResponseNotReceived: false, cancellationToken: _cancellationToken);
 
             _chromeSession.Page.SubscribeToFrameStoppedLoadingEvent(x => _frameStoppedLoading?.Invoke(x.FrameId));
-            _chromeSession.Page.SubscribeToFrameAttachedEvent(x => _logger.LogDebug("Frame attached: {frameId}", x.FrameId));
-            _chromeSession.Page.SubscribeToFrameNavigatedEvent(x => _logger.LogDebug("Frame navigated: {frameId}", x.Frame.Id));
-            _chromeSession.Page.SubscribeToFrameStartedLoadingEvent(x => _logger.LogDebug("Frame started loading: {frameId}", x.FrameId));
+            //_chromeSession.Page.SubscribeToFrameAttachedEvent(x => _logger.LogDebug("Frame attached: {frameId}", x.FrameId));
+            //_chromeSession.Page.SubscribeToFrameNavigatedEvent(x => _logger.LogDebug("Frame navigated: {frameId}", x.Frame.Id));
+            //_chromeSession.Page.SubscribeToFrameStartedLoadingEvent(x => _logger.LogDebug("Frame started loading: {frameId}", x.FrameId));
+
+            await _chromeSession.Runtime.Enable(throwExceptionIfResponseNotReceived: false, cancellationToken: _cancellationToken);
+
+            _chromeSession.Runtime.SubscribeToExecutionContextCreatedEvent(x =>
+            {
+                if (x.Context.AuxData is not JObject auxData)
+                {
+                    return;
+                }
+
+                var frameId = auxData["frameId"];
+                if (frameId == null)
+                {
+                    return;
+                }
+
+                _executionContexts[x.Context.Id] = x.Context;
+                _framesContexts[frameId.ToString()] = x.Context.Id;
+            });
+
+            _chromeSession.Runtime.SubscribeToExecutionContextDestroyedEvent(x =>
+            {
+                var contextId = x.ExecutionContextId;
+
+            });
         }
 
         /// <summary>
@@ -130,7 +158,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
         }
 
 
-        public void DoPreStartupCleanup(DirectoryInfo userDataDir, BrowserCleanupSettings startupCleanup)
+        private void DoPreStartupCleanup(DirectoryInfo userDataDir, BrowserCleanupSettings startupCleanup)
         {
             try
             {
@@ -192,7 +220,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
             }
         }
 
-        public async Task<(Process, ChromeSession)> LaunchAsync(WebClientSettings settings)
+        private async Task<(Process, ChromeSession)> LaunchAsync(WebClientSettings settings)
         {
             DoPreStartupCleanup(settings.UserDataDir, settings.StartupCleanup);
 
@@ -230,6 +258,8 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
 
             }
 
+            _logger.LogDebug("{this} launching chrome with args: {args}", nameof(CdtrChromeClient), browserArgs.ToString());
+
             var chromeProcess = Process.Start(settings.BrowserLocation, browserArgs.ToString());
 
             ChildProcessTracker.AddProcess(chromeProcess);
@@ -262,10 +292,11 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
             _loggerFactory = loggerFactory;
             _logger = loggerFactory.CreateLogger<CdtrChromeClient>();
             _cdtrElementFactory = cdtrElementFactory;
+            _executionContexts = new ConcurrentDictionary<long, ExecutionContextDescription>();
 
             _cookies = new CookieContainer();
 
-            (_chromeProcess, _chromeSession) = this. LaunchAsync(settings).Result;
+            (_chromeProcess, _chromeSession) = LaunchAsync(settings).Result;
 
             _logger.LogDebug("Subscribing to rdp events.");
 
@@ -289,18 +320,27 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
 
         public event EventHandler<RdpEventArgs>? WebClientEvent;
 
-        public async Task<string> ExecuteScriptAsync(string script)
+        public async Task<string?> ExecuteScriptAsync(string script)
         {
             try
             {
                 var result = await _chromeSession.Runtime.Evaluate(new Runtime.EvaluateCommand
                 {
-                    Expression = script
+                    Expression = script,
+                    AwaitPromise = true
                 },
                 throwExceptionIfResponseNotReceived: false,
                 cancellationToken: _cancellationToken);
 
-                return result?.Result?.Description ?? "null";
+                if (result.Result.Type == "string")
+                {
+                    return result?.Result?.Value?.ToString();
+                }
+                else
+                {
+                    throw new NotImplementedException();
+                }
+
             }
             catch (Exception e)
             {

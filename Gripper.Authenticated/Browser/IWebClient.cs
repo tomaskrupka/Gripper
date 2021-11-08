@@ -14,7 +14,7 @@ namespace Gripper.Authenticated.Browser
     {
         public event EventHandler<RdpEventArgs> WebClientEvent;
 
-        public Task<string> ExecuteScriptAsync(string script);
+        public Task<string?> ExecuteScriptAsync(string script);
         public Task<IElement?> FindElementByCssSelectorAsync(string cssSelector);
         public Task<IElement?> WaitUntilElementPresentAsync(string cssSelector, CancellationToken cancellationToken, PollSettings pollSettings);
         public Task<CookieContainer> GetAllCookiesAsync();

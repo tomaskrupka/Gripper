@@ -24,11 +24,14 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
             {
                 var nodeDescription = await _chromeSession.DOM.DescribeNode(new DescribeNodeCommand { NodeId = _nodeId }, throwExceptionIfResponseNotReceived: false);
 
-                var classIndex = Array.IndexOf(nodeDescription.Node.Attributes, "class");
-
-                if (classIndex > -1)
+                if (nodeDescription?.Node?.Attributes != null)
                 {
-                    _logger.LogDebug("Element attributes {when}: {attributes}", when, nodeDescription.Node.Attributes[classIndex + 1]);
+                    var classIndex = Array.IndexOf(nodeDescription.Node.Attributes, "class");
+
+                    if (classIndex > -1)
+                    {
+                        _logger.LogDebug("Element attributes {when}: {attributes}", when, nodeDescription.Node.Attributes[classIndex + 1]);
+                    }
                 }
             }
         }
@@ -188,6 +191,9 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
         public async Task<string> GetInnerTextAsync()
         {
             throw new NotImplementedException();
+            var attributes = await _chromeSession.DOM.GetAttributes(new GetAttributesCommand { NodeId = _nodeId });
+
+            ;
 
             return null;
         }
