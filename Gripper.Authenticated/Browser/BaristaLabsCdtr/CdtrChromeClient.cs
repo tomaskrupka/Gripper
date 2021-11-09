@@ -35,26 +35,11 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
         private ILoggerFactory _loggerFactory;
         private ICdtrElementFactory _cdtrElementFactory;
 
-        private CookieContainer _cookies;
         private Process _chromeProcess;
 
         private Action<string> _frameStoppedLoading;
         private ConcurrentDictionary<long, ExecutionContextDescription> _executionContexts;
         private ConcurrentDictionary<string, long> _framesContexts;
-
-        public CookieContainer Cookies => _cookies;
-
-        private async Task<Node> GetDocumentNodeAsync()
-        {
-            var getDocumentResult = await _chromeSession.DOM.GetDocument(new GetDocumentCommand
-            {
-                Depth = 1
-            },
-            throwExceptionIfResponseNotReceived: false,
-            cancellationToken: _cancellationToken);
-
-            return getDocumentResult.Root;
-        }
 
         private async Task SubscribeToRdpEventsAsync()
         {
@@ -73,9 +58,6 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
             await _chromeSession.Page.Enable(throwExceptionIfResponseNotReceived: false, cancellationToken: _cancellationToken);
 
             _chromeSession.Page.SubscribeToFrameStoppedLoadingEvent(x => _frameStoppedLoading?.Invoke(x.FrameId));
-            //_chromeSession.Page.SubscribeToFrameAttachedEvent(x => _logger.LogDebug("Frame attached: {frameId}", x.FrameId));
-            //_chromeSession.Page.SubscribeToFrameNavigatedEvent(x => _logger.LogDebug("Frame navigated: {frameId}", x.Frame.Id));
-            //_chromeSession.Page.SubscribeToFrameStartedLoadingEvent(x => _logger.LogDebug("Frame started loading: {frameId}", x.FrameId));
 
             await _chromeSession.Runtime.Enable(throwExceptionIfResponseNotReceived: false, cancellationToken: _cancellationToken);
 
@@ -99,7 +81,6 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
             _chromeSession.Runtime.SubscribeToExecutionContextDestroyedEvent(x =>
             {
                 var contextId = x.ExecutionContextId;
-
             });
         }
 
@@ -294,8 +275,6 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
             _cdtrElementFactory = cdtrElementFactory;
             _executionContexts = new ConcurrentDictionary<long, ExecutionContextDescription>();
 
-            _cookies = new CookieContainer();
-
             (_chromeProcess, _chromeSession) = LaunchAsync(settings).Result;
 
             _logger.LogDebug("Subscribing to rdp events.");
@@ -309,7 +288,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
             _hasDisposalStarted = false;
             _frameStoppedLoading = x => _logger.LogDebug("{name}: {frameId}", nameof(_frameStoppedLoading), x);
 
-            GoToUrlAsync(settings.Homepage, CancellationToken.None, settings.DefaultPageLoadPollSettings).Wait();
+            GoToUrlAsync(settings.Homepage, settings.DefaultPageLoadPollSettings, CancellationToken.None).Wait();
 
             _logger.LogDebug("Exiting {this} constructor.", nameof(CdtrChromeClient));
         }
@@ -319,105 +298,6 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
         #region Public IWebClient implementation
 
         public event EventHandler<RdpEventArgs>? WebClientEvent;
-
-        public async Task<string?> ExecuteScriptAsync(string script)
-        {
-            try
-            {
-                var result = await _chromeSession.Runtime.Evaluate(new Runtime.EvaluateCommand
-                {
-                    Expression = script,
-                    AwaitPromise = true
-                },
-                throwExceptionIfResponseNotReceived: false,
-                cancellationToken: _cancellationToken);
-
-                if (result.Result.Type == "string")
-                {
-                    return result?.Result?.Value?.ToString();
-                }
-                else
-                {
-                    throw new NotImplementedException();
-                }
-
-            }
-            catch (Exception e)
-            {
-                _logger.LogError("Failed to execute script: {e}", e);
-                throw;
-
-            }
-        }
-
-        public async Task<IElement?> FindElementByCssSelectorAsync(string cssSelector)
-        {
-            try
-            {
-                var documentNode = await GetDocumentNodeAsync();
-
-                if (documentNode == null)
-                {
-                    return null;
-                }
-
-                _logger.LogDebug("Resolved documentNode id: {documentNodeId}", documentNode.NodeId);
-
-                if (documentNode.NodeId == 0)
-                {
-                    return null;
-                }
-
-                var querySelectorResult = await _chromeSession.DOM.QuerySelector(new QuerySelectorCommand
-                {
-                    Selector = cssSelector,
-                    NodeId = documentNode.NodeId
-                },
-                throwExceptionIfResponseNotReceived: false,
-                cancellationToken: _cancellationToken);
-
-                _logger.LogDebug("Resolved node id: {nodeId}", querySelectorResult.NodeId);
-
-                if (querySelectorResult.NodeId == 0)
-                {
-                    _logger.LogWarning("Node id resolved as 0: {cssSelector}", cssSelector);
-                    return null;
-                }
-
-                return _cdtrElementFactory.CreateCdtrElement(querySelectorResult.NodeId, _chromeSession, _cancellationToken);
-            }
-            catch (CommandResponseException e)
-            {
-                _logger.LogWarning("{name} while page was loading resulted in an exception: {e}.", nameof(FindElementByCssSelectorAsync), e);
-                return null;
-            }
-            catch (Exception e)
-            {
-                _logger.LogError("Failed to {name}: {e}.", nameof(FindElementByCssSelectorAsync), e);
-
-                throw;
-            }
-        }
-
-        public async Task<IElement?> WaitUntilElementPresentAsync(string cssSelector, CancellationToken cancellationToken, PollSettings pollSettings)
-        {
-            var stopwatch = Stopwatch.StartNew();
-
-            while (!cancellationToken.IsCancellationRequested && stopwatch.ElapsedMilliseconds < pollSettings.TimeoutMs)
-            {
-                var element = await FindElementByCssSelectorAsync(cssSelector);
-                if (element != null)
-                {
-                    return element;
-                }
-                else
-                {
-                    await Task.Delay(pollSettings.PeriodMs);
-                }
-            }
-
-            return null;
-        }
 
         public async Task<CookieContainer> GetAllCookiesAsync()
         {
@@ -483,7 +363,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
             }
         }
 
-        public async Task GoToUrlAsync(string address, CancellationToken cancellationToken, PollSettings pollSettings)
+        public async Task GoToUrlAsync(string address, PollSettings pollSettings, CancellationToken cancellationToken)
         {
             try
             {
@@ -529,7 +409,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
                         break;
                     }
 
-                    await Task.Delay(pollSettings.PeriodMs);
+                    await Task.Delay(pollSettings.PeriodMs, cancellationToken);
 
                     var frameTreeResult = await _chromeSession.Page.GetFrameTree(throwExceptionIfResponseNotReceived: false);
 
@@ -541,7 +421,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
 
                     if (framesLoaded)
                     {
-                        await Task.Delay(pollSettings.PeriodMs);
+                        await Task.Delay(pollSettings.PeriodMs, cancellationToken);
 
                         // Some previously unseen frames might have been attached during the delay.
 
@@ -570,7 +450,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
             }
         }
 
-        public async Task ReloadAsync(CancellationToken cancellationToken, PollSettings pollSettings)
+        public async Task ReloadAsync(PollSettings pollSettings, CancellationToken cancellationToken)
         {
             try
             {
@@ -589,19 +469,19 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
             throw new NotImplementedException();
         }
 
-        public async Task<IRdpCommandResult> ExecuteRdpCommandAsync(string commandName)
-        {
-            try
-            {
-                var resultToken = await Task.Run(() => _chromeSession.SendCommand(commandName, JToken.Parse("{}"), throwExceptionIfResponseNotReceived: false, cancellationToken: _cancellationToken));
-                return new CdtrRdpCommandResult(resultToken);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError("Failed to execute rdp command: {e}", e);
-                throw;
-            }
-        }
+        //public async Task<IRdpCommandResult> ExecuteRdpCommandAsync(string commandName)
+        //{
+        //    try
+        //    {
+        //        var resultToken = await Task.Run(() => _chromeSession.SendCommand(commandName, JToken.Parse("{}"), throwExceptionIfResponseNotReceived: false, cancellationToken: _cancellationToken));
+        //        return new CdtrRdpCommandResult(resultToken);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        _logger.LogError("Failed to execute rdp command: {e}", e);
+        //        throw;
+        //    }
+        //}
 
         public async Task<JToken> ExecuteRdpCommandAsync(string commandName, JToken commandParams)
         {
