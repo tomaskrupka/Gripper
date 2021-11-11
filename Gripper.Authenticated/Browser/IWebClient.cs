@@ -9,6 +9,7 @@ namespace Gripper.Authenticated.Browser
 {
     public interface IWebClient : IDisposable
     {
+        public IContext MainContext { get; }
         public event EventHandler<RdpEventArgs> WebClientEvent;
         public Task<CookieContainer> GetAllCookiesAsync();
         public Task<IReadOnlyCollection<IContext>> GetContextsAsync();

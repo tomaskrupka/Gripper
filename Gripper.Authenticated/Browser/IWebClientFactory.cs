@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
-using Gripper.Authenticated.Browser.Selenium;
 
 namespace Gripper.Authenticated.Browser
 {
@@ -34,7 +33,7 @@ namespace Gripper.Authenticated.Browser
                     return new BaristaLabsCdtr.CdtrChromeClient(_loggerFactory, cdtrElementFactory, settings);
 
                 case WebClientImplementation.Selenium:
-                    return new SeleniumChromeClient(_loggerFactory, settings);
+                    //return new SeleniumChromeClient(_loggerFactory, settings);
 
                 case WebClientImplementation.Any:
                 default:

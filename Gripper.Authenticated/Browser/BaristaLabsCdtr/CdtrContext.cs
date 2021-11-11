@@ -2,26 +2,36 @@
 using BaristaLabs.ChromeDevTools.Runtime.DOM;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
 {
-    public class CdtrContext : IContext
+    internal class CdtrContext : IContext
     {
+        private readonly int _contextId;
+        private readonly string _documentNodeId;
+
         private readonly ILogger _logger;
         private readonly ChromeSession _chromeSession;
         private readonly ICdtrElementFactory _cdtrElementFactory;
+
+        internal CdtrContext(ILogger logger, int contextId, string documentNodeId, ChromeSession chromeSession, ICdtrElementFactory cdtrElementFactory)
+        {
+            _contextId = contextId;
+            _documentNodeId = documentNodeId;
+
+            _logger = logger;
+            _chromeSession = chromeSession;
+            _cdtrElementFactory = cdtrElementFactory;
+        }
 
         private async Task<Node> GetDocumentNodeAsync(CancellationToken cancellationToken)
         {
             var getDocumentResult = await _chromeSession.DOM.GetDocument(new GetDocumentCommand
             {
-                Depth = 1
+                Depth = 1,
             },
             throwExceptionIfResponseNotReceived: false,
             cancellationToken: cancellationToken);
@@ -36,6 +46,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
                 var result = await _chromeSession.Runtime.Evaluate(new BaristaLabs.ChromeDevTools.Runtime.Runtime.EvaluateCommand
                 {
                     Expression = script,
+                    ContextId = _contextId,
                     AwaitPromise = true
                 },
                 throwExceptionIfResponseNotReceived: false,
@@ -49,13 +60,11 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
                 {
                     throw new NotImplementedException();
                 }
-
             }
             catch (Exception e)
             {
                 _logger.LogError("Failed to execute script: {e}", e);
                 throw;
-
             }
         }
 
@@ -72,7 +81,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
                 }
                 else
                 {
-                    await Task.Delay(pollSettings.PeriodMs);
+                    await Task.Delay(pollSettings.PeriodMs, cancellationToken);
                 }
             }
 
@@ -83,6 +92,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
         {
             try
             {
+                // [TODO] find document node id as DOM.GetFrameOwner
                 var documentNode = await GetDocumentNodeAsync(cancellationToken);
 
                 if (documentNode == null)
@@ -127,6 +137,5 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
                 throw;
             }
         }
-
     }
 }

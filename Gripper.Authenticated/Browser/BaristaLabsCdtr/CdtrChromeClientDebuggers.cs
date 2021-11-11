@@ -66,7 +66,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
 
                 try
                 {
-                    _cookies = await this.GetAllCookiesAsync();
+                    await this.GetAllCookiesAsync();
                 }
                 catch (Exception)
                 {
@@ -75,30 +75,6 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
 
                 _logger.LogDebug("Alive: {clientAlive}, sockets: {sockets}", clientAlive, string.Join(" | ", sessionInfos.Select(x => x?.WebSocketDebuggerUrl?.Replace("ws://localhost:9223/devtools/page/", ""))));
             }
-        }
-
-        private async Task KeyboardListener()
-        {
-            _logger.LogWarning("{name} triggered a keyboard command listener. You can try to kill it by typing 'q'.", nameof(CdtrChromeClient));
-
-            while (!_cancellationToken.IsCancellationRequested)
-            {
-                var key = Console.ReadKey();
-                if (key.KeyChar == 'd')
-                {
-                    await ExecuteRdpCommandAsync("Network.disable"); ;
-                }
-                if (key.KeyChar == 'e')
-                {
-                    await ExecuteRdpCommandAsync("Network.enable");
-                }
-                if (key.KeyChar == 'q')
-                {
-                    break;
-                }
-            }
-
-            _logger.LogWarning("Keyboard command listener exited.");
         }
     }
 }
