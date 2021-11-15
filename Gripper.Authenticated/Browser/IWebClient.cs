@@ -10,9 +10,10 @@ namespace Gripper.Authenticated.Browser
     public interface IWebClient : IDisposable
     {
         public IContext MainContext { get; }
+
         public event EventHandler<RdpEventArgs> WebClientEvent;
         public Task<CookieContainer> GetAllCookiesAsync();
-        public Task<IReadOnlyCollection<IContext>> GetContextsAsync();
+        public Task<ICollection<IContext>> GetContextsAsync();
         public Task<string?> GetCurrentUrlAsync();
         public Task GoToUrlAsync(string address, PollSettings pollSettings, CancellationToken cancellationToken);
         public Task ReloadAsync(PollSettings pollSettings, CancellationToken cancellationToken);

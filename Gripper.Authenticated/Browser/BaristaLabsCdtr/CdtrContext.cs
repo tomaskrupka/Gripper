@@ -1,5 +1,6 @@
 ﻿using BaristaLabs.ChromeDevTools.Runtime;
 using BaristaLabs.ChromeDevTools.Runtime.DOM;
+using BaristaLabs.ChromeDevTools.Runtime.Runtime;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
@@ -10,34 +11,50 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
 {
     internal class CdtrContext : IContext
     {
-        private readonly int _contextId;
-        private readonly string _documentNodeId;
+        private readonly long _contextId;
+        private readonly long _documentNodeId;
 
         private readonly ILogger _logger;
+        private readonly IFrameInfo _frameInfo;
         private readonly ChromeSession _chromeSession;
         private readonly ICdtrElementFactory _cdtrElementFactory;
+        internal ExecutionContextDescription _executionContextDescription;
 
-        internal CdtrContext(ILogger logger, int contextId, string documentNodeId, ChromeSession chromeSession, ICdtrElementFactory cdtrElementFactory)
+
+        /// <summary>
+        /// Ctor. Frame must be loaded when calling this ctor.
+        /// </summary>
+        /// <param name="logger"></param>
+        /// <param name="contextId"></param>
+        /// <param name="documentNodeId"></param>
+        /// <param name="chromeSession"></param>
+        /// <param name="cdtrElementFactory"></param>
+        public CdtrContext(long contextId, long documentNodeId, ILogger logger, IFrameInfo frameInfo, ChromeSession chromeSession, ICdtrElementFactory cdtrElementFactory, ExecutionContextDescription executionContextDescription)
         {
             _contextId = contextId;
             _documentNodeId = documentNodeId;
-
+            _frameInfo = frameInfo;
             _logger = logger;
             _chromeSession = chromeSession;
             _cdtrElementFactory = cdtrElementFactory;
+            _executionContextDescription = executionContextDescription;
         }
 
-        private async Task<Node> GetDocumentNodeAsync(CancellationToken cancellationToken)
-        {
-            var getDocumentResult = await _chromeSession.DOM.GetDocument(new GetDocumentCommand
-            {
-                Depth = 1,
-            },
-            throwExceptionIfResponseNotReceived: false,
-            cancellationToken: cancellationToken);
+        //private async Task<Node> GetDocumentNodeAsync(CancellationToken cancellationToken)
+        //{
+        //    var getDocumentResult = await _chromeSession.DOM.GetDocument(new GetDocumentCommand
+        //    {
+        //        Depth = 1,
+        //    },
+        //    throwExceptionIfResponseNotReceived: false,
+        //    cancellationToken: cancellationToken);
 
-            return getDocumentResult.Root;
-        }
+        //    return getDocumentResult.Root;
+        //}
+
+        public IFrameInfo FrameInfo => _frameInfo;
+
+        public long Id => _contextId;
 
         public async Task<string?> ExecuteScriptAsync(string script, CancellationToken cancellationToken)
         {
@@ -93,24 +110,24 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
             try
             {
                 // [TODO] find document node id as DOM.GetFrameOwner
-                var documentNode = await GetDocumentNodeAsync(cancellationToken);
+                //var documentNode = await GetDocumentNodeAsync(cancellationToken);
 
-                if (documentNode == null)
-                {
-                    return null;
-                }
+                //if (documentNode == null)
+                //{
+                //    return null;
+                //}
 
-                _logger.LogDebug("Resolved documentNode id: {documentNodeId}", documentNode.NodeId);
+                //_logger.LogDebug("Resolved documentNode id: {documentNodeId}", documentNode.NodeId);
 
-                if (documentNode.NodeId == 0)
-                {
-                    return null;
-                }
+                //if (documentNode.NodeId == 0)
+                //{
+                //    return null;
+                //}
 
                 var querySelectorResult = await _chromeSession.DOM.QuerySelector(new QuerySelectorCommand
                 {
                     Selector = cssSelector,
-                    NodeId = documentNode.NodeId
+                    NodeId = _documentNodeId
                 },
                 throwExceptionIfResponseNotReceived: false,
                 cancellationToken: cancellationToken);

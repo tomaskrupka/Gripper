@@ -12,12 +12,12 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
     internal class CdtrElementFactory : ICdtrElementFactory
     {
         private ILoggerFactory _loggerFactory;
-        public CdtrElementFactory(ILoggerFactory loggerFactory)
+        internal CdtrElementFactory(ILoggerFactory loggerFactory)
         {
             _loggerFactory = loggerFactory;
 
         }
-        IElement ICdtrElementFactory.CreateCdtrElement(long nodeId, ChromeSession chromeSession, CancellationToken cancellationToken)
+        public IElement CreateCdtrElement(long nodeId, ChromeSession chromeSession, CancellationToken cancellationToken)
         {
             var logger = _loggerFactory.CreateLogger<CdtrElement>();
 
@@ -25,13 +25,5 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
 
             return element;
         }
-    }
-
-    /// <summary>
-    /// Dependency inversion vehicle for <see cref="CdtrElement"/> implementations.
-    /// </summary>
-    internal interface ICdtrElementFactory
-    {
-        internal IElement CreateCdtrElement(long nodeId, ChromeSession chromeSession, CancellationToken cancellationToken);
     }
 }

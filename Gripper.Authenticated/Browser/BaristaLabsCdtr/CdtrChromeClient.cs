@@ -34,15 +34,22 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
         private ILogger _logger;
         private ILoggerFactory _loggerFactory;
         private ICdtrElementFactory _cdtrElementFactory;
-        private ICdtrContextFactory cdtrContextFactory;
+        private ICdtrContextFactory _cdtrContextFactory;
 
         private Process _chromeProcess;
 
-        private Action<FrameStoppedLoadingEvent> _frameStoppedLoading;
-        private ConcurrentDictionary<long, ExecutionContextDescription> _executionContextDescriptions;
-        private ConcurrentDictionary<string, IContext> _framesExecutionContexts;
+        private ConcurrentDictionary<long, ExecutionContextDescription> _executionContexts;
 
-        public IContext MainContext => throw new NotImplementedException();
+        private Action<FrameStoppedLoadingEvent> _frameStoppedLoading;
+
+        public IContext MainContext
+        {
+            get
+            {
+                var contexts = GetContextsAsync().Result;
+                throw new NotImplementedException();
+            }
+        }
 
         private async Task SubscribeToRdpEventsAsync()
         {
@@ -59,36 +66,22 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
             await _chromeSession.Page.Enable(throwExceptionIfResponseNotReceived: false, cancellationToken: _cancellationToken);
 
             _chromeSession.Page.SubscribeToFrameStoppedLoadingEvent(x => _frameStoppedLoading?.Invoke(x));
+            _frameStoppedLoading += x => _logger.LogDebug("Frame stopped loading: {id}", x.FrameId);
 
             await _chromeSession.Runtime.Enable(throwExceptionIfResponseNotReceived: false, cancellationToken: _cancellationToken);
 
             _chromeSession.Runtime.SubscribeToExecutionContextCreatedEvent(x =>
             {
-                if (x.Context.AuxData is not JObject auxData)
-                {
-                    return;
-                }
-
-                var frameId = auxData["frameId"];
-                if (frameId == null)
-                {
-                    return;
-                }
-
-                _executionContextDescriptions[x.Context.Id] = x.Context;
+                _logger.LogDebug("execution context created: {id}, {name}, {origin}.", x.Context.Id, x.Context.Name, x.Context.Origin);
+                _executionContexts[x.Context.Id] = x.Context;
             });
 
             _chromeSession.Runtime.SubscribeToExecutionContextDestroyedEvent(x =>
             {
+                _logger.LogDebug("execution context destroyed: {id}.", x.ExecutionContextId);
                 var contextId = x.ExecutionContextId;
+                _executionContexts.TryRemove(contextId, out _);
             });
-
-
-            _frameStoppedLoading += x =>
-            {
-                var (_frameId, context) = CdtrChromeClientEventHandlers.GetFrameExecutionContext(x);
-                _framesExecutionContexts[_frameId] = context;
-            };
         }
 
         /// <summary>
@@ -103,15 +96,22 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
             {
                 case TargetAttachmentMode.Default:
                 case TargetAttachmentMode.Auto:
-                    _chromeSession.Page.SubscribeToFrameStoppedLoadingEvent(async x =>
+                    _frameStoppedLoading += async x =>
+                    {
                         await _chromeSession.Target.SetAutoAttach(new BaristaLabs.ChromeDevTools.Runtime.Target.SetAutoAttachCommand
                         {
                             AutoAttach = true,
-                            WaitForDebuggerOnStart = true,
+                            WaitForDebuggerOnStart = false,
                             Flatten = true
                         },
                         throwExceptionIfResponseNotReceived: false,
-                        cancellationToken: _cancellationToken));
+                        cancellationToken: _cancellationToken);
+
+                        //await Task.Delay(1000);
+                        //// Prevent stalled frames.
+                        //await _chromeSession.Runtime.RunIfWaitingForDebugger(throwExceptionIfResponseNotReceived: false);
+                    };
+
                     break;
 
                 case TargetAttachmentMode.SeekAndAttach:
@@ -206,7 +206,8 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
             }
         }
 
-        private async Task<(Process, ChromeSession)> LaunchAsync(WebClientSettings settings)
+        // TODO: replace this with a separated launcher that will return references to services on demand.
+        private async Task<(Process, ChromeSession, ICdtrContextFactory)> LaunchAsync(WebClientSettings settings)
         {
             DoPreStartupCleanup(settings.UserDataDir, settings.StartupCleanup);
 
@@ -267,25 +268,26 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
 
             //DoPostStartupCleanupAsync(chromeSession, settings.StartupCleanup).Wait();
 
-            return (chromeProcess, chromeSession);
+            var contextFactory = new CdtrContextFactory(_loggerFactory, _cdtrElementFactory, chromeSession);
+
+            return (chromeProcess, chromeSession, contextFactory);
         }
         #endregion
 
         #region Ctor
 
-        internal CdtrChromeClient(
+        public CdtrChromeClient(
             ILoggerFactory loggerFactory,
             ICdtrElementFactory cdtrElementFactory,
-            ICdtrContextFactory cdtrContextFactory,
             WebClientSettings settings)
         {
             _loggerFactory = loggerFactory;
             _logger = loggerFactory.CreateLogger<CdtrChromeClient>();
             _cdtrElementFactory = cdtrElementFactory;
-            _executionContextDescriptions = new ConcurrentDictionary<long, ExecutionContextDescription>();
-            _framesExecutionContexts = new ConcurrentDictionary<string, IContext>();
 
-            (_chromeProcess, _chromeSession) = LaunchAsync(settings).Result;
+            (_chromeProcess, _chromeSession, _cdtrContextFactory) = LaunchAsync(settings).Result;
+
+            _executionContexts = new ConcurrentDictionary<long, ExecutionContextDescription>();
 
             _logger.LogDebug("Subscribing to rdp events.");
 
@@ -300,6 +302,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
             GoToUrlAsync(settings.Homepage, settings.DefaultPageLoadPollSettings, CancellationToken.None).Wait();
 
             _logger.LogDebug("Exiting {this} constructor.", nameof(CdtrChromeClient));
+
         }
 
         #endregion
@@ -376,13 +379,14 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
         {
             try
             {
+
                 var loadStopwatch = Stopwatch.StartNew();
 
                 var loadedFramesIds = new ConcurrentDictionary<string, byte>();
 
-                Action<string> frameStoppedLoading = x =>
+                Action<FrameStoppedLoadingEvent> frameStoppedLoading = x =>
                 {
-                    loadedFramesIds[x] = 0;
+                    loadedFramesIds[x.FrameId] = 0;
                 };
 
                 _frameStoppedLoading += frameStoppedLoading;
@@ -479,31 +483,44 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
         }
 
 
-        public async Task<IReadOnlyCollection<IContext>> GetContextsAsync()
+        public async Task<ICollection<IContext>> GetContextsAsync()
         {
-            var frameTreeResult = await _chromeSession.Page.GetFrameTree(throwExceptionIfResponseNotReceived: false);
-            var frameTreeList = new List<string>();
+            var frameTree = (await _chromeSession.Page.GetFrameTree(throwExceptionIfResponseNotReceived: false)).FrameTree;
 
-            void FillFrameIds(FrameTree frameTree)
+            List<Frame> AddFrames(List<Frame> frames, FrameTree frameTree)
             {
-                frameTreeList.Add(frameTree.Frame.Id);
-
-                if (frameTree.ChildFrames?.Any() != null)
+                frames.Add(frameTree.Frame);
+                if (frameTree?.ChildFrames != null && frameTree.ChildFrames.Any())
                 {
-                    foreach (var childFrameTree in frameTree.ChildFrames)
+                    foreach (var child in frameTree.ChildFrames)
                     {
-                        FillFrameIds(childFrameTree);
+                        AddFrames(frames, child);
                     }
                 }
+                return frames;
             }
 
-            FillFrameIds(frameTreeResult.FrameTree);
+            var frames = new List<Frame>();
+            AddFrames(frames, frameTree);
 
-            foreach (var frameTree in frameTreeList)
+            var contextDescriptions = _executionContexts.Values;
+
+            ConcurrentBag<IContext> contexts = new();
+
+            Parallel.ForEach(frames, async frame =>
             {
-                var
-            }
+                var description = contextDescriptions.FirstOrDefault(x => ((JObject)x.AuxData)["frameId"]?.ToString() == frame.Id);
+                if (description != null)
+                {
+                    var context = await _cdtrContextFactory.CreateContextAsync(description, frame);
+                    if (context != null)
+                    {
+                        contexts.Add(context);
+                    }
+                };
+            });
 
+            return (ICollection<IContext>)contexts;
         }
 
         public async Task<JToken> ExecuteRdpCommandAsync(string commandName, JToken commandParams)
