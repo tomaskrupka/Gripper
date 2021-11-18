@@ -15,14 +15,14 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
     {
         private ILogger _logger;
         private ChromeSession _chromeSession;
-        private long _nodeId;
+        private long _backendNodeId;
         private CancellationToken _cancellationToken;
 
         private async Task LogAttributesAsync(string when)
         {
             if (_logger.IsEnabled(LogLevel.Debug))
             {
-                var nodeDescription = await _chromeSession.DOM.DescribeNode(new DescribeNodeCommand { NodeId = _nodeId }, throwExceptionIfResponseNotReceived: false);
+                var nodeDescription = await _chromeSession.DOM.DescribeNode(new DescribeNodeCommand { BackendNodeId = _backendNodeId }, throwExceptionIfResponseNotReceived: false);
 
                 if (nodeDescription?.Node?.Attributes != null)
                 {
@@ -42,33 +42,38 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
             {
                 var focusResponse = await _chromeSession.DOM.Focus(new FocusCommand
                 {
-                    NodeId = _nodeId
+                    BackendNodeId = _backendNodeId
                 },
                 throwExceptionIfResponseNotReceived: false);
             }
+            catch (CommandResponseException e)
+            {
+                _logger.LogWarning("{name} error: {message}. Doing nothing.", nameof(FocusAsync), e.Message);
+            }
             catch (Exception e)
             {
-                _logger.LogError("Focus error. _nodeId: {_nodeId}. Exception: {e}", _nodeId, e);
+                _logger.LogError("Focus error. _nodeId: {_backendNodeId}. Exception: {e}", _backendNodeId, e);
                 throw;
             }
         }
 
-        private async Task SendKeysAsync(IEnumerable<DispatchKeyEventCommand> commands)
+        private async Task SendKeysAsync(IEnumerable<DispatchKeyEventCommand> commands, TimeSpan delayBetweenStrokes)
         {
             await FocusAsync();
 
             foreach (var command in commands)
             {
+                await Task.Delay(delayBetweenStrokes);
                 var dispatchKeyResponse = await _chromeSession.Input.DispatchKeyEvent(command, throwExceptionIfResponseNotReceived: false, cancellationToken: _cancellationToken);
             }
         }
 
 
-        public CdtrElement(ILogger<CdtrElement> logger, ChromeSession chromeSession, long nodeId, CancellationToken cancellationToken)
+        public CdtrElement(ILogger<CdtrElement> logger, ChromeSession chromeSession, long backendNodeId, CancellationToken cancellationToken)
         {
             _logger = logger;
             _chromeSession = chromeSession;
-            _nodeId = nodeId;
+            _backendNodeId = backendNodeId;
             _cancellationToken = cancellationToken;
         }
 
@@ -78,7 +83,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
             {
                 var boxModel = await _chromeSession.DOM.GetBoxModel(new GetBoxModelCommand
                 {
-                    NodeId = _nodeId
+                    BackendNodeId = _backendNodeId
                 },
                 throwExceptionIfResponseNotReceived: false,
                 cancellationToken: _cancellationToken);
@@ -118,24 +123,11 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
             }
             catch (Exception e)
             {
-                _logger.LogError("Error clicking. Node id: {_nodeId}, Exception: {e}", _nodeId, e);
+                _logger.LogError("Error clicking. Backend node id: {_backendNodeId}, Exception: {e}", _backendNodeId, e);
             }
         }
 
-
-        public async Task SendKeysAsync(string keys)
-        {
-            await SendKeysAsync(new DispatchKeyEventCommand[] 
-            {
-                new() 
-                {
-                    Type = "char",
-                    Text = keys
-                }
-            });
-        }
-
-        public async Task SendKeysAsync(string keys, TimeSpan delayAfterStroke)
+        public async Task SendKeysAsync(string keys, TimeSpan delayBetweenStrokes)
         {
             await LogAttributesAsync("before " + nameof(SendKeysAsync));
 
@@ -160,10 +152,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
                     //    Type = "keyUp",
                     //    Text = key.ToString()
                     //}
-                });
-
-
-                await Task.Delay(delayAfterStroke);
+                }, delayBetweenStrokes);
             }
 
             await LogAttributesAsync("after " + nameof(SendKeysAsync));
@@ -178,7 +167,6 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
                 foreach (var command in commands)
                 {
                     var dispatchResponse = await _chromeSession.Input.DispatchKeyEvent(command, throwExceptionIfResponseNotReceived: false, cancellationToken: _cancellationToken);
-                    ;
                 }
             }
             catch (Exception e)
@@ -191,7 +179,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
         public async Task<string> GetInnerTextAsync()
         {
             throw new NotImplementedException();
-            var attributes = await _chromeSession.DOM.GetAttributes(new GetAttributesCommand { NodeId = _nodeId });
+            //var attributes = await _chromeSession.DOM.GetAttributes(new GetAttributesCommand { ba = _backendNodeId });
 
             ;
 

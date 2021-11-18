@@ -1,4 +1,5 @@
 ﻿using BaristaLabs.ChromeDevTools.Runtime;
+using BaristaLabs.ChromeDevTools.Runtime.Page;
 using BaristaLabs.ChromeDevTools.Runtime.Runtime;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -16,70 +17,44 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
         private ILogger _logger;
         private ILoggerFactory _loggerFactory;
         private ICdtrElementFactory _cdtrElementFactory;
+        private IJsBuilder _jsBuilder;
         private ChromeSession _chromeSession;
 
-        internal CdtrContextFactory(ILoggerFactory loggerFactory, ICdtrElementFactory cdtrElementFactory, ChromeSession chromeSession)
+        internal CdtrContextFactory(ILoggerFactory loggerFactory, ICdtrElementFactory cdtrElementFactory, IJsBuilder jsBuilder, ChromeSession chromeSession)
         {
             _loggerFactory = loggerFactory;
             _cdtrElementFactory = cdtrElementFactory;
             _chromeSession = chromeSession;
-
+            _jsBuilder = jsBuilder;
             _logger = _loggerFactory.CreateLogger<CdtrContextFactory>();
         }
 
-        public async Task<IContext> CreateContextAsync(ExecutionContextDescription executionContextDescription)
+        public async Task<IContext> CreateContextAsync(int contextId, Frame frame)
         {
+            var frameInfo = new CdtrFrameInfo(frame);
 
-            if (executionContextDescription.AuxData is not JObject auxData)
-            {
-                throw new ArgumentException("Passed {argument} did not contain valid AuxData.", nameof(executionContextDescription));
-            }
+            var context = new CdtrContext(
+                contextId, 
+                _loggerFactory.CreateLogger<CdtrContext>(),
+                frameInfo,
+                _chromeSession,
+                _cdtrElementFactory,
+                _jsBuilder);
 
-            var frameId = (string?)auxData["frameId"];
-
-            if (frameId == null)
-            {
-                throw new ArgumentException("Passed {argument} did not contain valid AuxData.", nameof(executionContextDescription));
-            }
-
-            try
-            {
-                //var frameOwnerResponse = await _chromeSession.DOM.GetFrameOwner(new BaristaLabs.ChromeDevTools.Runtime.DOM.GetFrameOwnerCommand
-                //{
-                //    FrameId = frameId
-                //},
-                //throwExceptionIfResponseNotReceived: false);
-                //var frameOwner = frameOwnerResponse.NodeId;
-
-                //_logger.LogDebug("Resolved frame {frameId} owner: {owner}", frameId, frameOwner);
-
-                var frameInfo = new CdtrFrameInfo("0");
-
-                var context = new CdtrContext(
-                    executionContextDescription.Id,
-                    0,
-                    _loggerFactory.CreateLogger<CdtrContext>(),
-                    frameInfo,
-                    _chromeSession,
-                    _cdtrElementFactory,
-                    executionContextDescription);
-
-                return context;
-            }
-            catch (Exception e)
-            {
-                throw;
-            }
+            return context;
         }
-
 
         public class CdtrFrameInfo : IFrameInfo
         {
-            public CdtrFrameInfo(string frameId)
+            public CdtrFrameInfo(Frame frame)
             {
-                FrameId = frameId;
+                FrameId = frame.Id;
+                Name = frame.Name;
+                Url = frame.Url;
             }
             public string FrameId { get; private set; }
+            public string Name { get; private set; }
+            public string Url { get; private set; }
         }
     }
 }

@@ -1,4 +1,8 @@
-﻿using BaristaLabs.ChromeDevTools.Runtime;
+﻿// TODO: There is no one-to-one relation btw contexts and iFrames. iFrame can have more contexts (workers, plugins) or none.
+// Expose to the client only iFrames with some context and expose only one context per frame.
+// TODO: What exactly is an execution context?
+
+using BaristaLabs.ChromeDevTools.Runtime;
 using BaristaLabs.ChromeDevTools.Runtime.DOM;
 using BaristaLabs.ChromeDevTools.Runtime.Runtime;
 using Microsoft.Extensions.Logging;
@@ -11,33 +15,45 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
 {
     internal class CdtrContext : IContext
     {
-        private readonly long _contextId;
-        private readonly long _documentNodeId;
+        private readonly int _contextId; // for Runtime namespace
+        private readonly long _documentBackendNodeId; // for DOM namespace
 
         private readonly ILogger _logger;
         private readonly IFrameInfo _frameInfo;
         private readonly ChromeSession _chromeSession;
         private readonly ICdtrElementFactory _cdtrElementFactory;
-        internal ExecutionContextDescription _executionContextDescription;
+        private readonly IJsBuilder _jsBuilder;
 
+        public int Id { get => _contextId; }
 
         /// <summary>
         /// Ctor. Frame must be loaded when calling this ctor.
         /// </summary>
-        /// <param name="logger"></param>
-        /// <param name="contextId"></param>
-        /// <param name="documentNodeId"></param>
-        /// <param name="chromeSession"></param>
-        /// <param name="cdtrElementFactory"></param>
-        public CdtrContext(long contextId, long documentNodeId, ILogger logger, IFrameInfo frameInfo, ChromeSession chromeSession, ICdtrElementFactory cdtrElementFactory, ExecutionContextDescription executionContextDescription)
+        public CdtrContext(int contextId, ILogger logger, IFrameInfo frameInfo, ChromeSession chromeSession, ICdtrElementFactory cdtrElementFactory, IJsBuilder jsBuilder)
         {
-            _contextId = contextId;
-            _documentNodeId = documentNodeId;
-            _frameInfo = frameInfo;
             _logger = logger;
+
+            _logger.LogDebug("Creating context with id: {contextId}...", contextId);
+
+            _contextId = contextId;
+            _frameInfo = frameInfo;
             _chromeSession = chromeSession;
             _cdtrElementFactory = cdtrElementFactory;
-            _executionContextDescription = executionContextDescription;
+            _jsBuilder = jsBuilder;
+
+            var myDocument = _chromeSession.Runtime.Evaluate(new EvaluateCommand
+            {
+                Expression = "document",
+                ContextId = _contextId
+            },
+            throwExceptionIfResponseNotReceived: false).Result;
+
+            _logger.LogDebug("Document has Id: {documentId} and description: {description}.", myDocument.Result.ObjectId, myDocument.Result.Description);
+
+            var nodeDescription = _chromeSession.DOM.DescribeNode(new DescribeNodeCommand { ObjectId = myDocument.Result.ObjectId }, throwExceptionIfResponseNotReceived: false).Result;
+            _documentBackendNodeId = nodeDescription.Node.BackendNodeId;
+
+            _logger.LogDebug("document has node id: {nodeId}.", _documentBackendNodeId);
         }
 
         //private async Task<Node> GetDocumentNodeAsync(CancellationToken cancellationToken)
@@ -45,6 +61,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
         //    var getDocumentResult = await _chromeSession.DOM.GetDocument(new GetDocumentCommand
         //    {
         //        Depth = 1,
+
         //    },
         //    throwExceptionIfResponseNotReceived: false,
         //    cancellationToken: cancellationToken);
@@ -54,13 +71,11 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
 
         public IFrameInfo FrameInfo => _frameInfo;
 
-        public long Id => _contextId;
-
         public async Task<string?> ExecuteScriptAsync(string script, CancellationToken cancellationToken)
         {
             try
             {
-                var result = await _chromeSession.Runtime.Evaluate(new BaristaLabs.ChromeDevTools.Runtime.Runtime.EvaluateCommand
+                var result = await _chromeSession.Runtime.Evaluate(new EvaluateCommand
                 {
                     Expression = script,
                     ContextId = _contextId,
@@ -75,7 +90,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
                 }
                 else
                 {
-                    throw new NotImplementedException();
+                    return result.Result.Type;
                 }
             }
             catch (Exception e)
@@ -109,43 +124,43 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
         {
             try
             {
-                // [TODO] find document node id as DOM.GetFrameOwner
-                //var documentNode = await GetDocumentNodeAsync(cancellationToken);
-
-                //if (documentNode == null)
-                //{
-                //    return null;
-                //}
-
-                //_logger.LogDebug("Resolved documentNode id: {documentNodeId}", documentNode.NodeId);
-
-                //if (documentNode.NodeId == 0)
-                //{
-                //    return null;
-                //}
-
-                var querySelectorResult = await _chromeSession.DOM.QuerySelector(new QuerySelectorCommand
+                var expression = _jsBuilder.DocumentQuerySelector(cssSelector);
+                var evaluation = await _chromeSession.Runtime.Evaluate(new EvaluateCommand
                 {
-                    Selector = cssSelector,
-                    NodeId = _documentNodeId
+                    ContextId = _contextId,
+                    Expression = expression
                 },
                 throwExceptionIfResponseNotReceived: false,
                 cancellationToken: cancellationToken);
 
-                _logger.LogDebug("Resolved node id: {nodeId}", querySelectorResult.NodeId);
-
-                if (querySelectorResult.NodeId == 0)
+                if (evaluation?.Result?.ObjectId == null)
                 {
-                    _logger.LogWarning("Node id resolved as 0: {cssSelector}", cssSelector);
+                    _logger.LogDebug("Failed to {evaluate} element by css selector: {cssSelector}. Are you in the right context?", nameof(_chromeSession.Runtime.Evaluate), cssSelector);
                     return null;
                 }
 
-                return _cdtrElementFactory.CreateCdtrElement(querySelectorResult.NodeId, _chromeSession, cancellationToken);
-            }
-            catch (CommandResponseException e)
-            {
-                _logger.LogWarning("{name} while page was loading resulted in an exception: {e}.", nameof(FindElementByCssSelectorAsync), e);
-                return null;
+                // TODO: check for correct subtype.
+
+                if (evaluation.ExceptionDetails != null)
+                {
+                    _logger.LogDebug("Failed to {evaluate} element by css selector: {cssSelector}: {e}", nameof(_chromeSession.Runtime.Evaluate), cssSelector, evaluation.ExceptionDetails.Exception.Description);
+                    return null;
+                }
+
+                var node = await _chromeSession.DOM.DescribeNode(new DescribeNodeCommand
+                {
+                    ObjectId = evaluation.Result.ObjectId
+                },
+                cancellationToken: cancellationToken,
+                throwExceptionIfResponseNotReceived: false);
+
+                if (node == null)
+                {
+                    _logger.LogWarning("Failed to {describeNode} with object id {objectId}. Are you in the right context?", nameof(_chromeSession.DOM.DescribeNode), evaluation.Result.ObjectId);
+                    return null;
+                }
+
+                return _cdtrElementFactory.CreateCdtrElement(node.Node.BackendNodeId, _chromeSession, cancellationToken);
             }
             catch (Exception e)
             {

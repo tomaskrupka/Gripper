@@ -8,6 +8,6 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
 {
     public interface ICdtrContextFactory
     {
-        public Task<IContext> CreateContextAsync(ExecutionContextDescription executionContextDescription, Frame frame);
+        public Task<IContext> CreateContextAsync(int contextId, Frame frame);
     }
 }

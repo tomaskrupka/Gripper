@@ -26,6 +26,12 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
                 // '\u001b': {"Escape", "Escape", "", "", 27, 27, false, false},
                 SpecialKey.Escape => new[] { new DispatchKeyEventCommand { Type = "char", Code = "Escape", Key = "Escape", Text = "", UnmodifiedText = "", NativeVirtualKeyCode = 27, WindowsVirtualKeyCode = 27 } },
 
+                //	'\u0307': {"PageDown", "PageDown", "", "", 34, 34, false, false},
+                SpecialKey.PageDown => new[] { new DispatchKeyEventCommand { Type = "char", Code = "PageDown", Key = "PageDown", Text = "", UnmodifiedText = "", NativeVirtualKeyCode = 34, WindowsVirtualKeyCode = 34 } },
+
+                //	'\u0305': {"End", "End", "", "", 35, 35, false, false},
+                SpecialKey.End => new[] { new DispatchKeyEventCommand { Type = "char", Code = "End", Key = "End", Text = "", UnmodifiedText = "", NativeVirtualKeyCode = 35, WindowsVirtualKeyCode = 35 } },
+
                 _ => throw new NotImplementedException()
             };
 

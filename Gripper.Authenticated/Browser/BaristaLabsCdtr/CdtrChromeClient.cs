@@ -26,28 +26,43 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
     {
         #region Private
 
-        private ChromeSession _chromeSession;
-        private CancellationTokenSource _cancellationTokenSource;
-        private CancellationToken _cancellationToken;
-        private bool _hasDisposalStarted;
-
         private ILogger _logger;
         private ILoggerFactory _loggerFactory;
         private ICdtrElementFactory _cdtrElementFactory;
         private ICdtrContextFactory _cdtrContextFactory;
+        private IJsBuilder _jsBuilder;
 
+        private ChromeSession _chromeSession;
         private Process _chromeProcess;
 
-        private ConcurrentDictionary<long, ExecutionContextDescription> _executionContexts;
+        private CancellationTokenSource _cancellationTokenSource;
+        private CancellationToken _cancellationToken;
 
+        private bool _hasDisposalStarted;
+        private ConcurrentDictionary<int, ExecutionContextDescription> _executionContexts;
         private Action<FrameStoppedLoadingEvent> _frameStoppedLoading;
+        private IContext? _mainContext;
+
 
         public IContext MainContext
         {
             get
             {
-                var contexts = GetContextsAsync().Result;
-                throw new NotImplementedException();
+                if (_mainContext == null)
+                {
+                    _logger.LogInformation("{myName} found no main context, running {name} to get it.", nameof(CdtrChromeClient), nameof(GetContextsAsync));
+                    var contexts = GetContextsAsync().Result;
+                    if (!contexts.Any())
+                    {
+                        throw new ApplicationException($"{nameof(GetContextsAsync)} returned no contexts.");
+                    }
+                    _mainContext = contexts.First();
+                }
+                else
+                {
+                    _logger.LogDebug("{myName} found main context.", nameof(CdtrChromeClient));
+                }
+                return _mainContext;
             }
         }
 
@@ -73,14 +88,25 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
             _chromeSession.Runtime.SubscribeToExecutionContextCreatedEvent(x =>
             {
                 _logger.LogDebug("execution context created: {id}, {name}, {origin}.", x.Context.Id, x.Context.Name, x.Context.Origin);
-                _executionContexts[x.Context.Id] = x.Context;
+                _executionContexts[(int)x.Context.Id] = x.Context;
             });
 
             _chromeSession.Runtime.SubscribeToExecutionContextDestroyedEvent(x =>
             {
                 _logger.LogDebug("execution context destroyed: {id}.", x.ExecutionContextId);
                 var contextId = x.ExecutionContextId;
-                _executionContexts.TryRemove(contextId, out _);
+                _executionContexts.TryRemove((int)contextId, out _);
+                if (_mainContext != null && _mainContext.Id == contextId)
+                {
+                    _mainContext = null;
+                }
+            });
+
+            await _chromeSession.DOM.Enable(throwExceptionIfResponseNotReceived: false);
+
+            _chromeSession.DOM.SubscribeToSetChildNodesEvent(x =>
+            {
+                _logger.LogDebug("set child node: Parent: {nodeParent}, nodes: {nodes}", x.ParentId, string.Join(' ', x.Nodes.Select(x => x.NodeId + " " + x.NodeName + " " + x.NodeValue)));
             });
         }
 
@@ -268,7 +294,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
 
             //DoPostStartupCleanupAsync(chromeSession, settings.StartupCleanup).Wait();
 
-            var contextFactory = new CdtrContextFactory(_loggerFactory, _cdtrElementFactory, chromeSession);
+            var contextFactory = new CdtrContextFactory(_loggerFactory, _cdtrElementFactory, _jsBuilder, chromeSession);
 
             return (chromeProcess, chromeSession, contextFactory);
         }
@@ -279,15 +305,17 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
         public CdtrChromeClient(
             ILoggerFactory loggerFactory,
             ICdtrElementFactory cdtrElementFactory,
+            IJsBuilder jsBuilder,
             WebClientSettings settings)
         {
             _loggerFactory = loggerFactory;
             _logger = loggerFactory.CreateLogger<CdtrChromeClient>();
             _cdtrElementFactory = cdtrElementFactory;
+            _jsBuilder = jsBuilder;
 
             (_chromeProcess, _chromeSession, _cdtrContextFactory) = LaunchAsync(settings).Result;
 
-            _executionContexts = new ConcurrentDictionary<long, ExecutionContextDescription>();
+            _executionContexts = new ConcurrentDictionary<int, ExecutionContextDescription>();
 
             _logger.LogDebug("Subscribing to rdp events.");
 
@@ -483,7 +511,7 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
         }
 
 
-        public async Task<ICollection<IContext>> GetContextsAsync()
+        public async Task<IReadOnlyCollection<IContext>> GetContextsAsync()
         {
             var frameTree = (await _chromeSession.Page.GetFrameTree(throwExceptionIfResponseNotReceived: false)).FrameTree;
 
@@ -503,24 +531,22 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
             var frames = new List<Frame>();
             AddFrames(frames, frameTree);
 
-            var contextDescriptions = _executionContexts.Values;
+            List<IContext> contexts = new();
 
-            ConcurrentBag<IContext> contexts = new();
-
-            Parallel.ForEach(frames, async frame =>
+            foreach (var frame in frames)
             {
-                var description = contextDescriptions.FirstOrDefault(x => ((JObject)x.AuxData)["frameId"]?.ToString() == frame.Id);
-                if (description != null)
+                var description = _executionContexts.FirstOrDefault(x => ((JObject)x.Value.AuxData)["frameId"]?.ToString() == frame.Id);
+                if (description.Value != null)
                 {
-                    var context = await _cdtrContextFactory.CreateContextAsync(description, frame);
+                    var context = await _cdtrContextFactory.CreateContextAsync(description.Key, frame);
                     if (context != null)
                     {
                         contexts.Add(context);
                     }
                 };
-            });
+            }
 
-            return (ICollection<IContext>)contexts;
+            return contexts;
         }
 
         public async Task<JToken> ExecuteRdpCommandAsync(string commandName, JToken commandParams)

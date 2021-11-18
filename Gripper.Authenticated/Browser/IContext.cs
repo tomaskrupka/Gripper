@@ -5,7 +5,7 @@ namespace Gripper.Authenticated.Browser
 {
     public interface IContext
     {
-        public long Id { get; }
+        public int Id { get; }
         public IFrameInfo FrameInfo { get; }
         public Task<string?> ExecuteScriptAsync(string script, CancellationToken cancellationToken);
         public Task<IElement?> FindElementByCssSelectorAsync(string cssSelector, CancellationToken cancellationToken);

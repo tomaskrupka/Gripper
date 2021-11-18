@@ -12,11 +12,13 @@ namespace Gripper.Authenticated.Browser
     public class WebClientFactory : IWebClientFactory
     {
         private ILoggerFactory _loggerFactory;
+        private IJsBuilder _jsBuilder;
         private ILogger _logger;
 
-        public WebClientFactory(ILoggerFactory loggerFactory)
+        public WebClientFactory(ILoggerFactory loggerFactory, IJsBuilder jsBuilder)
         {
             _loggerFactory = loggerFactory;
+            _jsBuilder = jsBuilder;
             _logger = _loggerFactory.CreateLogger<WebClientFactory>();
         }
         public async Task<IWebClient> LaunchAsync()
@@ -30,10 +32,10 @@ namespace Gripper.Authenticated.Browser
             {
                 case WebClientImplementation.BaristaLabsCdtr:
                     var cdtrElementFactory = new BaristaLabsCdtr.CdtrElementFactory(_loggerFactory);
-                    return new BaristaLabsCdtr.CdtrChromeClient(_loggerFactory, cdtrElementFactory, settings);
+                    return new BaristaLabsCdtr.CdtrChromeClient(_loggerFactory, cdtrElementFactory, _jsBuilder, settings);
 
                 case WebClientImplementation.Selenium:
-                    //return new SeleniumChromeClient(_loggerFactory, settings);
+                //return new SeleniumChromeClient(_loggerFactory, settings);
 
                 case WebClientImplementation.Any:
                 default:
