@@ -29,19 +29,21 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
             _logger = _loggerFactory.CreateLogger<CdtrContextFactory>();
         }
 
-        public async Task<IContext> CreateContextAsync(int contextId, Frame frame)
+        public bool TryCreateContext(int contextId, Frame frame, out IContext? context)
         {
             var frameInfo = new CdtrFrameInfo(frame);
 
-            var context = new CdtrContext(
+            var contextCreated = CdtrContext.TryCreate(
                 contextId, 
                 _loggerFactory.CreateLogger<CdtrContext>(),
                 frameInfo,
                 _chromeSession,
                 _cdtrElementFactory,
-                _jsBuilder);
+                _jsBuilder,
+                out CdtrContext? cdtrContext);
 
-            return context;
+            context = cdtrContext;
+            return contextCreated;
         }
 
         public class CdtrFrameInfo : IFrameInfo

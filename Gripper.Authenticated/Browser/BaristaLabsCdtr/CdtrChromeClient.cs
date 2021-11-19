@@ -41,28 +41,29 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
         private bool _hasDisposalStarted;
         private ConcurrentDictionary<int, ExecutionContextDescription> _executionContexts;
         private Action<FrameStoppedLoadingEvent> _frameStoppedLoading;
-        private IContext? _mainContext;
+        //private IContext? _mainContext;
 
 
         public IContext MainContext
         {
             get
             {
-                if (_mainContext == null)
+                //if (_mainContext == null)
+                //{
+                _logger.LogDebug("{myName} running {name} to get main context.", nameof(CdtrChromeClient), nameof(GetContextsAsync));
+                var contexts = GetContextsAsync().Result;
+                if (!contexts.Any())
                 {
-                    _logger.LogInformation("{myName} found no main context, running {name} to get it.", nameof(CdtrChromeClient), nameof(GetContextsAsync));
-                    var contexts = GetContextsAsync().Result;
-                    if (!contexts.Any())
-                    {
-                        throw new ApplicationException($"{nameof(GetContextsAsync)} returned no contexts.");
-                    }
-                    _mainContext = contexts.First();
+                    throw new ApplicationException($"{nameof(GetContextsAsync)} returned no contexts.");
                 }
-                else
-                {
-                    _logger.LogDebug("{myName} found main context.", nameof(CdtrChromeClient));
-                }
-                return _mainContext;
+                return contexts.First();
+                //_mainContext = contexts.First();
+                //}
+                //else
+                //{
+                //    _logger.LogDebug("{myName} found main context.", nameof(CdtrChromeClient));
+                //}
+                //return _mainContext;
             }
         }
 
@@ -96,10 +97,10 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
                 _logger.LogDebug("execution context destroyed: {id}.", x.ExecutionContextId);
                 var contextId = x.ExecutionContextId;
                 _executionContexts.TryRemove((int)contextId, out _);
-                if (_mainContext != null && _mainContext.Id == contextId)
-                {
-                    _mainContext = null;
-                }
+                //if (_mainContext != null && _mainContext.Id == contextId)
+                //{
+                //    _mainContext = null;
+                //}
             });
 
             await _chromeSession.DOM.Enable(throwExceptionIfResponseNotReceived: false);
@@ -536,14 +537,10 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
             foreach (var frame in frames)
             {
                 var description = _executionContexts.FirstOrDefault(x => ((JObject)x.Value.AuxData)["frameId"]?.ToString() == frame.Id);
-                if (description.Value != null)
+                if (description.Value != null && _cdtrContextFactory.TryCreateContext(description.Key, frame, out IContext? context))
                 {
-                    var context = await _cdtrContextFactory.CreateContextAsync(description.Key, frame);
-                    if (context != null)
-                    {
-                        contexts.Add(context);
-                    }
-                };
+                    contexts.Add(context ?? throw new ApplicationException($"{nameof(CdtrContextFactory.TryCreateContext)} returned true, {nameof(context)} cannot be null."));
+                }
             }
 
             return contexts;

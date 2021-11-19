@@ -15,6 +15,8 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
 {
     internal class CdtrContext : IContext
     {
+        #region Private fields
+
         private readonly int _contextId; // for Runtime namespace
         private readonly long _documentBackendNodeId; // for DOM namespace
 
@@ -24,50 +26,87 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
         private readonly ICdtrElementFactory _cdtrElementFactory;
         private readonly IJsBuilder _jsBuilder;
 
-        public int Id { get => _contextId; }
+        #endregion
+
+        #region Ctor + pseudo ctor
+
+        private static long? GetBackendNodeId(long? contextId, ChromeSession chromeSession, ILogger logger)
+        {
+            try
+            {
+                var myDocument = chromeSession.Runtime.Evaluate(new EvaluateCommand
+                {
+                    Expression = "document",
+                    ContextId = contextId
+                },
+                throwExceptionIfResponseNotReceived: false).Result;
+
+                logger.LogDebug("Document has Id: {documentId} and description: {description}.", myDocument?.Result?.ObjectId ?? "null", myDocument?.Result?.Description ?? "null");
+
+                if (myDocument?.Result?.ObjectId == null)
+                {
+                    return null;
+                }
+
+                var nodeDescription = chromeSession.DOM.DescribeNode(new DescribeNodeCommand { ObjectId = myDocument.Result.ObjectId }, throwExceptionIfResponseNotReceived: false).Result;
+
+                if (nodeDescription?.Node?.BackendNodeId == null)
+                {
+                    return null;
+                }
+
+                var documentBackendNodeId = nodeDescription.Node.BackendNodeId;
+
+                logger.LogDebug("document has node id: {nodeId}.", documentBackendNodeId);
+
+                return documentBackendNodeId;
+            }
+            catch (Exception e)
+            {
+                logger.LogError("Failed to {name}: {e}", nameof(GetBackendNodeId), e);
+                return null;
+            }
+        }
 
         /// <summary>
         /// Ctor. Frame must be loaded when calling this ctor.
         /// </summary>
-        public CdtrContext(int contextId, ILogger logger, IFrameInfo frameInfo, ChromeSession chromeSession, ICdtrElementFactory cdtrElementFactory, IJsBuilder jsBuilder)
+        private CdtrContext(int contextId, long documentBackendNodeId, ILogger logger, IFrameInfo frameInfo, ChromeSession chromeSession, ICdtrElementFactory cdtrElementFactory, IJsBuilder jsBuilder)
         {
             _logger = logger;
 
             _logger.LogDebug("Creating context with id: {contextId}...", contextId);
 
             _contextId = contextId;
+            _documentBackendNodeId = documentBackendNodeId;
             _frameInfo = frameInfo;
             _chromeSession = chromeSession;
             _cdtrElementFactory = cdtrElementFactory;
             _jsBuilder = jsBuilder;
 
-            var myDocument = _chromeSession.Runtime.Evaluate(new EvaluateCommand
-            {
-                Expression = "document",
-                ContextId = _contextId
-            },
-            throwExceptionIfResponseNotReceived: false).Result;
-
-            _logger.LogDebug("Document has Id: {documentId} and description: {description}.", myDocument.Result.ObjectId, myDocument.Result.Description);
-
-            var nodeDescription = _chromeSession.DOM.DescribeNode(new DescribeNodeCommand { ObjectId = myDocument.Result.ObjectId }, throwExceptionIfResponseNotReceived: false).Result;
-            _documentBackendNodeId = nodeDescription.Node.BackendNodeId;
-
-            _logger.LogDebug("document has node id: {nodeId}.", _documentBackendNodeId);
         }
 
-        //private async Task<Node> GetDocumentNodeAsync(CancellationToken cancellationToken)
-        //{
-        //    var getDocumentResult = await _chromeSession.DOM.GetDocument(new GetDocumentCommand
-        //    {
-        //        Depth = 1,
+        public static bool TryCreate(int contextId, ILogger logger, IFrameInfo frameInfo, ChromeSession chromeSession, ICdtrElementFactory cdtrElementFactory, IJsBuilder jsBuilder, out CdtrContext? context)
+        {
+            var backendNodeId = GetBackendNodeId(contextId, chromeSession, logger);
+            if (backendNodeId == null)
+            {
+                context = null;
+                return false;
+            }
+            else
+            {
+                context = new CdtrContext(contextId, (long)backendNodeId, logger, frameInfo, chromeSession, cdtrElementFactory, jsBuilder);
+                return true;
+            }
+        }
 
-        //    },
-        //    throwExceptionIfResponseNotReceived: false,
-        //    cancellationToken: cancellationToken);
+        public int Id { get => _contextId; }
 
-        //    return getDocumentResult.Root;
-        //}
+
+        #endregion
+
+        #region Public API
 
         public IFrameInfo FrameInfo => _frameInfo;
 
@@ -169,5 +208,6 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
                 throw;
             }
         }
+        #endregion
     }
 }

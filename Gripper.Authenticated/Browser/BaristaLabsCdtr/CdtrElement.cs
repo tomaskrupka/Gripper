@@ -178,12 +178,13 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
 
         public async Task<string> GetInnerTextAsync()
         {
+            var outerHtml = await _chromeSession.DOM.GetOuterHTML(new GetOuterHTMLCommand
+            {
+                BackendNodeId = _backendNodeId
+            },
+            throwExceptionIfResponseNotReceived: false);
+
             throw new NotImplementedException();
-            //var attributes = await _chromeSession.DOM.GetAttributes(new GetAttributesCommand { ba = _backendNodeId });
-
-            ;
-
-            return null;
         }
 
     }
