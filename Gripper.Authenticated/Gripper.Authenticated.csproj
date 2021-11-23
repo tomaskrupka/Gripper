@@ -4,14 +4,16 @@
     <TargetFramework>net5.0</TargetFramework>
     <Nullable>enable</Nullable>
     <Authors>Tomáš Krupka</Authors>
-    <Version>0.2.3</Version>
+    <Version>0.3.0</Version>
     <NeutralLanguage>en-GB</NeutralLanguage>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Description>Gripper is a web scraping toolbox that operates in a browser window under its control. Gripper uses the chrome devtools protocol (CDP) and is configurable to use either Selenium or chrome-dev-tools-runtime as the CDP client.</Description>
+    <Description>Gripper is a web scraping toolbox that operates in a browser window under its control.
+
+Gripper uses the chrome devtools protocol (CDP) and is configurable to use any CDP client. It provides a slim, web-scraping focused facade while retaining full access to the CDP API.</Description>
     <RepositoryUrl>https://github.com/tomaskrupka/Gripper</RepositoryUrl>
     <PackageTags></PackageTags>
-    <PackageReleaseNotes>IElement can FocusAsync() from v0.2.3 on.</PackageReleaseNotes>
+    <PackageReleaseNotes>Basic support for IFrames.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

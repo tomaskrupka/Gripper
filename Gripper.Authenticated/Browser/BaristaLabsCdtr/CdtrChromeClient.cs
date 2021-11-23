@@ -48,8 +48,6 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
         {
             get
             {
-                //if (_mainContext == null)
-                //{
                 _logger.LogDebug("{myName} running {name} to get main context.", nameof(CdtrChromeClient), nameof(GetContextsAsync));
                 var contexts = GetContextsAsync().Result;
                 if (!contexts.Any())
@@ -57,13 +55,6 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
                     throw new ApplicationException($"{nameof(GetContextsAsync)} returned no contexts.");
                 }
                 return contexts.First();
-                //_mainContext = contexts.First();
-                //}
-                //else
-                //{
-                //    _logger.LogDebug("{myName} found main context.", nameof(CdtrChromeClient));
-                //}
-                //return _mainContext;
             }
         }
 
@@ -97,10 +88,6 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
                 _logger.LogDebug("execution context destroyed: {id}.", x.ExecutionContextId);
                 var contextId = x.ExecutionContextId;
                 _executionContexts.TryRemove((int)contextId, out _);
-                //if (_mainContext != null && _mainContext.Id == contextId)
-                //{
-                //    _mainContext = null;
-                //}
             });
 
             await _chromeSession.DOM.Enable(throwExceptionIfResponseNotReceived: false);
@@ -128,15 +115,13 @@ namespace Gripper.Authenticated.Browser.BaristaLabsCdtr
                         await _chromeSession.Target.SetAutoAttach(new BaristaLabs.ChromeDevTools.Runtime.Target.SetAutoAttachCommand
                         {
                             AutoAttach = true,
-                            WaitForDebuggerOnStart = false,
+                            // Setting WaitForDebuggerOnStart = true requires releasing stalled frames by calling Runtime.RunIfWaitingForDebugger
+                            WaitForDebuggerOnStart = false, 
                             Flatten = true
                         },
                         throwExceptionIfResponseNotReceived: false,
                         cancellationToken: _cancellationToken);
 
-                        //await Task.Delay(1000);
-                        //// Prevent stalled frames.
-                        //await _chromeSession.Runtime.RunIfWaitingForDebugger(throwExceptionIfResponseNotReceived: false);
                     };
 
                     break;
