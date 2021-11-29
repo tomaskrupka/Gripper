@@ -4,7 +4,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <Nullable>enable</Nullable>
     <Authors>Tomáš Krupka</Authors>
-    <Version>0.3.1-alpha</Version>
+    <Version>0.3.2-alpha</Version>
     <NeutralLanguage>en-GB</NeutralLanguage>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
@@ -12,7 +12,7 @@
 Gripper.WebClient provides a slim, web-scraping focused facade while retaining full access to the CDP API.</Description>
     <RepositoryUrl>https://github.com/tomaskrupka/Gripper</RepositoryUrl>
     <PackageTags></PackageTags>
-    <PackageReleaseNotes>Basic support for IFrames.</PackageReleaseNotes>
+    <PackageReleaseNotes>Improved handling of frames edge cases.</PackageReleaseNotes>
     <Product>Gripper</Product>
     <PackageId>Gripper.WebClient</PackageId>
     <AssemblyName>Gripper.WebClient</AssemblyName>
