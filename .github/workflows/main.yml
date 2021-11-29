@@ -39,15 +39,15 @@ jobs:
       run: dotnet nuget add source --username ${{ github.repository_owner }} --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
       
     - name: Publish to github
-      run: dotnet nuget push ${{ github.workspace }}/Gripper.Authenticated/bin/Release/Gripper.Authenticated*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source github
+      run: dotnet nuget push ${{ github.workspace }}/Gripper.WebClient/bin/Release/Gripper.WebClient*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source github
     
     - name: Publish to nuget gallery
       uses: brandedoutcast/publish-nuget@v2.5.5
       with:
         # Filepath of the project to be packaged, relative to root of repository
-        PROJECT_FILE_PATH: ${{ github.workspace }}/Gripper.Authenticated/Gripper.Authenticated.csproj
+        PROJECT_FILE_PATH: ${{ github.workspace }}/Gripper.WebClient/Gripper.WebClient.csproj
         # NuGet package id, used for version detection & defaults to project name
-        PACKAGE_NAME: 'Gripper.Authenticated'
+        PACKAGE_NAME: 'Gripper.WebClient'
         # Filepath with version info, relative to root of repository & defaults to PROJECT_FILE_PATH
         # VERSION_FILE_PATH: # optional
         # Regex pattern to extract version info in a capturing group
