@@ -11,7 +11,8 @@ namespace Gripper.Utils.HttpProxy
 {
     public interface IWebProxyManager
     {
-        public Task<IWebProxyContainer> GetProxyAsync();
+        public Task<IWebProxy> GetProxyAsync();
+        public void BadProxy();
     }
     public interface IWebProxyContainer
     {

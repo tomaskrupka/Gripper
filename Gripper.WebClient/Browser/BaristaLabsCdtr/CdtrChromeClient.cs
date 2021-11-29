@@ -44,7 +44,7 @@ namespace Gripper.WebClient.Browser.BaristaLabsCdtr
         //private IContext? _mainContext;
 
 
-        public IContext MainContext
+        public IContext? MainContext
         {
             get
             {
@@ -52,7 +52,8 @@ namespace Gripper.WebClient.Browser.BaristaLabsCdtr
                 var contexts = GetContextsAsync().Result;
                 if (!contexts.Any())
                 {
-                    throw new ApplicationException($"{nameof(GetContextsAsync)} returned no contexts.");
+                    _logger.LogWarning("{name} returned no contexts.", nameof(GetContextsAsync));
+                    return null;
                 }
                 return contexts.First();
             }
@@ -491,6 +492,7 @@ namespace Gripper.WebClient.Browser.BaristaLabsCdtr
             }
         }
 
+        //https://social.msdn.microsoft.com/Forums/vstudio/en-US/9bde4870-1599-4958-9ab4-902fa98ba53a/how-do-i-maximizeminimize-applications-programmatically-in-c?forum=csharpgeneral
         public Task EnterFullScreenAsync()
         {
             throw new NotImplementedException();
@@ -501,8 +503,12 @@ namespace Gripper.WebClient.Browser.BaristaLabsCdtr
         {
             var frameTree = (await _chromeSession.Page.GetFrameTree(throwExceptionIfResponseNotReceived: false)).FrameTree;
 
-            List<Frame> AddFrames(List<Frame> frames, FrameTree frameTree)
+            void AddFrames(List<Frame> frames, FrameTree frameTree)
             {
+                if (frameTree?.Frame == null)
+                {
+                    return;
+                }
                 frames.Add(frameTree.Frame);
                 if (frameTree?.ChildFrames != null && frameTree.ChildFrames.Any())
                 {
@@ -511,7 +517,6 @@ namespace Gripper.WebClient.Browser.BaristaLabsCdtr
                         AddFrames(frames, child);
                     }
                 }
-                return frames;
             }
 
             var frames = new List<Frame>();
