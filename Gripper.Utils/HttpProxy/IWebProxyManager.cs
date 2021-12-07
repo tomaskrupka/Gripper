@@ -72,5 +72,15 @@ namespace Gripper.Utils.HttpProxy
         {
             throw new NotImplementedException();
         }
+
+        Task<IWebProxy> IWebProxyManager.GetProxyAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void BadProxy()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
