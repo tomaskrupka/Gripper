@@ -31,6 +31,9 @@ namespace Gripper.WebClient.Browser.BaristaLabsCdtr
 
                 //	'\u0305': {"End", "End", "", "", 35, 35, false, false},
                 SpecialKey.End => new[] { new DispatchKeyEventCommand { Type = "char", Code = "End", Key = "End", Text = "", UnmodifiedText = "", NativeVirtualKeyCode = 35, WindowsVirtualKeyCode = 35 } },
+                
+                //	'\u0305': {"End", "End", "", "", 35, 35, false, false},
+                SpecialKey.Home => new[] { new DispatchKeyEventCommand { Type = "char", Code = "Home", Key = "Home", Text = "", UnmodifiedText = "", NativeVirtualKeyCode = 36, WindowsVirtualKeyCode = 36 } },
 
                 SpecialKey.PageDown => new[] {
                     new DispatchKeyEventCommand { Type = "keyDown", Code = "PageDown", Key = "PageDown", Text = "", UnmodifiedText = "", NativeVirtualKeyCode = 34, WindowsVirtualKeyCode = 34 },
