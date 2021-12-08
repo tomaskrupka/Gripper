@@ -30,10 +30,18 @@ namespace Gripper.WebClient.Browser.BaristaLabsCdtr
                 //SpecialKey.PageDown => new[] { new DispatchKeyEventCommand { Type = "char", Code = "PageDown", Key = "PageDown", Text = "", UnmodifiedText = "", NativeVirtualKeyCode = 34, WindowsVirtualKeyCode = 34 } },
 
                 //	'\u0305': {"End", "End", "", "", 35, 35, false, false},
-                SpecialKey.End => new[] { new DispatchKeyEventCommand { Type = "char", Code = "End", Key = "End", Text = "", UnmodifiedText = "", NativeVirtualKeyCode = 35, WindowsVirtualKeyCode = 35 } },
+                SpecialKey.End => new[] {
+                    new DispatchKeyEventCommand { Type = "keyDown", Code = "End", Key = "End", Text = "", UnmodifiedText = "", NativeVirtualKeyCode = 35, WindowsVirtualKeyCode = 35 },
+                    new DispatchKeyEventCommand { Type = "char", Code = "End", Key = "End", Text = "", UnmodifiedText = "", NativeVirtualKeyCode = 35, WindowsVirtualKeyCode = 35 },
+                    new DispatchKeyEventCommand { Type = "keyUp", Code = "End", Key = "End", Text = "", UnmodifiedText = "", NativeVirtualKeyCode = 35, WindowsVirtualKeyCode = 35 },
+                },
                 
                 //	'\u0305': {"End", "End", "", "", 35, 35, false, false},
-                SpecialKey.Home => new[] { new DispatchKeyEventCommand { Type = "char", Code = "Home", Key = "Home", Text = "", UnmodifiedText = "", NativeVirtualKeyCode = 36, WindowsVirtualKeyCode = 36 } },
+                SpecialKey.Home => new[] {
+                    new DispatchKeyEventCommand { Type = "keyDown", Code = "Home", Key = "Home", Text = "", UnmodifiedText = "", NativeVirtualKeyCode = 36, WindowsVirtualKeyCode = 36 },
+                    new DispatchKeyEventCommand { Type = "char", Code = "Home", Key = "Home", Text = "", UnmodifiedText = "", NativeVirtualKeyCode = 36, WindowsVirtualKeyCode = 36 },
+                    new DispatchKeyEventCommand { Type = "keyUp", Code = "Home", Key = "Home", Text = "", UnmodifiedText = "", NativeVirtualKeyCode = 36, WindowsVirtualKeyCode = 36 },
+                },
 
                 SpecialKey.PageDown => new[] {
                     new DispatchKeyEventCommand { Type = "keyDown", Code = "PageDown", Key = "PageDown", Text = "", UnmodifiedText = "", NativeVirtualKeyCode = 34, WindowsVirtualKeyCode = 34 },
