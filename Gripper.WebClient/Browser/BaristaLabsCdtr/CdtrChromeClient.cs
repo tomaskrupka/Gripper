@@ -498,28 +498,30 @@ namespace Gripper.WebClient.Browser.BaristaLabsCdtr
             throw new NotImplementedException();
         }
 
+        private static void AddFrames(List<Frame> frames, FrameTree frameTree)
+        {
+            if (frameTree?.Frame == null)
+            {
+                return;
+            }
+
+            frames.Add(frameTree.Frame);
+            
+            if (frameTree?.ChildFrames != null && frameTree.ChildFrames.Any())
+            {
+                foreach (var child in frameTree.ChildFrames)
+                {
+                    AddFrames(frames, child);
+                }
+            }
+        }
 
         public async Task<IReadOnlyCollection<IContext>> GetContextsAsync()
         {
             var frameTree = (await _chromeSession.Page.GetFrameTree(throwExceptionIfResponseNotReceived: false)).FrameTree;
 
-            void AddFrames(List<Frame> frames, FrameTree frameTree)
-            {
-                if (frameTree?.Frame == null)
-                {
-                    return;
-                }
-                frames.Add(frameTree.Frame);
-                if (frameTree?.ChildFrames != null && frameTree.ChildFrames.Any())
-                {
-                    foreach (var child in frameTree.ChildFrames)
-                    {
-                        AddFrames(frames, child);
-                    }
-                }
-            }
-
             var frames = new List<Frame>();
+
             AddFrames(frames, frameTree);
 
             List<IContext> contexts = new();
