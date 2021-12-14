@@ -40,7 +40,7 @@ namespace Gripper.WebClient.Browser.BaristaLabsCdtr
 
         private bool _hasDisposalStarted;
         private ConcurrentDictionary<int, ExecutionContextDescription> _executionContexts;
-        private Action<FrameStoppedLoadingEvent> _frameStoppedLoading;
+        private Action<FrameStoppedLoadingEvent>? _frameStoppedLoading;
         //private IContext? _mainContext;
 
 
@@ -214,7 +214,7 @@ namespace Gripper.WebClient.Browser.BaristaLabsCdtr
             }
             catch (Exception e)
             {
-                _logger.LogCritical("Failed to {name}.", nameof(DoPreStartupCleanup));
+                _logger.LogCritical("Failed to {name}: {e}.", nameof(DoPreStartupCleanup), e);
                 throw;
             }
         }
@@ -528,10 +528,46 @@ namespace Gripper.WebClient.Browser.BaristaLabsCdtr
 
             foreach (var frame in frames)
             {
-                var description = _executionContexts.FirstOrDefault(x => ((JObject)x.Value.AuxData)["frameId"]?.ToString() == frame.Id);
-                if (description.Value != null && _cdtrContextFactory.TryCreateContext(description.Key, frame, out IContext? context))
+                var frameContexts = _executionContexts.Where(x => ((JObject)x.Value.AuxData)["frameId"]?.ToString() == frame.Id).ToList();
+                if (frameContexts.Count == 0)
                 {
-                    contexts.Add(context ?? throw new ApplicationException($"{nameof(CdtrContextFactory.TryCreateContext)} returned true, {nameof(context)} cannot be null."));
+                    _logger.LogError("{name} failed to find context by frameId {frameId}.", nameof(GetContextsAsync), frame.Id);
+                }
+                else if (frameContexts.Count == 1)
+                {
+                    var frameContext = frameContexts[0];
+                    if (frameContext.Value == null)
+                    {
+                        _logger.LogError("{name} error: Context with frameId {frameId} was null.", nameof(GetContextsAsync), frame.Id);
+                    }
+                    else
+                    {
+                        if (_cdtrContextFactory.TryCreateContext(frameContext.Key, frame, out IContext? context))
+                        {
+                            contexts.Add(context ?? throw new ApplicationException($"{nameof(CdtrContextFactory.TryCreateContext)} returned true, {nameof(context)} cannot be null."));
+                        }
+                        else
+                        {
+                            _logger.LogError("{name} error: Failed to create context with frameId {frameId}.", nameof(GetContextsAsync), frame.Id);
+                        }
+                    }
+                }
+                else
+                {
+                    var maxId = frameContexts.Max(x => x.Key);
+
+                    _logger.LogWarning(
+                        "{name} found {count} contexts with frameId {frameId}. Missed ExecutionContextDestroyed event? Creating context object for the highest context id: {maxId}.",
+                        nameof(GetContextsAsync), frameContexts.Count, frame.Id, maxId);
+
+                    if (_cdtrContextFactory.TryCreateContext(maxId, frame, out IContext? context))
+                    {
+                        contexts.Add(context ?? throw new ApplicationException($"{nameof(CdtrContextFactory.TryCreateContext)} returned true, {nameof(context)} cannot be null."));
+                    }
+                    else
+                    {
+                        _logger.LogError("{name} error: Failed to create context with frameId {frameId}.", nameof(GetContextsAsync), frame.Id);
+                    }
                 }
             }
 

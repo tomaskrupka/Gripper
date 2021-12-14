@@ -71,7 +71,14 @@ namespace Gripper.WebClient.Browser.BaristaLabsCdtr
         /// <summary>
         /// Ctor. Frame must be loaded when calling this ctor.
         /// </summary>
-        private CdtrContext(int contextId, long documentBackendNodeId, ILogger logger, IFrameInfo frameInfo, ChromeSession chromeSession, ICdtrElementFactory cdtrElementFactory, IJsBuilder jsBuilder)
+        private CdtrContext(
+            int contextId, 
+            long documentBackendNodeId, 
+            ILogger logger, 
+            IFrameInfo frameInfo, 
+            ChromeSession chromeSession, 
+            ICdtrElementFactory cdtrElementFactory, 
+            IJsBuilder jsBuilder)
         {
             _logger = logger;
 
@@ -86,7 +93,14 @@ namespace Gripper.WebClient.Browser.BaristaLabsCdtr
 
         }
 
-        public static bool TryCreate(int contextId, ILogger logger, IFrameInfo frameInfo, ChromeSession chromeSession, ICdtrElementFactory cdtrElementFactory, IJsBuilder jsBuilder, out CdtrContext? context)
+        public static bool TryCreate(
+            int contextId,
+            ILogger logger,
+            IFrameInfo frameInfo,
+            ChromeSession chromeSession,
+            ICdtrElementFactory cdtrElementFactory,
+            IJsBuilder jsBuilder,
+            out CdtrContext? context)
         {
             var backendNodeId = GetBackendNodeId(contextId, chromeSession, logger);
             if (backendNodeId == null)
@@ -101,12 +115,12 @@ namespace Gripper.WebClient.Browser.BaristaLabsCdtr
             }
         }
 
-        public int Id { get => _contextId; }
-
 
         #endregion
 
         #region Public API
+
+        public int Id => _contextId;
 
         public IFrameInfo FrameInfo => _frameInfo;
 

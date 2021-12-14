@@ -24,14 +24,13 @@ namespace Gripper.WebClient.Browser.ProcessManagement
 
         public static void KillTree(this Process process, TimeSpan timeout)
         {
-            string stdout;
             if (_isWindows)
             {
                 RunProcessAndWaitForExit(
                     "taskkill",
                     $"/T /F /PID {process.Id}",
                     timeout,
-                    out stdout);
+                    out _);
             }
             else
             {
