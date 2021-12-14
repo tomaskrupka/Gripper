@@ -604,14 +604,6 @@ namespace Gripper.WebClient.Browser.BaristaLabsCdtr
 
             try
             {
-                _chromeProcess.KillTree();
-            }
-            catch (Exception e)
-            {
-                _logger.LogError("Failed to kill chrome process tree: {e}", e);
-            }
-            try
-            {
                 _chromeSession.Dispose();
             }
             catch (ObjectDisposedException)

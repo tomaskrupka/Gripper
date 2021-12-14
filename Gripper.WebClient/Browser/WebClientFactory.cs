@@ -16,7 +16,9 @@ namespace Gripper.WebClient.Browser
             _jsBuilder = jsBuilder;
             _logger = _loggerFactory.CreateLogger<WebClientFactory>();
         }
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public async Task<IWebClient> LaunchAsync(WebClientSettings settings)
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
             switch (settings.WebClientImplementation)
             {
