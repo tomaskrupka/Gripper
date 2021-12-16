@@ -176,16 +176,14 @@ namespace Gripper.WebClient.Browser.BaristaLabsCdtr
             }
         }
 
-        public async Task<string> GetInnerTextAsync()
+        public Task<string> GetInnerTextAsync()
         {
-            var outerHtml = await _chromeSession.DOM.GetOuterHTML(new GetOuterHTMLCommand
-            {
-                BackendNodeId = _backendNodeId
-            },
-            throwExceptionIfResponseNotReceived: false);
-
             throw new NotImplementedException();
         }
 
+        public Task WaitUntilInteractable()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

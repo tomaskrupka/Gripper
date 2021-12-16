@@ -41,8 +41,6 @@ namespace Gripper.WebClient.Browser.BaristaLabsCdtr
         private bool _hasDisposalStarted;
         private ConcurrentDictionary<int, ExecutionContextDescription> _executionContexts;
         private Action<FrameStoppedLoadingEvent>? _frameStoppedLoading;
-        //private IContext? _mainContext;
-
 
         public IContext? MainContext
         {
@@ -615,8 +613,6 @@ namespace Gripper.WebClient.Browser.BaristaLabsCdtr
                 _logger.LogError("Error disposing {this}: {e}", nameof(_chromeSession), e);
             }
         }
-
-
         #endregion
     }
 }
