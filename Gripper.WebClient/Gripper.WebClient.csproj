@@ -12,7 +12,7 @@
 Gripper.WebClient provides a slim, web-scraping focused facade while retaining full access to the CDP API.</Description>
     <RepositoryUrl>https://github.com/tomaskrupka/Gripper</RepositoryUrl>
     <PackageTags></PackageTags>
-    <PackageReleaseNotes></PackageReleaseNotes>
+    <PackageReleaseNotes>First implementation of one-one mapping between an iFrame and its ExecutionContext</PackageReleaseNotes>
     <Product>Gripper</Product>
     <PackageId>Gripper.WebClient</PackageId>
     <AssemblyName>Gripper.WebClient</AssemblyName>
