@@ -2,6 +2,7 @@
 using BaristaLabs.ChromeDevTools.Runtime.DOM;
 using BaristaLabs.ChromeDevTools.Runtime.Runtime;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Diagnostics;
 using System.Threading;
@@ -135,11 +136,11 @@ namespace Gripper.WebClient.Browser.BaristaLabsCdtr
 
                 if (result.Result.Type == "string")
                 {
-                    return result?.Result?.Value?.ToString();
+                    return result?.Result?.Value?.ToString() ?? JsonConvert.SerializeObject(result);
                 }
                 else
                 {
-                    return result.Result.Type;
+                    return JsonConvert.SerializeObject(result);
                 }
             }
             catch (Exception e)
