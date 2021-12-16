@@ -10,5 +10,6 @@ namespace Gripper.WebClient.Browser
         public Task<string> GetInnerTextAsync();
         public Task SendKeysAsync(string keys, TimeSpan delayBetweenStrokes);
         public Task SendSpecialKeyAsync(SpecialKey key);
+        public Task WaitUntilInteractable();
     }
 }

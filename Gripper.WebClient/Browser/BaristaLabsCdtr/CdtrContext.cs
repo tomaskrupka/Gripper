@@ -1,8 +1,4 @@
-﻿// TODO: There is no one-to-one relation btw contexts and iFrames. iFrame can have more contexts (workers, plugins) or none.
-// Expose to the client only iFrames with some context and expose only one context per frame.
-// TODO: What exactly is an execution context?
-
-using BaristaLabs.ChromeDevTools.Runtime;
+﻿using BaristaLabs.ChromeDevTools.Runtime;
 using BaristaLabs.ChromeDevTools.Runtime.DOM;
 using BaristaLabs.ChromeDevTools.Runtime.Runtime;
 using Microsoft.Extensions.Logging;
@@ -71,7 +67,14 @@ namespace Gripper.WebClient.Browser.BaristaLabsCdtr
         /// <summary>
         /// Ctor. Frame must be loaded when calling this ctor.
         /// </summary>
-        private CdtrContext(int contextId, long documentBackendNodeId, ILogger logger, IFrameInfo frameInfo, ChromeSession chromeSession, ICdtrElementFactory cdtrElementFactory, IJsBuilder jsBuilder)
+        private CdtrContext(
+            int contextId, 
+            long documentBackendNodeId, 
+            ILogger logger, 
+            IFrameInfo frameInfo, 
+            ChromeSession chromeSession, 
+            ICdtrElementFactory cdtrElementFactory, 
+            IJsBuilder jsBuilder)
         {
             _logger = logger;
 
@@ -86,7 +89,14 @@ namespace Gripper.WebClient.Browser.BaristaLabsCdtr
 
         }
 
-        public static bool TryCreate(int contextId, ILogger logger, IFrameInfo frameInfo, ChromeSession chromeSession, ICdtrElementFactory cdtrElementFactory, IJsBuilder jsBuilder, out CdtrContext? context)
+        public static bool TryCreate(
+            int contextId,
+            ILogger logger,
+            IFrameInfo frameInfo,
+            ChromeSession chromeSession,
+            ICdtrElementFactory cdtrElementFactory,
+            IJsBuilder jsBuilder,
+            out CdtrContext? context)
         {
             var backendNodeId = GetBackendNodeId(contextId, chromeSession, logger);
             if (backendNodeId == null)
@@ -101,12 +111,12 @@ namespace Gripper.WebClient.Browser.BaristaLabsCdtr
             }
         }
 
-        public int Id { get => _contextId; }
-
 
         #endregion
 
         #region Public API
+
+        public int Id => _contextId;
 
         public IFrameInfo FrameInfo => _frameInfo;
 
