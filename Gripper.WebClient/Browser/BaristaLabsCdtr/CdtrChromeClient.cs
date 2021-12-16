@@ -555,7 +555,7 @@ namespace Gripper.WebClient.Browser.BaristaLabsCdtr
                     var maxId = frameContexts.Max(x => x.Key);
 
                     _logger.LogWarning(
-                        "{name} found {count} contexts with frameId {frameId}. Missed ExecutionContextDestroyed event? Creating context object for the highest context id: {maxId}.",
+                        "{name} found {count} contexts with frameId {frameId}. Creating context object for the highest context id: {maxId}.",
                         nameof(GetContextsAsync), frameContexts.Count, frame.Id, maxId);
 
                     if (_cdtrContextFactory.TryCreateContext(maxId, frame, out IContext? context))

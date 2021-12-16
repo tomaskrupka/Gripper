@@ -1,8 +1,4 @@
-﻿// TODO: There is no one-to-one relation btw contexts and iFrames. iFrame can have more contexts (workers, plugins) or none.
-// Expose to the client only iFrames with some context and expose only one context per frame.
-// TODO: What exactly is an execution context?
-
-using BaristaLabs.ChromeDevTools.Runtime;
+﻿using BaristaLabs.ChromeDevTools.Runtime;
 using BaristaLabs.ChromeDevTools.Runtime.DOM;
 using BaristaLabs.ChromeDevTools.Runtime.Runtime;
 using Microsoft.Extensions.Logging;
