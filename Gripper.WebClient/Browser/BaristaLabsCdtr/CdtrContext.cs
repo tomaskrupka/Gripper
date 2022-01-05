@@ -134,7 +134,7 @@ namespace Gripper.WebClient.Browser.BaristaLabsCdtr
                 throwExceptionIfResponseNotReceived: false,
                 cancellationToken: cancellationToken);
 
-                if (result.Result.Type == "string")
+                if (result?.Result?.Type == "string")
                 {
                     return result?.Result?.Value?.ToString() ?? JsonConvert.SerializeObject(result);
                 }
