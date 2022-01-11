@@ -4,7 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <Authors>Tomáš Krupka</Authors>
-    <Version>0.4.1-alpha</Version>
+    <Version>0.4.2-alpha</Version>
     <NeutralLanguage>en-GB</NeutralLanguage>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
@@ -18,12 +18,20 @@ Gripper.WebClient provides a slim, web-scraping focused facade while retaining f
     <AssemblyName>Gripper.WebClient</AssemblyName>
     <RootNamespace>Gripper.WebClient</RootNamespace>
     <PackageProjectUrl>https://github.com/tomaskrupka/Gripper</PackageProjectUrl>
+    <PackageIcon>icon_gripper.png</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Remove="Browser\**" />
     <EmbeddedResource Remove="Browser\**" />
     <None Remove="Browser\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\icon_gripper.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
