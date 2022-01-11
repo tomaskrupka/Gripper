@@ -4,7 +4,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <Nullable>enable</Nullable>
     <Authors>Tomáš Krupka</Authors>
-    <Version>0.3.8-alpha</Version>
+    <Version>0.4.0-alpha</Version>
     <NeutralLanguage>en-GB</NeutralLanguage>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
@@ -12,13 +12,19 @@
 Gripper.WebClient provides a slim, web-scraping focused facade while retaining full access to the CDP API.</Description>
     <RepositoryUrl>https://github.com/tomaskrupka/Gripper</RepositoryUrl>
     <PackageTags></PackageTags>
-    <PackageReleaseNotes>1-1 mapping between an iFrame and its ExecutionContext</PackageReleaseNotes>
+    <PackageReleaseNotes>Just API, implementation in a separate package</PackageReleaseNotes>
     <Product>Gripper</Product>
     <PackageId>Gripper.WebClient</PackageId>
     <AssemblyName>Gripper.WebClient</AssemblyName>
     <RootNamespace>Gripper.WebClient</RootNamespace>
     <PackageProjectUrl>https://github.com/tomaskrupka/Gripper</PackageProjectUrl>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Browser\**" />
+    <EmbeddedResource Remove="Browser\**" />
+    <None Remove="Browser\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="BaristaLabs.ChromeDevTools.Runtime" Version="70.0.3538.77" />

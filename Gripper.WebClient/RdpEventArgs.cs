@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
 
-namespace Gripper.WebClient.Browser
+namespace Gripper.WebClient
 {
     public class RdpEventArgs : EventArgs
     {

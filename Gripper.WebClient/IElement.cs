@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Gripper.WebClient.Browser
+namespace Gripper.WebClient
 {
     public interface IElement
     {

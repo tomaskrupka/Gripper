@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Gripper.WebClient.Browser.ProcessManagement
+namespace Gripper.WebClient.ProcessManagement
 {/// <summary>
  /// Allows processes to be automatically killed if this parent process unexpectedly quits.
  /// This feature requires Windows 8 or greater. On Windows 7, nothing is done.</summary>
@@ -105,15 +101,15 @@ namespace Gripper.WebClient.Browser.ProcessManagement
     [StructLayout(LayoutKind.Sequential)]
     public struct JOBOBJECT_BASIC_LIMIT_INFORMATION
     {
-        public Int64 PerProcessUserTimeLimit;
-        public Int64 PerJobUserTimeLimit;
+        public long PerProcessUserTimeLimit;
+        public long PerJobUserTimeLimit;
         public JOBOBJECTLIMIT LimitFlags;
         public UIntPtr MinimumWorkingSetSize;
         public UIntPtr MaximumWorkingSetSize;
-        public UInt32 ActiveProcessLimit;
-        public Int64 Affinity;
-        public UInt32 PriorityClass;
-        public UInt32 SchedulingClass;
+        public uint ActiveProcessLimit;
+        public long Affinity;
+        public uint PriorityClass;
+        public uint SchedulingClass;
     }
 
     [Flags]
@@ -125,12 +121,12 @@ namespace Gripper.WebClient.Browser.ProcessManagement
     [StructLayout(LayoutKind.Sequential)]
     public struct IO_COUNTERS
     {
-        public UInt64 ReadOperationCount;
-        public UInt64 WriteOperationCount;
-        public UInt64 OtherOperationCount;
-        public UInt64 ReadTransferCount;
-        public UInt64 WriteTransferCount;
-        public UInt64 OtherTransferCount;
+        public ulong ReadOperationCount;
+        public ulong WriteOperationCount;
+        public ulong OtherOperationCount;
+        public ulong ReadTransferCount;
+        public ulong WriteTransferCount;
+        public ulong OtherTransferCount;
     }
 
     [StructLayout(LayoutKind.Sequential)]

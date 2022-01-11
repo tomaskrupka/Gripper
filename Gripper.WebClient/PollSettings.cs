@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Gripper.WebClient.Browser
+namespace Gripper.WebClient
 {
     public struct PollSettings
     {
