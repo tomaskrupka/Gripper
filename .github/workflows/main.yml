@@ -38,30 +38,27 @@ jobs:
     - name: Add github source to nuget
       run: dotnet nuget add source --username ${{ github.repository_owner }} --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
       
-    - name: Publish to github
-      run: dotnet nuget push ${{ github.workspace }}/Gripper.WebClient/bin/Release/Gripper.WebClient*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source github
+    - name: Publish Gripper.WebClient to github
+      run: dotnet nuget push ${{ github.workspace }}/Gripper.WebClient/bin/Release/Gripper.WebClient.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source github
     
-    - name: Publish to nuget gallery
+    - name: Publish Gripper.WebClient.Cdtr to github
+      run: dotnet nuget push ${{ github.workspace }}/Gripper.WebClient.Cdtr/bin/Release/Gripper.WebClient.Cdtr.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source github
+    
+    - name: Publish Gripper.WebClient to nuget gallery
       uses: brandedoutcast/publish-nuget@v2.5.5
       with:
         # Filepath of the project to be packaged, relative to root of repository
         PROJECT_FILE_PATH: ${{ github.workspace }}/Gripper.WebClient/Gripper.WebClient.csproj
-        # NuGet package id, used for version detection & defaults to project name
         PACKAGE_NAME: 'Gripper.WebClient'
-        # Filepath with version info, relative to root of repository & defaults to PROJECT_FILE_PATH
-        # VERSION_FILE_PATH: # optional
-        # Regex pattern to extract version info in a capturing group
-        # VERSION_REGEX: # optional, default is ^\s*<Version>(.*)<\/Version>\s*$
-        # Useful with external providers like Nerdbank.GitVersioning, ignores VERSION_FILE_PATH & VERSION_REGEX
-        # VERSION_STATIC: # optional
-        # Flag to toggle git tagging, enabled by default
-        # TAG_COMMIT: # optional, default is true
-        # Format of the git tag, [*] gets replaced with actual version
-        # TAG_FORMAT: # optional, default is v*
-        # API key to authenticate with NuGet server
         NUGET_KEY: ${{secrets.NUGET_KEY}}
-        # NuGet server uri hosting the packages, defaults to https://api.nuget.org
         NUGET_SOURCE: 'https://api.nuget.org'
-        # Flag to toggle pushing symbols along with nuget package to the server, disabled by default
-        # INCLUDE_SYMBOLS: # optional
+        
+    - name: Publish to nuget gallery
+      uses: brandedoutcast/publish-nuget@v2.5.5
+      with:
+        # Filepath of the project to be packaged, relative to root of repository
+        PROJECT_FILE_PATH: ${{ github.workspace }}/Gripper.WebClient.Cdtr/Gripper.WebClient.Cdtr.csproj
+        PACKAGE_NAME: 'Gripper.WebClient.Cdtr'
+        NUGET_KEY: ${{secrets.NUGET_KEY}}
+        NUGET_SOURCE: 'https://api.nuget.org'
       
