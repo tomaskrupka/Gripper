@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Gripper.WebClient.Browser
+namespace Gripper.WebClient
 {
     [Flags]
     public enum BrowserCleanupSettings

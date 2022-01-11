@@ -4,14 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gripper.WebClient.Browser
+namespace Gripper.WebClient
 {
-    public interface IJsBuilder
-    {
-        public string ClickFirstByCssSelector(string selector);
-        public string DocumentQuerySelectorAll(string selector);
-        public string DocumentQuerySelector(string selector);
-    }
     public class JsBuilder : IJsBuilder
     {
 

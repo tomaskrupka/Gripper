@@ -1,4 +1,4 @@
-﻿namespace Gripper.WebClient.Browser
+﻿namespace Gripper.WebClient
 {
     /// <summary>
     /// Configures response to the Chromium bug 924937 which affects how targets (iFrames) are attached.

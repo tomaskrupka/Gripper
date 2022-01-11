@@ -1,4 +1,4 @@
-﻿namespace Gripper.WebClient.Browser
+﻿namespace Gripper.WebClient
 {
     public interface IFrameInfo
     {

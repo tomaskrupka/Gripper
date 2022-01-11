@@ -21,6 +21,12 @@ Gripper.WebClient provides a slim, web-scraping focused facade while retaining f
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Browser\**" />
+    <EmbeddedResource Remove="Browser\**" />
+    <None Remove="Browser\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="BaristaLabs.ChromeDevTools.Runtime" Version="70.0.3538.77" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
   </ItemGroup>

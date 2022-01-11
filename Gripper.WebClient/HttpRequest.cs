@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Gripper.WebClient.Browser
+namespace Gripper.WebClient
 {
     public class HttpRequest
     {
