@@ -41,7 +41,9 @@ namespace Gripper.WebClient.Extensions
                     x.Homepage = webClientSettings.Homepage;
                     x.DefaultPageLoadPollSettings = webClientSettings.DefaultPageLoadPollSettings;
                     x.TargetAttachment = webClientSettings.TargetAttachment;
+                    x.BrowserStartupArgs = webClientSettings.BrowserStartupArgs;
                 });
+
             return services;
         }
 

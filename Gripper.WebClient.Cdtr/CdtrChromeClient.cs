@@ -268,7 +268,14 @@ namespace Gripper.WebClient.Cdtr
             else
             {
                 _logger.LogDebug("{this} launching chrome without proxy.", nameof(CdtrChromeClient));
+            }
 
+            if (settings.BrowserStartupArgs?.Any() == true)
+            {
+                foreach (var flag in settings.BrowserStartupArgs)
+                {
+                    browserArgs.Append(' ').Append(flag);
+                }
             }
 
             _logger.LogDebug("{this} launching chrome with args: {args}", nameof(CdtrChromeClient), browserArgs.ToString());

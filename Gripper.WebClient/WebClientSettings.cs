@@ -16,5 +16,6 @@ namespace Gripper.WebClient
         public PollSettings? DefaultPageLoadPollSettings;
         public string? BrowserLocation;
         public int? RemoteDebuggingPort;
+        public string[]? BrowserStartupArgs;
     }
 }
