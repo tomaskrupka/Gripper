@@ -31,17 +31,17 @@ namespace Gripper.WebClient.Extensions
                 .AddOptions<WebClientSettings>()
                 .Configure(x =>
                 {
-                    x.TriggerKeyboardCommandListener = webClientSettings.TriggerKeyboardCommandListener;
-                    x.UserDataDir = webClientSettings.UserDataDir;
-                    x.StartupCleanup = webClientSettings.StartupCleanup;
-                    x.UseProxy = webClientSettings.UseProxy;
-                    x.Proxy = webClientSettings.Proxy;
-                    x.BrowserLocation = webClientSettings.BrowserLocation;
-                    x.RemoteDebuggingPort = webClientSettings.RemoteDebuggingPort;
-                    x.Homepage = webClientSettings.Homepage;
-                    x.DefaultPageLoadPollSettings = webClientSettings.DefaultPageLoadPollSettings;
-                    x.TargetAttachment = webClientSettings.TargetAttachment;
-                    x.BrowserStartupArgs = webClientSettings.BrowserStartupArgs;
+                    x.TriggerKeyboardCommandListener = webClientSettings.TriggerKeyboardCommandListener ?? x.TriggerKeyboardCommandListener;
+                    x.UserDataDir = webClientSettings.UserDataDir ?? x.UserDataDir;
+                    x.StartupCleanup = webClientSettings.StartupCleanup ?? x.StartupCleanup;
+                    x.UseProxy = webClientSettings.UseProxy ?? x.UseProxy;
+                    x.Proxy = webClientSettings.Proxy ?? x.Proxy;
+                    x.BrowserLocation = webClientSettings.BrowserLocation ?? x.BrowserLocation;
+                    x.RemoteDebuggingPort = webClientSettings.RemoteDebuggingPort ?? x.RemoteDebuggingPort;
+                    x.Homepage = webClientSettings.Homepage ?? x.Homepage;
+                    x.DefaultPageLoadPollSettings = webClientSettings.DefaultPageLoadPollSettings ?? x.DefaultPageLoadPollSettings;
+                    x.TargetAttachment = webClientSettings.TargetAttachment ?? x.TargetAttachment;
+                    x.BrowserStartupArgs = webClientSettings.BrowserStartupArgs ?? x.BrowserStartupArgs;
                 });
 
             return services;
@@ -56,6 +56,7 @@ namespace Gripper.WebClient.Extensions
             return services
                 .AddSingleton<ICdtrElementFactory, CdtrElementFactory>()
                 .AddSingleton<IWebClient, CdtrChromeClient>()
+                .AddSingleton<IJsBuilder, JsBuilder>()
                 .AddDefaultSettings();
         }
         //public static IServiceCollection AddGripper(this IServiceCollection services, IConfiguration namedConfigurationSection)

@@ -14,7 +14,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gripper.WebClient", "src\Gr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gripper.WebClient.Cdtr", "src\Gripper.WebClient.Cdtr\Gripper.WebClient.Cdtr.csproj", "{4CA6FBFC-5A96-4E17-B12C-FEA93DAE923F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gripper.Test.Common", "test\Gripper.Test.Common\Gripper.Test.Common.csproj", "{7F2832A9-E942-4781-9139-09451FDFE2E3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gripper.Test", "test\Gripper.Test\Gripper.Test.csproj", "{7F2832A9-E942-4781-9139-09451FDFE2E3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
