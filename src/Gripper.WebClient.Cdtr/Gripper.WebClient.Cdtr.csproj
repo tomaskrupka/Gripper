@@ -10,7 +10,12 @@
     <PackageProjectUrl>https://github.com/tomaskrupka/Gripper</PackageProjectUrl>
     <RepositoryUrl>https://github.com/tomaskrupka/Gripper</RepositoryUrl>
     <PackageIcon>icon_gripper.png</PackageIcon>
+    <ApplicationIcon>icon_gripper.png</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="icon_gripper.png" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Include="..\icon_gripper.png">

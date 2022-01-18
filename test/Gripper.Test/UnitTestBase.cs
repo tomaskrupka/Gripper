@@ -33,7 +33,9 @@ namespace Gripper.Test
             {
                 Homepage = GetHomepageAbsolutePath(),
                 BrowserLocation = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-                UserDataDir = ".\\UnitTestProfile"
+                UserDataDir = ".\\UnitTestProfile",
+                DefaultPageLoadPollSettings = PollSettings.ElementDetectionDefault,
+                BrowserStartupArgs = new[] { "--headless", "--disable-gpu", "--window-size=1280,1696", }
             });
             services.AddLogging();
             

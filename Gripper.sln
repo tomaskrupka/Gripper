@@ -6,6 +6,7 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5C4F4040-26D4-438B-AD70-9C664C0621EC}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		icon_gripper.png = icon_gripper.png
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gripper.Utils", "src\Gripper.Utils\Gripper.Utils.csproj", "{0C7F6444-D65A-4C39-B397-C19F9A7A7051}"
@@ -14,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gripper.WebClient", "src\Gr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gripper.WebClient.Cdtr", "src\Gripper.WebClient.Cdtr\Gripper.WebClient.Cdtr.csproj", "{4CA6FBFC-5A96-4E17-B12C-FEA93DAE923F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gripper.Test", "test\Gripper.Test\Gripper.Test.csproj", "{7F2832A9-E942-4781-9139-09451FDFE2E3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gripper.Test", "test\Gripper.Test\Gripper.Test.csproj", "{7F2832A9-E942-4781-9139-09451FDFE2E3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

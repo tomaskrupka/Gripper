@@ -12,7 +12,7 @@ namespace Gripper.Test.IWebClientTests
         [Test]
         public async Task NetworkSetCookieIsCommandSuccess()
         {
-            var cookieObject = Fakers.GetCookieObject();
+            var cookieObject = Fakers.GetCookie();
             var commandResult = await _webClient.ExecuteRdpCommandAsync("Network.setCookie", JToken.FromObject(cookieObject));
             bool isCommandSuccessful = (bool)commandResult["success"];
 
