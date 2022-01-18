@@ -15,7 +15,14 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-
+  
+  install_chrome:
+    name: install chrome
+    runs-on: ubuntu-latest
+    steps:
+    - uses: browser-actions/setup-chrome@latest
+    - run: chrome --version
+  
   # This workflow contains a single job called "build"
   build:
     name: build, pack & publish
