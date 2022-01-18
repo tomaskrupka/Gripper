@@ -19,7 +19,7 @@ Gripper.WebClient provides a slim, web-scraping focused facade while retaining f
     <RootNamespace>Gripper.WebClient</RootNamespace>
     <PackageProjectUrl>https://github.com/tomaskrupka/Gripper</PackageProjectUrl>
     <PackageIcon>icon_gripper.png</PackageIcon>
-    <ApplicationIcon>icon_gripper.png</ApplicationIcon>
+    <ApplicationIcon>icon_gripper.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,7 +29,14 @@ Gripper.WebClient provides a slim, web-scraping focused facade while retaining f
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="icon_gripper.png" />
+    <Content Include="icon_gripper.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\icon_gripper.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
