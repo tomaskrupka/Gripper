@@ -37,6 +37,12 @@ jobs:
     
     - name: test
       run: dotnet test
+      
+    - uses: actions/upload-artifact@v2
+      if: failure()
+      with:
+        name: log_test_fail
+        path: ./log_test_fail.txt
     
     - name: Pack
       run: dotnet pack --configuration="Release"
