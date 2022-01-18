@@ -3,6 +3,7 @@ using Gripper.WebClient;
 using Gripper.WebClient.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Serilog.Extensions.Logging.File;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -20,7 +21,7 @@ namespace Gripper.Test
         private static string GetHomepageAbsolutePath() => Path.GetFullPath("../../../Pages/gov_uk/Welcome_to_GOV.UK.htm");
 
         protected static readonly IWebClient _webClient;
-        
+
         protected static T GetService<T>()
         {
             return _serviceProvider.GetService<T>() ?? throw new NullReferenceException();
@@ -34,16 +35,21 @@ namespace Gripper.Test
                 Homepage = GetHomepageAbsolutePath(),
                 //BrowserLocation = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
                 BrowserLocation = "chrome",
-                //UserDataDir = ".\\UnitTestProfile",
+                UserDataDir = ".\\UnitTestProfile",
                 DefaultPageLoadPollSettings = PollSettings.ElementDetectionDefault,
                 BrowserStartupArgs = new[] { "--headless", "--disable-gpu", "--window-size=1280,1696", }
             });
-            services.AddLogging();
-            
+            var logFileName = "log_" + DateTime.Now.ToFileTimeUtc() + ".txt";
+            services.AddLogging(x =>
+            {
+                x.SetMinimumLevel(LogLevel.Debug).AddConsole().AddFile(logFileName, LogLevel.Debug);
+            });
+
+
             _serviceProvider = services.BuildServiceProvider();
             _logger = _serviceProvider.GetService<ILogger<UnitTestBase>>() ?? throw new NullReferenceException();
             _webClient = _serviceProvider.GetService<IWebClient>() ?? throw new ApplicationException("I need a non-null web client for testing");
+            ;
         }
-
     }
 }
