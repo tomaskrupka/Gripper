@@ -39,7 +39,7 @@ namespace Gripper.Test
                 DefaultPageLoadPollSettings = PollSettings.ElementDetectionDefault,
                 BrowserStartupArgs = new[] { "--headless", "--disable-gpu", "--window-size=1280,1696", }
             });
-            var logFileName = "log_test_fail" /*+ DateTime.Now.ToFileTimeUtc()*/ + ".txt";
+            var logFileName = "logs/log_test_fail" /*+ DateTime.Now.ToFileTimeUtc()*/ + ".txt";
             services.AddLogging(x =>
             {
                 x.SetMinimumLevel(LogLevel.Debug).AddConsole().AddFile(logFileName, LogLevel.Debug);
