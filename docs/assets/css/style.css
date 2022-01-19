@@ -1,0 +1,85 @@
+
+@import "{{ site.theme }}";
+
+.tiles {
+}
+
+    .tiles > li {
+        display: block;
+        width: stretch;
+        margin: 1em;
+        /*border: solid darkgrey 1px;*/
+        /*background-color: lightgrey;*/
+        border-radius: 2px;
+        list-style-type: none;
+        font-weight: bold;
+    }
+
+        .tiles > li > a, .tiles > li > div {
+            display: block;
+            padding: .5em;
+        }
+
+        .tiles > li:hover {
+            filter: brightness(110%);
+        }
+
+        .tiles > li:nth-child(6n+1) {
+            border-color: #9d5915;
+            background-color: #AED5EA;
+        }
+
+        .tiles > li:nth-child(6n+2) {
+            border-color: #9d9d15;
+            background-color: #75c1ea;
+        }
+
+        .tiles > li:nth-child(6n+3) {
+            border-color: #599d15;
+            background-color: #6cbee9;
+        }
+
+        .tiles > li:nth-child(6n+4) {
+            border-color: #9d7b15;
+            background-color: #55b7ea;
+        }
+
+        .tiles > li:nth-child(6n+5) {
+            border-color: #59159d;
+            background-color: #41aee6;
+        }
+
+        .tiles > li > a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+    .tiles li ul {
+        padding-left: 0;
+    }
+
+        .tiles li ul li {
+            font-weight: normal;
+            font-size: small;
+            list-style-type: none;
+        }
+
+            .tiles li ul li:before {
+                content: "\2003\2002";
+            }
+
+            .tiles li ul li.time:before {
+                content: "\279c\2002";
+            }
+
+        .tiles li ul.bullets {
+            padding-left: inherit;
+        }
+
+            .tiles li ul.bullets li {
+                list-style-type: circle;
+            }
+
+                .tiles li ul.bullets li:before {
+                    content: "";
+                }
