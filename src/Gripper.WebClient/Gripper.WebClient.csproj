@@ -1,0 +1,47 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <Authors>Tomáš Krupka</Authors>
+    <Version>0.4.5-alpha</Version>
+    <NeutralLanguage>en-GB</NeutralLanguage>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <Description>Gripper.WebClient is a web scraping toolbox that operates in a browser window under its control, using the chrome devtools protocol (CDP). 
+Gripper.WebClient provides a slim, web-scraping focused facade while retaining full access to the CDP API.</Description>
+    <RepositoryUrl>https://github.com/tomaskrupka/Gripper</RepositoryUrl>
+    <PackageTags></PackageTags>
+    <PackageReleaseNotes>Just API, implementation in a separate package</PackageReleaseNotes>
+    <Product>Gripper</Product>
+    <PackageId>Gripper.WebClient</PackageId>
+    <AssemblyName>Gripper.WebClient</AssemblyName>
+    <RootNamespace>Gripper.WebClient</RootNamespace>
+    <PackageProjectUrl>https://github.com/tomaskrupka/Gripper</PackageProjectUrl>
+    <PackageIcon>icon_gripper.png</PackageIcon>
+    <ApplicationIcon>icon_gripper.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Browser\**" />
+    <EmbeddedResource Remove="Browser\**" />
+    <None Remove="Browser\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="icon_gripper.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\icon_gripper.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BaristaLabs.ChromeDevTools.Runtime" Version="70.0.3538.77" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
+  </ItemGroup>
+
+</Project>

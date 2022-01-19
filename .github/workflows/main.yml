@@ -1,0 +1,76 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+
+  # This workflow contains a single job called "build"
+  build:
+    name: build, pack & publish
+    runs-on: ubuntu-latest
+    
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    
+    - name: install chrome
+      uses: browser-actions/setup-chrome@latest
+    
+    - name: checkout
+      uses: actions/checkout@v2
+      
+    - name: Setup 6.0.x .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
+    
+#     - name: test
+#       run: dotnet test
+      
+#     - uses: actions/upload-artifact@v2
+#       if: failure()
+#       with:
+#         name: log_test_fail.txt
+#         path: /home/runner/work/Gripper/Gripper/test/Gripper.Test/bin/Debug/net6.0/logs
+    
+    - name: Pack
+      run: dotnet pack --configuration="Release"
+      
+    - name: Add github source to nuget
+      run: dotnet nuget add source --username ${{ github.repository_owner }} --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
+      
+    - name: Publish Gripper.WebClient to github
+      run: dotnet nuget push ${{ github.workspace }}/Gripper.WebClient/bin/Release/Gripper.WebClient.0*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source github --skip-duplicate
+    
+    - name: Publish Gripper.WebClient.Cdtr to github
+      run: dotnet nuget push ${{ github.workspace }}/Gripper.WebClient.Cdtr/bin/Release/Gripper.WebClient.Cdtr.0*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source github --skip-duplicate
+    
+    - name: Publish Gripper.WebClient to nuget gallery
+      uses: brandedoutcast/publish-nuget@v2.5.5
+      with:
+        # Filepath of the project to be packaged, relative to root of repository
+        PROJECT_FILE_PATH: ${{ github.workspace }}/Gripper.WebClient/Gripper.WebClient.csproj
+        PACKAGE_NAME: 'Gripper.WebClient'
+        NUGET_KEY: ${{secrets.NUGET_KEY}}
+        NUGET_SOURCE: 'https://api.nuget.org'
+        
+    - name: Publish to nuget gallery
+      uses: brandedoutcast/publish-nuget@v2.5.5
+      with:
+        # Filepath of the project to be packaged, relative to root of repository
+        PROJECT_FILE_PATH: ${{ github.workspace }}/Gripper.WebClient.Cdtr/Gripper.WebClient.Cdtr.csproj
+        PACKAGE_NAME: 'Gripper.WebClient.Cdtr'
+        NUGET_KEY: ${{secrets.NUGET_KEY}}
+        NUGET_SOURCE: 'https://api.nuget.org'
+      
