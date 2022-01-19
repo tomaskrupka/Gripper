@@ -35,14 +35,14 @@ jobs:
       with:
         dotnet-version: 6.0.x
     
-    - name: test
-      run: dotnet test
+#     - name: test
+#       run: dotnet test
       
-    - uses: actions/upload-artifact@v2
-      if: failure()
-      with:
-        name: log_test_fail.txt
-        path: /home/runner/work/Gripper/Gripper/test/Gripper.Test/bin/Debug/net6.0/logs
+#     - uses: actions/upload-artifact@v2
+#       if: failure()
+#       with:
+#         name: log_test_fail.txt
+#         path: /home/runner/work/Gripper/Gripper/test/Gripper.Test/bin/Debug/net6.0/logs
     
     - name: Pack
       run: dotnet pack --configuration="Release"
