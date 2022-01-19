@@ -1,3 +1,7 @@
+---
+layout: default
+---
+
 # Gripper
 A reliable web-scraping toolbox.
 
