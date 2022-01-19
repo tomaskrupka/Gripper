@@ -45,11 +45,9 @@ namespace Gripper.Test
                 x.SetMinimumLevel(LogLevel.Debug).AddConsole().AddFile(logFileName, LogLevel.Debug);
             });
 
-
             _serviceProvider = services.BuildServiceProvider();
             _logger = _serviceProvider.GetService<ILogger<UnitTestBase>>() ?? throw new NullReferenceException();
             _webClient = _serviceProvider.GetService<IWebClient>() ?? throw new ApplicationException("I need a non-null web client for testing");
-            ;
         }
     }
 }
