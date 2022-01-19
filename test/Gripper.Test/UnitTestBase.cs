@@ -33,8 +33,8 @@ namespace Gripper.Test
             services.AddGripper(new WebClientSettings
             {
                 Homepage = GetHomepageAbsolutePath(),
-                //BrowserLocation = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-                BrowserLocation = "chrome",
+                BrowserLocation = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+                //BrowserLocation = "chrome",
                 UserDataDir = ".\\UnitTestProfile",
                 DefaultPageLoadPollSettings = PollSettings.ElementDetectionDefault,
                 BrowserStartupArgs = new[] { "--headless", "--disable-gpu", "--window-size=1280,1696", }
