@@ -4,7 +4,8 @@ Gripper is a web scraping toolbox that operates in a browser window under its co
 using the chrome devtools protocol (CDP).
 
 [Docs on Github Pages →](https://tomaskrupka.github.io/Gripper/)
-[Latest build on nuget →](https://www.nuget.org/packages/Gripper.WebClient).
+
+[Latest build on nuget →](https://www.nuget.org/packages/Gripper.WebClient)
 
 ### <a name="WebClient"></a> Gripper.WebClient 
 `Gripper.WebClient` launches its own browser window and uses the [chrome devtools protocol](https://chromedevtools.github.io/devtools-protocol/) (CDP) to control it.
