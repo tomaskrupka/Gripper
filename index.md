@@ -9,7 +9,7 @@ The main focus is on modern SPAs that are hard to get a grip of.
 - Development principles
 - Features
 - Compatibility
-
+<!-- 
 ### [Quickstart](quickstart.md)
 - How to install Gripper
 - How to connect to a browser
@@ -18,3 +18,4 @@ The main focus is on modern SPAs that are hard to get a grip of.
 - How to get the most of Gripper
 - List of all features
 - Tips and tricks
+ -->
