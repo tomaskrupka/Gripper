@@ -1,0 +1,88 @@
+2022-01-19T10:02:02.3105826+00:00  [DBG] "BrowserCleanupSettings" set to None. Exiting "DoPreStartupCleanup". (94d4ad30)
+2022-01-19T10:02:02.3136184+00:00  [DBG] "CdtrChromeClient" launching chrome without proxy. (6311fed9)
+2022-01-19T10:02:02.3136929+00:00  [DBG] "CdtrChromeClient" launching chrome with args: " --remote-debugging-port=9244 --user-data-dir=C:\Users\tomas\source\repos\Gripper\test\Gripper.Test\bin\Debug\net6.0\UnitTestProfile --disable-features=IsolateOrigins,site-per-process --headless --disable-gpu --window-size=1280,1696" (459d7b9e)
+2022-01-19T10:02:19.4030810+00:00  [DBG] "BrowserCleanupSettings" set to None. Exiting "DoPreStartupCleanup". (94d4ad30)
+2022-01-19T10:02:19.4074662+00:00  [DBG] "CdtrChromeClient" launching chrome without proxy. (6311fed9)
+2022-01-19T10:02:19.4075573+00:00  [DBG] "CdtrChromeClient" launching chrome with args: " --remote-debugging-port=9244 --user-data-dir=C:\Users\tomas\source\repos\Gripper\test\Gripper.Test\bin\Debug\net6.0\UnitTestProfile --disable-features=IsolateOrigins,site-per-process --headless --disable-gpu --window-size=1280,1696" (459d7b9e)
+2022-01-19T10:02:21.6013631+00:00  [DBG] sessions response: OK (ff53ca06)
+2022-01-19T10:02:21.6105645+00:00  [DBG] Remote session infos: "[ {
+   \"description\": \"\",
+   \"devtoolsFrontendUrl\": \"/devtools/inspector.html?ws=localhost:9244/devtools/page/279020A3D42E17E98D5D9F074D94A131\",
+   \"id\": \"279020A3D42E17E98D5D9F074D94A131\",
+   \"title\": \"about:blank\",
+   \"type\": \"page\",
+   \"url\": \"about:blank\",
+   \"webSocketDebuggerUrl\": \"ws://localhost:9244/devtools/page/279020A3D42E17E98D5D9F074D94A131\"
+} ]
+" (500e24e8)
+2022-01-19T10:02:21.7223137+00:00  [DBG] ChromeSession launched and connected to Chrome RDP server (9eb757ad)
+2022-01-19T10:02:21.7250266+00:00  [DBG] Subscribing to rdp events. (9d62227d)
+2022-01-19T10:02:23.9208932+00:00  [DBG] execution context created: 2, "", "file://". (d57fb3dd)
+2022-01-19T10:02:24.0970723+00:00  [DBG] Loaded frames ids: 0. All loaded: False (5811d417)
+2022-01-19T10:02:24.1183064+00:00  [DBG] Frame stopped loading: "279020A3D42E17E98D5D9F074D94A131" (1e407710)
+2022-01-19T10:02:24.2102779+00:00  [DBG] Loaded frames ids: 1. All loaded: True (5811d417)
+2022-01-19T10:02:24.3375888+00:00  [DBG] Verification: Loaded frames ids: 1. All loaded: True (7747f016)
+2022-01-19T10:02:24.3376571+00:00  [DBG] "GoToUrlAsync" removing delegate from execution list. (2faae523)
+2022-01-19T10:02:24.3379437+00:00  [DBG] Exiting "GoToUrlAsync" in 00:00:00.4498657 (7455d76c)
+2022-01-19T10:02:24.3380922+00:00  [DBG] Exiting "CdtrChromeClient" constructor. (b0a51343)
+2022-01-19T15:38:23.6468055+00:00  [DBG] "BrowserCleanupSettings" set to None. Exiting "DoPreStartupCleanup". (94d4ad30)
+2022-01-19T15:38:23.6498081+00:00  [DBG] "CdtrChromeClient" launching chrome without proxy. (6311fed9)
+2022-01-19T15:38:23.6499442+00:00  [DBG] "CdtrChromeClient" launching chrome with args: " --remote-debugging-port=9244 --user-data-dir=C:\Users\tomas\source\repos\Gripper\test\Gripper.Test\bin\Debug\net6.0\UnitTestProfile --disable-features=IsolateOrigins,site-per-process --headless --disable-gpu --window-size=1280,1696" (459d7b9e)
+2022-01-19T15:38:23.6742683+00:00  [ERR] "LaunchAsync" error: "System.ComponentModel.Win32Exception (2): An error occurred trying to start process 'chrome' with working directory 'C:\Users\tomas\source\repos\Gripper\test\Gripper.Test\bin\Debug\net6.0'. The system cannot find the file specified.
+   at System.Diagnostics.Process.StartWithCreateProcess(ProcessStartInfo startInfo)
+   at System.Diagnostics.Process.Start()
+   at System.Diagnostics.Process.Start(ProcessStartInfo startInfo)
+   at System.Diagnostics.Process.Start(String fileName, String arguments)
+   at Gripper.WebClient.Cdtr.CdtrChromeClient.LaunchAsync(WebClientSettings settings) in C:\Users\tomas\source\repos\Gripper\src\Gripper.WebClient.Cdtr\CdtrChromeClient.cs:line 285" (866fcec5)
+2022-01-19T15:38:56.3908873+00:00  [DBG] "BrowserCleanupSettings" set to None. Exiting "DoPreStartupCleanup". (94d4ad30)
+2022-01-19T15:38:56.3939993+00:00  [DBG] "CdtrChromeClient" launching chrome without proxy. (6311fed9)
+2022-01-19T15:38:56.3941342+00:00  [DBG] "CdtrChromeClient" launching chrome with args: " --remote-debugging-port=9244 --user-data-dir=C:\Users\tomas\source\repos\Gripper\test\Gripper.Test\bin\Debug\net6.0\UnitTestProfile --disable-features=IsolateOrigins,site-per-process --headless --disable-gpu --window-size=1280,1696" (459d7b9e)
+2022-01-19T15:38:56.4035808+00:00  [DBG] Browser process started: 6056:"chrome" (8ddef8f1)
+2022-01-19T15:38:58.5499499+00:00  [DBG] sessions response: OK (ff53ca06)
+2022-01-19T15:38:58.5610966+00:00  [DBG] Remote session infos: "[ {
+   \"description\": \"\",
+   \"devtoolsFrontendUrl\": \"/devtools/inspector.html?ws=localhost:9244/devtools/page/DFC92474F5059D2F7A74ADAA13A7338A\",
+   \"id\": \"DFC92474F5059D2F7A74ADAA13A7338A\",
+   \"title\": \"about:blank\",
+   \"type\": \"page\",
+   \"url\": \"about:blank\",
+   \"webSocketDebuggerUrl\": \"ws://localhost:9244/devtools/page/DFC92474F5059D2F7A74ADAA13A7338A\"
+} ]
+" (500e24e8)
+2022-01-19T15:38:58.6520413+00:00  [DBG] ChromeSession launched and connected to Chrome RDP server (9eb757ad)
+2022-01-19T15:38:58.6548510+00:00  [DBG] Subscribing to rdp events. (9d62227d)
+2022-01-19T15:39:00.8111862+00:00  [DBG] execution context created: 2, "", "file://". (d57fb3dd)
+2022-01-19T15:39:00.9774726+00:00  [DBG] Loaded frames ids: 0. All loaded: False (5811d417)
+2022-01-19T15:39:00.9920101+00:00  [DBG] Frame stopped loading: "DFC92474F5059D2F7A74ADAA13A7338A" (1e407710)
+2022-01-19T15:39:01.1026230+00:00  [DBG] Loaded frames ids: 1. All loaded: True (5811d417)
+2022-01-19T15:39:01.2201339+00:00  [DBG] Verification: Loaded frames ids: 1. All loaded: True (7747f016)
+2022-01-19T15:39:01.2202164+00:00  [DBG] "GoToUrlAsync" removing delegate from execution list. (2faae523)
+2022-01-19T15:39:01.2204743+00:00  [DBG] Exiting "GoToUrlAsync" in 00:00:00.4385580 (7455d76c)
+2022-01-19T15:39:01.2206886+00:00  [DBG] Exiting "CdtrChromeClient" constructor. (b0a51343)
+2022-01-19T15:39:01.4670443+00:00  [DBG] raw cookies: "11" (29f65ebb)
+2022-01-19T15:39:35.1002444+00:00  [DBG] "BrowserCleanupSettings" set to None. Exiting "DoPreStartupCleanup". (94d4ad30)
+2022-01-19T15:39:35.1039915+00:00  [DBG] "CdtrChromeClient" launching chrome without proxy. (6311fed9)
+2022-01-19T15:39:35.1040832+00:00  [DBG] "CdtrChromeClient" launching chrome with args: " --remote-debugging-port=9244 --user-data-dir=C:\Users\tomas\source\repos\Gripper\test\Gripper.Test\bin\Debug\net6.0\UnitTestProfile --disable-features=IsolateOrigins,site-per-process --headless --disable-gpu --window-size=1280,1696" (459d7b9e)
+2022-01-19T15:39:35.1177947+00:00  [DBG] Browser process started: 5300:"chrome" (8ddef8f1)
+2022-01-19T15:39:37.2907688+00:00  [DBG] sessions response: OK (ff53ca06)
+2022-01-19T15:39:37.3046543+00:00  [DBG] Remote session infos: "[ {
+   \"description\": \"\",
+   \"devtoolsFrontendUrl\": \"/devtools/inspector.html?ws=localhost:9244/devtools/page/D3CFE73C364ADF2F893D1EA8CD602264\",
+   \"id\": \"D3CFE73C364ADF2F893D1EA8CD602264\",
+   \"title\": \"about:blank\",
+   \"type\": \"page\",
+   \"url\": \"about:blank\",
+   \"webSocketDebuggerUrl\": \"ws://localhost:9244/devtools/page/D3CFE73C364ADF2F893D1EA8CD602264\"
+} ]
+" (500e24e8)
+2022-01-19T15:39:37.3495685+00:00  [DBG] ChromeSession launched and connected to Chrome RDP server (9eb757ad)
+2022-01-19T15:39:37.3535800+00:00  [DBG] Subscribing to rdp events. (9d62227d)
+2022-01-19T15:39:39.6213946+00:00  [DBG] execution context created: 2, "", "file://". (d57fb3dd)
+2022-01-19T15:39:39.7973716+00:00  [DBG] Loaded frames ids: 0. All loaded: False (5811d417)
+2022-01-19T15:39:39.8107967+00:00  [DBG] Frame stopped loading: "D3CFE73C364ADF2F893D1EA8CD602264" (1e407710)
+2022-01-19T15:39:39.9105344+00:00  [DBG] Loaded frames ids: 1. All loaded: True (5811d417)
+2022-01-19T15:39:40.0200023+00:00  [DBG] Verification: Loaded frames ids: 1. All loaded: True (7747f016)
+2022-01-19T15:39:40.0200426+00:00  [DBG] "GoToUrlAsync" removing delegate from execution list. (2faae523)
+2022-01-19T15:39:40.0201849+00:00  [DBG] Exiting "GoToUrlAsync" in 00:00:00.4413750 (7455d76c)
+2022-01-19T15:39:40.0202751+00:00  [DBG] Exiting "CdtrChromeClient" constructor. (b0a51343)
+2022-01-19T15:39:40.2010264+00:00  [DBG] raw cookies: "11" (29f65ebb)

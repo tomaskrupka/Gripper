@@ -1,0 +1,24 @@
+2022-01-18T17:19:43.4982440+00:00  [DBG] "BrowserCleanupSettings" set to None. Exiting "DoPreStartupCleanup". (94d4ad30)
+2022-01-18T17:19:43.5023139+00:00  [DBG] "CdtrChromeClient" launching chrome without proxy. (6311fed9)
+2022-01-18T17:19:43.5023822+00:00  [DBG] "CdtrChromeClient" launching chrome with args: " --remote-debugging-port=9244 --user-data-dir=C:\Users\tomas\source\repos\Gripper\test\Gripper.Test\bin\Debug\net6.0\UnitTestProfile --disable-features=IsolateOrigins,site-per-process --headless --disable-gpu --window-size=1280,1696" (459d7b9e)
+2022-01-18T17:19:45.6599686+00:00  [DBG] sessions response: OK (ff53ca06)
+2022-01-18T17:19:45.6710008+00:00  [DBG] Remote session infos: "[ {
+   \"description\": \"\",
+   \"devtoolsFrontendUrl\": \"/devtools/inspector.html?ws=localhost:9244/devtools/page/590FD17680C9D68875AFA4A9C871E656\",
+   \"id\": \"590FD17680C9D68875AFA4A9C871E656\",
+   \"title\": \"about:blank\",
+   \"type\": \"page\",
+   \"url\": \"about:blank\",
+   \"webSocketDebuggerUrl\": \"ws://localhost:9244/devtools/page/590FD17680C9D68875AFA4A9C871E656\"
+} ]
+" (500e24e8)
+2022-01-18T17:19:45.6864765+00:00  [DBG] ChromeSession launched and connected to Chrome RDP server (9eb757ad)
+2022-01-18T17:19:45.6889158+00:00  [DBG] Subscribing to rdp events. (9d62227d)
+2022-01-18T17:19:47.8515559+00:00  [DBG] execution context created: 2, "", "file://". (d57fb3dd)
+2022-01-18T17:19:48.0150706+00:00  [DBG] Loaded frames ids: 0. All loaded: False (5811d417)
+2022-01-18T17:19:48.0378749+00:00  [DBG] Frame stopped loading: "590FD17680C9D68875AFA4A9C871E656" (1e407710)
+2022-01-18T17:19:48.1224333+00:00  [DBG] Loaded frames ids: 1. All loaded: True (5811d417)
+2022-01-18T17:19:48.2310636+00:00  [DBG] Verification: Loaded frames ids: 1. All loaded: True (7747f016)
+2022-01-18T17:19:48.2311472+00:00  [DBG] "GoToUrlAsync" removing delegate from execution list. (2faae523)
+2022-01-18T17:19:48.2313921+00:00  [DBG] Exiting "GoToUrlAsync" in 00:00:00.4136279 (7455d76c)
+2022-01-18T17:19:48.2316130+00:00  [DBG] Exiting "CdtrChromeClient" constructor. (b0a51343)
