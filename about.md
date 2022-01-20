@@ -4,7 +4,8 @@ Gripper is a web scraping toolbox that operates in a browser window under its co
 using the chrome devtools protocol (CDP).
 
 Compared to the many popular integration-testing frameworks,
-Gripper is not an abstraction layer designed to mask the presence of the CDP—it is a library for management of the CDP runtime,
+Gripper is not an abstraction layer designed to mask the presence of the CDP.
+It is a library for management of the CDP runtime,
 paired with a toolbox of web-scraping routines on top.
 
 The main focus is on modern SPAs that are hard to get a grip of.
@@ -31,7 +32,7 @@ As tradeoffs for staying true to its principles, Gripper has some limitations:
 These are off the scope of this project.
 2. Gripper has no JavaScript, CSS Selectors, XPath and similar builders.
 3. Gripper covers just a fraction of the rich CDP API and its functionality is almost never a 1-1 mapping.
-You'll often have to call the directly.
+You'll often have to call it directly.
 4. Gripper may take some time to set up if none of the default configs suits you.
 
 # Principles
@@ -71,7 +72,7 @@ Please see the [tests](https://github.com/tomaskrupka/Gripper/tree/main/test/Gri
 - API to wait for an SPA that's building up to settle.
 
 # Deployment
-Gripper aims to support as many (OS, Browser) combinations as possible.
+Gripper aims to support as many <OS, Browser> combinations as possible.
 The basic dependencies are a .NET 6 Runtime and an installation of a browser that supports remote control over the CDP.
 
 Below is a list of tested configurations:
