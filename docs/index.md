@@ -3,5 +3,7 @@ using the chrome devtools protocol (CDP).
 
 The main focus is on modern SPAs that are hard to get a grip of.
 
-- [About →](about.md)
+Written in `C#` for `.NET`.
+
 - [Source →](https://tomaskrupka.github.io/Gripper/)
+- [About →](about.md)

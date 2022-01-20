@@ -1,3 +1,5 @@
+[← Home](index.md)
+
 # What is Gripper
 
 Gripper is a web scraping toolbox that operates in a browser window under its control,
