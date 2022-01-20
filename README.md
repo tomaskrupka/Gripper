@@ -1,6 +1,6 @@
 # Gripper
 
-Gripper is a web scraping toolbox.
+Gripper is a web scraping toolbox designed for consistency.
 
 ### <a name="WebClient"></a> Gripper.WebClient 
 `Gripper.WebClient` launches its own browser window and uses the [chrome devtools protocol](https://chromedevtools.github.io/devtools-protocol/) (CDP) to control it.
