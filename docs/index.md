@@ -5,5 +5,5 @@ The main focus is on dynamic SPAs with background workers that are hard to get a
 
 Written in `C#` for `.NET`.
 
-- [Source →](https://tomaskrupka.github.io/Gripper/)
+- [Source →](https://github.com/tomaskrupka/Gripper)
 - [About →](about.md)
