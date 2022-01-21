@@ -1,4 +1,4 @@
-[← Home](index.md)
+[← Home](index.md) [Source →](https://github.com/tomaskrupka/Gripper) [Quickstart →](quickstart.md)
 
 - [What is Gripper](#what-is-gripper)
 - [When to consider Gripper](#when-to-consider-gripper)
