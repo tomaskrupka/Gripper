@@ -1,5 +1,7 @@
 [← Home](index.md)
 
+# Deployment
+
 Gripper is built against `.NET 6.0`, which is also its only dependency.
 To deploy Gripper, you'll need an installation of [.NET 6 Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/6.0).
 The basic installation—without any Desktop or ASP.NET Core components—will work just fine.
@@ -8,13 +10,18 @@ Gripper also works published as a [single-file app](https://docs.microsoft.com/e
 
 # Installation
 
+How to add Gripper to your .NET project.
+
 ## Windows
 
 You can find the latest package version, release notes and the `.nupkg` itself on Nuget as [Gripper.WebClient](https://www.nuget.org/packages/Gripper.WebClient/).
 
-<div class="panel panel-warning">
+<div class="panel panel-info">
+**Note**
+{: .panel-heading}
+<div class="panel-body">
 The current version of the package is a prerelease, don't forget the `--prerelease` flag.
-{: .alert .alert-warning}
+</div>
 </div>
 
 Creating a console app, adding the `Gripper.WebClient` package reference and running it looks as follows.
