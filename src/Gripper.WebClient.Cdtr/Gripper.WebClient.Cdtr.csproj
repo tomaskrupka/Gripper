@@ -4,13 +4,14 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <PackageId>Gripper.WebClient.Cdtr</PackageId>
-    <Version>0.0.7-alpha</Version>
+    <Version>0.0.8-alpha</Version>
     <Authors>Tomas Krupka</Authors>
     <Description>A BaristaLabs Chrome devtools runtime-based implementation of the web scraping API provided by Gripper.WebClient.</Description>
     <PackageProjectUrl>https://github.com/tomaskrupka/Gripper</PackageProjectUrl>
     <RepositoryUrl>https://github.com/tomaskrupka/Gripper</RepositoryUrl>
     <PackageIcon>icon_gripper.png</PackageIcon>
     <ApplicationIcon>icon_gripper.ico</ApplicationIcon>
+    <PackageLicenseFile>C:\Users\tomas\source\repos\Gripper\LICENSE</PackageLicenseFile>
   </PropertyGroup>
 
   <ItemGroup>
