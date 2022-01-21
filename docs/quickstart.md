@@ -1,4 +1,4 @@
-[← Home](index.md) [Source →](https://github.com/tomaskrupka/Gripper) [About →](about.md)
+[← Home](index.md) [About →](about.md)
 
 - [Packaging](#packaging)
 - [Deployment](#deployment)
