@@ -11,7 +11,7 @@ The current version of the package is a prerelease, don't forget the `--prerelea
 Creating a console app, adding the `Gripper.WebClient` package reference and running it looks as follows.
 
 ```powershell
-dotnet new console -f net6.0 -n GripperDemo
+> dotnet new console -f net6.0 -n GripperDemo
 The template "Console App" was created successfully.
 Processing post-creation actions...
 Running 'dotnet restore' on C:\Users\tomas\source\demos\GripperDemo\GripperDemo.csproj...
@@ -19,9 +19,9 @@ Running 'dotnet restore' on C:\Users\tomas\source\demos\GripperDemo\GripperDemo.
   Restored C:\Users\tomas\source\demos\GripperDemo\GripperDemo.csproj (in 77 ms).
 Restore succeeded.
 
-cd GripperDemo
+> cd GripperDemo
 
-dotnet add package Gripper.WebClient --prerelease
+> dotnet add package Gripper.WebClient --prerelease
   Determining projects to restore...
   Writing C:\Users\tomas\AppData\Local\Temp\tmp3442.tmp
 info : Adding PackageReference for package 'Gripper.WebClient' into project 'C:\Users\tomas\source\demos\GripperDemo\GripperDemo.csproj'.
@@ -34,6 +34,6 @@ info : Generating MSBuild file C:\Users\tomas\source\demos\GripperDemo\obj\Gripp
 info : Writing assets file to disk. Path: C:\Users\tomas\source\demos\GripperDemo\obj\project.assets.json
 log  : Restored C:\Users\tomas\source\demos\GripperDemo\GripperDemo.csproj (in 362 ms).
 
-dotnet run
+> dotnet run
 Hello, World!
 ```
