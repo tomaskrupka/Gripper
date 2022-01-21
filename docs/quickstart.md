@@ -1,4 +1,4 @@
-[← Home](index.md)
+[← Home](index.md) [Source →](https://github.com/tomaskrupka/Gripper) [About →](about.md)
 
 # Packaging
 
@@ -12,7 +12,7 @@ In the case of ``Gripper.WebClient`` it's the only dependency.
 The ``Gripper.WebClient.Cdtr`` implementation package also depends on the [chrome-dev-tools-runtime](https://www.nuget.org/packages/BaristaLabs.ChromeDevTools.Runtime/). 
 
 Note:
-This is messy and will be fixed soon™ in a backward compatible way. As soon as the dependency is eliminated from the implementation, it will be packed into ``Gripper.WebClient`` together with the interface.
+This is messy and will be fixed soon™ in a backward compatible way. When the implementation is free from dependencies, it will be packed into ``Gripper.WebClient`` together with the interface.
 
 Note: 
 This way, client services using Gripper can depend on its API without having to pull any dependency.
