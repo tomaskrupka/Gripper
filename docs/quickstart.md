@@ -4,8 +4,9 @@
 
 You can find the latest package version, release notes and the `.nupkg` itself on Nuget as [Gripper.WebClient](https://www.nuget.org/packages/Gripper.WebClient/).
 
-<div class="alert alert-info">
+<div class="panel panel-warning">
 The current version of the package is a prerelease, don't forget the `--prerelease` flag.
+{: .alert .alert-warning}
 </div>
 
 Creating a console app, adding the `Gripper.WebClient` package reference and running it looks as follows.
