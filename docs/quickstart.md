@@ -1,3 +1,5 @@
+{::options parse_block_html="true" /}
+
 [← Home](index.md)
 
 # Deployment
@@ -23,6 +25,9 @@ You can find the latest package version, release notes and the `.nupkg` itself o
 The current version of the package is a prerelease, don't forget the `--prerelease` flag.
 </div>
 </div>
+
+The current version of the package is a prerelease, don't forget the `--prerelease` flag.
+{: .alert .alert-info}
 
 Creating a console app, adding the `Gripper.WebClient` package reference and running it looks as follows.
 
