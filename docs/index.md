@@ -7,3 +7,4 @@ Written in `C#` for `.NET`.
 
 - [Source →](https://github.com/tomaskrupka/Gripper)
 - [About →](about.md)
+- [Quickstart →](quickstart.md)
