@@ -1,5 +1,15 @@
 [← Home](index.md) [Source →](https://github.com/tomaskrupka/Gripper) [About →](about.md)
 
+- [Packaging](#packaging)
+- [Deployment](#deployment)
+- [Installation](#installation)
+  - [Windows](#windows)
+  - [Linux, MacOS](#linux-macos)
+- [Runtime](#runtime)
+  - [Hosting](#hosting)
+  - [Configuration](#configuration)
+  - [Launching the browser](#launching-the-browser)
+
 # Packaging
 
 The Gripper interface is packed as [Gripper.WebClient](https://www.nuget.org/packages/Gripper.WebClient/) on Nuget.
@@ -72,6 +82,59 @@ Soon™
 # Runtime
 
 ## Hosting
+
+Let's create a mockup service for performing web-scraping operations. 
+
+It can be built and packed separately depending just on the Gripper API package.
+
+```cs
+using Gripper.WebClient;
+
+namespace GripperService;
+
+public class Worker : BackgroundService
+{
+    private readonly ILogger<Worker> _logger;
+    private readonly IWebClient _webClient;
+
+    public Worker(ILogger<Worker> logger, IWebClient webClient)
+    {
+        _logger = logger;
+        _webClient = webClient;
+    }
+
+    protected override async Task ExecuteAsync(CancellationToken cancellationToken)
+    {
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            await _webClient.ReloadAsync(PollSettings.FrameDetectionDefault, cancellationToken);
+            var contexts = await _webClient.GetContextsAsync();
+
+            _logger.LogInformation("Gripper found {contextsCount} contexts.", contexts.Count);
+
+            await Task.Delay(TimeSpan.FromDays(1), cancellationToken);
+        }
+    }
+}
+```
+
+The host then loads and injects the standard Gripper implementation.
+
+```cs
+using Gripper.WebClient.Extensions;
+using GripperService;
+
+IHost host = Host.CreateDefaultBuilder(args)
+    .ConfigureServices(services =>
+    {
+        services
+            .AddGripper()
+            .AddHostedService<Worker>();
+    })
+    .Build();
+
+await host.RunAsync();
+```
 
 ## Configuration
 

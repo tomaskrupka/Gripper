@@ -1,11 +1,22 @@
 [← Home](index.md)
 
+- [What is Gripper](#what-is-gripper)
+- [When to consider Gripper](#when-to-consider-gripper)
+- [When to use something else](#when-to-use-something-else)
+- [Principles](#principles)
+  - [The user knows best](#the-user-knows-best)
+  - [Environment neutrality](#environment-neutrality)
+- [Features](#features)
+  - [Implemented features](#implemented-features)
+  - [Soon™](#soon)
+- [Deployment](#deployment)
+
 # What is Gripper
 
 Gripper is a web scraping toolbox that operates in a browser window under its control,
-using the chrome devtools protocol (CDP).
+using the Chrome Devtools Protocol (CDP).
 
-Compared to the many popular integration-testing frameworks,
+Compared to the many popular testing frameworks,
 Gripper is not an abstraction layer designed to mask the presence of the CDP.
 It is a library for management of the CDP runtime,
 paired with a toolbox of web-scraping routines on top.
