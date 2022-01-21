@@ -1,10 +1,25 @@
-{::options parse_block_html="true" /}
-
 [← Home](index.md)
+
+# Packaging
+
+The Gripper interface is packed as [Gripper.WebClient](https://www.nuget.org/packages/Gripper.WebClient/) on Nuget.
+The standard implementation is packed separately as [Gripper.WebClient.Cdtr](https://www.nuget.org/packages/Gripper.WebClient.Cdtr/).
+
+Please refer to the nuget.org package pages for version info, release notes and the ``.nupkg``s.
+
+Both packages are built against ``.NET 6.0``.
+In the case of ``Gripper.WebClient`` it's the only dependency.
+The ``Gripper.WebClient.Cdtr`` implementation package also depends on the [chrome-dev-tools-runtime](https://www.nuget.org/packages/BaristaLabs.ChromeDevTools.Runtime/). 
+
+Note:
+This is messy and will be fixed soon™ in a backward compatible way. As soon as the dependency is eliminated from the implementation, it will be packed into ``Gripper.WebClient`` together with the interface.
+
+Note: 
+This way, client services using Gripper can depend on its API without having to pull any dependency.
+Only the DI host then needs to provide the implementation the dependency.
 
 # Deployment
 
-Gripper is built against `.NET 6.0`, which is also its only dependency.
 To deploy Gripper, you'll need an installation of [.NET 6 Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/6.0).
 The basic installation—without any Desktop or ASP.NET Core components—will work just fine.
 
@@ -16,18 +31,9 @@ How to add Gripper to your .NET project.
 
 ## Windows
 
-You can find the latest package version, release notes and the `.nupkg` itself on Nuget as [Gripper.WebClient](https://www.nuget.org/packages/Gripper.WebClient/).
-
-<div class="panel panel-info">
-**Note**
-{: .panel-heading}
-<div class="panel-body">
-The current version of the package is a prerelease, don't forget the `--prerelease` flag.
-</div>
-</div>
-
-The current version of the package is a prerelease, don't forget the `--prerelease` flag.
-{: .alert .alert-info}
+Note: The current version of the package is a prerelease.
+When installing from the CLI, don't forget the `--prerelease` flag.
+In the Visual Studio Nuget package manager, toggle the Prerelease checkbox.
 
 Creating a console app, adding the `Gripper.WebClient` package reference and running it looks as follows.
 
@@ -59,8 +65,14 @@ log  : Restored C:\Users\tomas\source\demos\GripperDemo\GripperDemo.csproj (in 3
 Hello, World!
 ```
 
+## Linux, MacOS
+
+Soon™
+
 # Runtime
 
-Gripper is meant to be used as a service.
+## Hosting
 
-# Launching the browser
+## Configuration
+
+## Launching the browser
