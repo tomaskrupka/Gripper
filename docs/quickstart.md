@@ -87,8 +87,10 @@ Let's create a mockup service for performing web-scraping operations.
 
 It can be built and packed separately depending just on the Gripper API package.
 
-```cs
-using Gripper.WebClient;
+```csharp
+// service lib; GripperService.cs
+
+using Gripper.WebClient; // Gripper.WebClient.dll
 
 namespace GripperService;
 
@@ -120,9 +122,11 @@ public class Worker : BackgroundService
 
 The host then loads and injects the standard Gripper implementation.
 
-```cs
-using Gripper.WebClient.Extensions;
-using GripperService;
+```csharp
+// host app; main.cs
+
+using Gripper.WebClient.Extensions; // Gripper.WebClient.Cdtr.dll
+using GripperService; // service lib dll
 
 IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureServices(services =>
