@@ -1,6 +1,14 @@
 [← Home](index.md)
 
+Gripper is built against `.NET 6.0`, which is also its only dependency.
+To deploy Gripper, you'll need an installation of [.NET 6 Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/6.0).
+The basic installation—without any Desktop or ASP.NET Core components—will work just fine.
+
+Gripper also works published as a [single-file app](https://docs.microsoft.com/en-us/dotnet/core/deploying/single-file) for deployment onto a target without a .NET Runtime installation.
+
 # Installation
+
+## Windows
 
 You can find the latest package version, release notes and the `.nupkg` itself on Nuget as [Gripper.WebClient](https://www.nuget.org/packages/Gripper.WebClient/).
 
@@ -38,3 +46,9 @@ log  : Restored C:\Users\tomas\source\demos\GripperDemo\GripperDemo.csproj (in 3
 > dotnet run
 Hello, World!
 ```
+
+# Runtime
+
+Gripper is meant to be used as a service.
+
+# Launching the browser
