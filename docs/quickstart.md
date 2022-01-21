@@ -83,9 +83,8 @@ Soon™
 
 ## Hosting
 
-Let's create a mockup service for performing web-scraping operations. 
-
-It can be built and packed separately depending just on the Gripper API package.
+Let's create a standalone service called ``GripperService`` that uses Gripper.
+It can be built and packed separately depending just on the API package.
 
 ```csharp
 // service lib; GripperService.cs
@@ -120,20 +119,28 @@ public class Worker : BackgroundService
 }
 ```
 
-The host then loads and injects the standard Gripper implementation.
+The host then loads the ``GripperService`` and injects the standard Gripper implementation.
 
 ```csharp
 // host app; main.cs
 
-using Gripper.WebClient.Extensions; // Gripper.WebClient.Cdtr.dll
-using GripperService; // service lib dll
+using Gripper.WebClient; // Gripper.WebClient.dll
+using Gripper.WebClient.Cdtr; // Gripper.WebClient.Cdtr.dll
+using GripperService; // GripperService lib
 
 IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureServices(services =>
     {
         services
-            .AddGripper()
-            .AddHostedService<Worker>();
+            .AddSingleton<IWebClient, CdtrChromeClient>()
+            .AddOptions<WebClientSettings>().Configure(x =>
+            {
+                x.RemoteDebuggingPort = 9000;
+                x.Proxy = new System.Net.WebProxy("localhost", 9001);
+                // Many more explicit configuration options
+            });
+
+        services.AddHostedService<Worker>();
     })
     .Build();
 
@@ -141,5 +148,8 @@ await host.RunAsync();
 ```
 
 ## Configuration
+
+In order to avoid hardcoding Gripper configuration explicitly,
+you may prefer to take advantage of the built-in configuration extensions.
 
 ## Launching the browser
