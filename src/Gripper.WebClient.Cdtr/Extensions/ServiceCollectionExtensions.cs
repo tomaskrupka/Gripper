@@ -14,7 +14,7 @@ namespace Gripper.WebClient.Extensions
         // TODO: Extract this to appconfig.json
         private static readonly WebClientSettings _defaultSettings = new()
         {
-            TriggerKeyboardCommandListener = true,
+            TriggerKeyboardCommandListener = false,
             UserDataDir = "C:\\GripperProfiles\\Default",
             StartupCleanup = BrowserCleanupSettings.None,
             UseProxy = false,
@@ -54,9 +54,10 @@ namespace Gripper.WebClient.Extensions
         public static IServiceCollection AddGripper(this IServiceCollection services)
         {
             return services
-                .AddSingleton<ICdtrElementFactory, CdtrElementFactory>()
-                .AddSingleton<IWebClient, CdtrChromeClient>()
+                .AddSingleton<IElementFactory, CdtrElementFactory>()
+                .AddSingleton<ICdpClient, CdtrChromeClient>()
                 .AddSingleton<IJsBuilder, JsBuilder>()
+                .AddSingleton<IBrowserManager, BrowserManager>()
                 .AddDefaultSettings();
         }
         //public static IServiceCollection AddGripper(this IServiceCollection services, IConfiguration namedConfigurationSection)

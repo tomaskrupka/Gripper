@@ -7,17 +7,15 @@ using System.Threading.Tasks;
 
 namespace Gripper.WebClient
 {
-    public interface IWebClient : IDisposable
+    public interface ICdpClient : IDisposable
     {
         public IContext? MainContext { get; }
-
         public event EventHandler<RdpEventArgs> WebClientEvent;
         public Task<CookieContainer> GetAllCookiesAsync();
         public Task<IReadOnlyCollection<IContext>>? GetContextsAsync();
         public Task<string?> GetCurrentUrlAsync();
-        public Task GoToUrlAsync(string address, PollSettings pollSettings, CancellationToken cancellationToken);
+        public Task NavigateAsync(string address, PollSettings pollSettings, CancellationToken cancellationToken);
         public Task ReloadAsync(PollSettings pollSettings, CancellationToken cancellationToken);
-        public Task EnterFullScreenAsync();
         public Task<JToken> ExecuteRdpCommandAsync(string commandName, JToken commandParams);
     }
 }

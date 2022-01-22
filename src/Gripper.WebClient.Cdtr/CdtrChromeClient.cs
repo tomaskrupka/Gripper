@@ -23,16 +23,17 @@ using Microsoft.Extensions.Options;
 
 namespace Gripper.WebClient.Cdtr
 {
-    public partial class CdtrChromeClient : IWebClient
+    public partial class CdtrChromeClient : ICdpClient
     {
         #region Private
 
         private readonly ILogger _logger;
         private readonly ILoggerFactory _loggerFactory;
-        private readonly ICdtrElementFactory _cdtrElementFactory;
-        private readonly ICdtrContextFactory _cdtrContextFactory;
+        private readonly IElementFactory _cdtrElementFactory;
+        private readonly IContextFactory _cdtrContextFactory;
         private readonly IJsBuilder _jsBuilder;
 
+        private readonly IBrowserManager _browserManager;
         private readonly ChromeSession _chromeSession;
         private readonly Process _chromeProcess;
 
@@ -230,107 +231,28 @@ namespace Gripper.WebClient.Cdtr
             return new DirectoryInfo(userDataDirPath);
         }
 
-        // TODO: replace this with a separated launcher that will return references to services on demand.
-        private async Task<(Process, ChromeSession, ICdtrContextFactory)> LaunchAsync(WebClientSettings settings)
-        {
-            try
-            {
-                var userDataDir = GetUserDataDir(settings.UserDataDir);
-
-                DoPreStartupCleanup(userDataDir, settings.StartupCleanup);
-
-                var browserArgs = new StringBuilder()
-                    .Append(" --remote-debugging-port=").Append(settings.RemoteDebuggingPort)
-                    .Append(" --user-data-dir=").Append(userDataDir?.FullName ?? throw new NotImplementedException("TODO: extract this and handle null user data dir."));
-
-                switch (settings.TargetAttachment)
-                {
-                    case TargetAttachmentMode.Default:
-                    case TargetAttachmentMode.Auto:
-                        browserArgs.Append(" --disable-features=IsolateOrigins,site-per-process");
-                        break;
-
-                    case TargetAttachmentMode.SeekAndAttach:
-                        break;
-
-                    default:
-                        throw new NotImplementedException();
-                }
-
-                if (settings.UseProxy == true)
-                {
-                    _logger.LogDebug("{this} launching chrome with proxy: {proxy}.", nameof(CdtrChromeClient), settings.Proxy?.Address?.ToString() ?? "null");
-                    browserArgs.Append(" --proxy-server=").Append(settings.Proxy?.Address ?? throw new ApplicationException("Null proxy when UseProxy flag was up."));
-
-                    if (browserArgs[^1] == '/')
-                    {
-                        browserArgs.Remove(browserArgs.Length - 1, 1);
-                    }
-                }
-                else
-                {
-                    _logger.LogDebug("{this} launching chrome without proxy.", nameof(CdtrChromeClient));
-                }
-
-                if (settings.BrowserStartupArgs?.Any() == true)
-                {
-                    foreach (var flag in settings.BrowserStartupArgs)
-                    {
-                        browserArgs.Append(' ').Append(flag);
-                    }
-                }
-
-                _logger.LogDebug("{this} launching chrome with args: {args}", nameof(CdtrChromeClient), browserArgs.ToString());
-
-                var chromeProcess = Process.Start(settings.BrowserLocation, browserArgs.ToString());
-
-                _logger.LogDebug("Browser process started: {processId}:{processName}", chromeProcess.Id, chromeProcess.ProcessName);
-
-                ChildProcessTracker.AddProcess(chromeProcess);
-
-                using var httpClient = new HttpClient();
-                var remoteSessions = await httpClient.GetAsync($"http://localhost:{settings.RemoteDebuggingPort}/json");
-
-                _logger.LogDebug("sessions response: {status}", remoteSessions.StatusCode);
-
-                var remoteSessionsContent = await remoteSessions.Content.ReadAsStringAsync();
-
-                var sessionInfos = JsonConvert.DeserializeObject<List<ChromeSessionInfo>>(remoteSessionsContent);
-
-                _logger.LogDebug("Remote session infos: {remoteSessions}", remoteSessionsContent);
-
-                var chromeSession = new ChromeSession(_loggerFactory.CreateLogger<ChromeSession>(), sessionInfos.First(x => x.Type == "page").WebSocketDebuggerUrl);
-
-                _logger.LogDebug("ChromeSession launched and connected to Chrome RDP server");
-
-                //DoPostStartupCleanupAsync(chromeSession, settings.StartupCleanup).Wait();
-
-                var contextFactory = new CdtrContextFactory(_loggerFactory, _cdtrElementFactory, _jsBuilder, chromeSession);
-
-                return (chromeProcess, chromeSession, contextFactory);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError("{name} error: {e}", nameof(LaunchAsync), e);
-                throw;
-            }
-        }
         #endregion
 
         #region Ctor
 
         public CdtrChromeClient(
             ILoggerFactory loggerFactory,
-            ICdtrElementFactory cdtrElementFactory,
+            IElementFactory cdtrElementFactory,
             IJsBuilder jsBuilder,
-            IOptions<WebClientSettings> options)
+            IOptions<WebClientSettings> options,
+            IBrowserManager browserManager)
         {
             _loggerFactory = loggerFactory;
             _logger = loggerFactory.CreateLogger<CdtrChromeClient>();
             _cdtrElementFactory = cdtrElementFactory;
             _jsBuilder = jsBuilder;
+            _browserManager = browserManager;
 
             var settings = options.Value;
+
+            _browserManager.LaunchAsync().Wait();
+            _chromeProcess = _browserManager.BrowserProcess;
+            
 
             (_chromeProcess, _chromeSession, _cdtrContextFactory) = LaunchAsync(settings).Result;
 
@@ -346,7 +268,11 @@ namespace Gripper.WebClient.Cdtr
 
             _hasDisposalStarted = false;
 
-            GoToUrlAsync(settings.Homepage ?? "https://www.github.com", settings.DefaultPageLoadPollSettings ?? PollSettings.FrameDetectionDefault, CancellationToken.None).Wait();
+            NavigateAsync(
+                settings.Homepage ?? throw new ArgumentNullException(nameof(settings.Homepage)),
+                settings.DefaultPageLoadPollSettings ?? throw new ArgumentNullException(nameof(settings.DefaultPageLoadPollSettings)),
+                CancellationToken.None)
+                .Wait();
 
             _logger.LogDebug("Exiting {this} constructor.", nameof(CdtrChromeClient));
 
@@ -422,7 +348,7 @@ namespace Gripper.WebClient.Cdtr
             }
         }
 
-        public async Task GoToUrlAsync(string address, PollSettings pollSettings, CancellationToken cancellationToken)
+        public async Task NavigateAsync(string address, PollSettings pollSettings, CancellationToken cancellationToken)
         {
             try
             {
@@ -465,7 +391,7 @@ namespace Gripper.WebClient.Cdtr
 
                     if (timedOut)
                     {
-                        _logger.LogInformation("{name} waiting for new iFrames timed out. Some may have not been attached. Consider relaxing the {timeout} parameter.", nameof(GoToUrlAsync), nameof(PollSettings.TimeoutMs));
+                        _logger.LogInformation("{name} waiting for new iFrames timed out. Some may have not been attached. Consider relaxing the {timeout} parameter.", nameof(NavigateAsync), nameof(PollSettings.TimeoutMs));
                         break;
                     }
 
@@ -498,14 +424,14 @@ namespace Gripper.WebClient.Cdtr
                     }
                 }
 
-                _logger.LogDebug("{name} removing delegate from execution list.", nameof(GoToUrlAsync));
-                _logger.LogDebug("Exiting {name} in {elapsed}", nameof(GoToUrlAsync), loadStopwatch.Elapsed);
+                _logger.LogDebug("{name} removing delegate from execution list.", nameof(NavigateAsync));
+                _logger.LogDebug("Exiting {name} in {elapsed}", nameof(NavigateAsync), loadStopwatch.Elapsed);
 
                 Delegate.Remove(_frameStoppedLoading, frameStoppedLoading);
             }
             catch (Exception e)
             {
-                _logger.LogError("Failed to {name}: {e}", nameof(GoToUrlAsync), e);
+                _logger.LogError("Failed to {name}: {e}", nameof(NavigateAsync), e);
                 throw;
             }
         }
@@ -525,10 +451,10 @@ namespace Gripper.WebClient.Cdtr
         }
 
         //https://social.msdn.microsoft.com/Forums/vstudio/en-US/9bde4870-1599-4958-9ab4-902fa98ba53a/how-do-i-maximizeminimize-applications-programmatically-in-c?forum=csharpgeneral
-        public Task EnterFullScreenAsync()
-        {
-            throw new NotImplementedException();
-        }
+        //public Task EnterFullScreenAsync()
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         private static void AddFrames(List<Frame> frames, FrameTree frameTree)
         {

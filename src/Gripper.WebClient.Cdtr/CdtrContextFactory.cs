@@ -12,15 +12,15 @@ using System.Threading.Tasks;
 
 namespace Gripper.WebClient.Cdtr
 {
-    internal class CdtrContextFactory : ICdtrContextFactory
+    internal class CdtrContextFactory : IContextFactory
     {
         private ILogger _logger;
         private ILoggerFactory _loggerFactory;
-        private ICdtrElementFactory _cdtrElementFactory;
+        private IElementFactory _cdtrElementFactory;
         private IJsBuilder _jsBuilder;
         private ChromeSession _chromeSession;
 
-        internal CdtrContextFactory(ILoggerFactory loggerFactory, ICdtrElementFactory cdtrElementFactory, IJsBuilder jsBuilder, ChromeSession chromeSession)
+        internal CdtrContextFactory(ILoggerFactory loggerFactory, IElementFactory cdtrElementFactory, IJsBuilder jsBuilder, ChromeSession chromeSession)
         {
             _loggerFactory = loggerFactory;
             _cdtrElementFactory = cdtrElementFactory;

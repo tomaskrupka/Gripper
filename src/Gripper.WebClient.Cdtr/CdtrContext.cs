@@ -20,7 +20,7 @@ namespace Gripper.WebClient.Cdtr
         private readonly ILogger _logger;
         private readonly IFrameInfo _frameInfo;
         private readonly ChromeSession _chromeSession;
-        private readonly ICdtrElementFactory _cdtrElementFactory;
+        private readonly IElementFactory _cdtrElementFactory;
         private readonly IJsBuilder _jsBuilder;
 
         #endregion
@@ -74,7 +74,7 @@ namespace Gripper.WebClient.Cdtr
             ILogger logger,
             IFrameInfo frameInfo,
             ChromeSession chromeSession,
-            ICdtrElementFactory cdtrElementFactory,
+            IElementFactory cdtrElementFactory,
             IJsBuilder jsBuilder)
         {
             _logger = logger;
@@ -95,7 +95,7 @@ namespace Gripper.WebClient.Cdtr
             ILogger logger,
             IFrameInfo frameInfo,
             ChromeSession chromeSession,
-            ICdtrElementFactory cdtrElementFactory,
+            IElementFactory cdtrElementFactory,
             IJsBuilder jsBuilder,
             out CdtrContext context)
         {

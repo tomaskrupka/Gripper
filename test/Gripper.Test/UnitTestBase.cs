@@ -15,12 +15,14 @@ namespace Gripper.Test
 {
     public abstract class UnitTestBase
     {
-        private static readonly ILogger _logger;
+        private const string _logFileName = "logs/log_test_fail.txt";
+
+        protected static readonly ILogger _logger;
         private static readonly IServiceProvider _serviceProvider;
 
         private static string GetHomepageAbsolutePath() => Path.GetFullPath("../../../Pages/gov_uk/Welcome_to_GOV.UK.htm");
 
-        protected static readonly IWebClient _webClient;
+        protected static readonly ICdpClient _webClient;
 
         protected static T GetService<T>()
         {
@@ -30,6 +32,7 @@ namespace Gripper.Test
         static UnitTestBase()
         {
             var services = new ServiceCollection();
+
             services.AddGripper(new WebClientSettings
             {
                 Homepage = GetHomepageAbsolutePath(),
@@ -39,15 +42,17 @@ namespace Gripper.Test
                 DefaultPageLoadPollSettings = PollSettings.ElementDetectionDefault,
                 BrowserStartupArgs = new[] { "--headless", "--disable-gpu", "--window-size=1280,1696", }
             });
-            var logFileName = "logs/log_test_fail" /*+ DateTime.Now.ToFileTimeUtc()*/ + ".txt";
+
             services.AddLogging(x =>
             {
-                x.SetMinimumLevel(LogLevel.Debug).AddConsole().AddFile(logFileName, LogLevel.Debug);
+                x.SetMinimumLevel(LogLevel.Debug)
+                .AddConsole()
+                .AddFile(_logFileName, LogLevel.Debug);
             });
 
             _serviceProvider = services.BuildServiceProvider();
             _logger = _serviceProvider.GetService<ILogger<UnitTestBase>>() ?? throw new NullReferenceException();
-            _webClient = _serviceProvider.GetService<IWebClient>() ?? throw new ApplicationException("I need a non-null web client for testing");
+            _webClient = _serviceProvider.GetService<ICdpClient>() ?? throw new ApplicationException("I need a non-null web client for testing");
         }
     }
 }

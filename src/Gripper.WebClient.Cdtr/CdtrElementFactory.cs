@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Gripper.WebClient.Cdtr
 {
-    public class CdtrElementFactory : ICdtrElementFactory
+    public class CdtrElementFactory : IElementFactory
     {
         private ILoggerFactory _loggerFactory;
         public CdtrElementFactory(ILoggerFactory loggerFactory)
