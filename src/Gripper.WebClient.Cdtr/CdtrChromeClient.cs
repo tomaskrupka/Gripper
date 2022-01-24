@@ -380,7 +380,7 @@ namespace Gripper.WebClient.Cdtr
             }
         }
 
-        public Task WaitUntilFramesLoadedAsync()
+        public Task WaitUntilFramesLoadedAsync(PollSettings pollSettings, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }

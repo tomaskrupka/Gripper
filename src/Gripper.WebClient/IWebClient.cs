@@ -45,16 +45,15 @@ namespace Gripper.WebClient
         public Task<string?> GetCurrentUrlAsync();
 
         /// <summary>
-        /// Blocks until either
-        /// 1. all of the following has happened:
-        /// 1.1. no frame has been added to the frame tree for one <see cref="PollSettings.PeriodMs"/> period,
-        /// 1.2. all frames in the frame tree have received the Page.frameNavigated and Page.frameLoaded events,
-        /// 1.3. one <see cref="PollSettings.PeriodMs"/> period has elapsed since the last Page.frameNavigated or Page.frameLoaded event,
-        /// or
-        /// 2. <see cref="PollSettings.TimeoutMs"/> has elapsed
-        /// or
-        /// 3. Task has been cancelled.
-        /// Returns 
+        /// Blocks until either<br />
+        /// 1. All of the following has happened:<br />
+        /// 1.1. No frame has been added to the frame tree for one <see cref="PollSettings.PeriodMs"/> period,<br />
+        /// 1.2. All frames in the frame tree have received the Page.frameNavigated and Page.frameLoaded events,<br />
+        /// 1.3. One <see cref="PollSettings.PeriodMs"/> period has elapsed since the last Page.frameNavigated or Page.frameLoaded event,<br />
+        /// or<br />
+        /// 2. <see cref="PollSettings.TimeoutMs"/> has elapsed.<br />
+        /// or<br />
+        /// 3. Task has been cancelled.<br />
         /// </summary>
         /// <param name="pollSettings">Settings to control the polling for changes to the frame tree.</param>
         /// <param name="cancellationToken">Token to cancel the <see cref="Task"/>.</param>
