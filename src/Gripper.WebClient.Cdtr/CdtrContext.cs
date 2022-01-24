@@ -12,58 +12,18 @@ namespace Gripper.WebClient.Cdtr
 {
     internal class CdtrContext : IContext
     {
-        #region Private fields
-
         private readonly int _contextId; // for Runtime namespace
         private readonly long _documentBackendNodeId; // for DOM namespace
 
         private readonly ILogger _logger;
         private readonly IFrameInfo _frameInfo;
-        private readonly ChromeSession _chromeSession;
+        private readonly ICdpAdapter _cdpAdapter;
         private readonly IElementFactory _cdtrElementFactory;
         private readonly IJsBuilder _jsBuilder;
 
-        #endregion
 
         #region Ctor + pseudo ctor
 
-        private static long? GetBackendNodeId(long? contextId, ChromeSession chromeSession, ILogger logger)
-        {
-            try
-            {
-                var myDocument = chromeSession.Runtime.Evaluate(new EvaluateCommand
-                {
-                    Expression = "document",
-                    ContextId = contextId
-                },
-                throwExceptionIfResponseNotReceived: false).Result;
-
-                logger.LogDebug("Document has Id: {documentId} and description: {description}.", myDocument?.Result?.ObjectId ?? "null", myDocument?.Result?.Description ?? "null");
-
-                if (myDocument?.Result?.ObjectId == null)
-                {
-                    return null;
-                }
-
-                var nodeDescription = chromeSession.DOM.DescribeNode(new DescribeNodeCommand { ObjectId = myDocument.Result.ObjectId }, throwExceptionIfResponseNotReceived: false).Result;
-
-                if (nodeDescription?.Node?.BackendNodeId == null)
-                {
-                    return null;
-                }
-
-                var documentBackendNodeId = nodeDescription.Node.BackendNodeId;
-
-                logger.LogDebug("document has node id: {nodeId}.", documentBackendNodeId);
-
-                return documentBackendNodeId;
-            }
-            catch (Exception e)
-            {
-                logger.LogError("Failed to {name}: {e}", nameof(GetBackendNodeId), e);
-                return null;
-            }
-        }
 
         /// <summary>
         /// Ctor. Frame must be loaded when calling this ctor.
@@ -73,7 +33,7 @@ namespace Gripper.WebClient.Cdtr
             long documentBackendNodeId,
             ILogger logger,
             IFrameInfo frameInfo,
-            ChromeSession chromeSession,
+            ICdpAdapter cdpAdapter,
             IElementFactory cdtrElementFactory,
             IJsBuilder jsBuilder)
         {
@@ -84,32 +44,20 @@ namespace Gripper.WebClient.Cdtr
             _contextId = contextId;
             _documentBackendNodeId = documentBackendNodeId;
             _frameInfo = frameInfo;
-            _chromeSession = chromeSession;
+            _cdpAdapter = cdpAdapter;
             _cdtrElementFactory = cdtrElementFactory;
             _jsBuilder = jsBuilder;
-
         }
 
         public static bool TryCreate(
             int contextId,
             ILogger logger,
             IFrameInfo frameInfo,
-            ChromeSession chromeSession,
+            ICdpAdapter cdpAdapter,
             IElementFactory cdtrElementFactory,
             IJsBuilder jsBuilder,
             out CdtrContext context)
         {
-            var backendNodeId = GetBackendNodeId(contextId, chromeSession, logger);
-            if (backendNodeId == null)
-            {
-                context = null;
-                return false;
-            }
-            else
-            {
-                context = new CdtrContext(contextId, (long)backendNodeId, logger, frameInfo, chromeSession, cdtrElementFactory, jsBuilder);
-                return true;
-            }
         }
 
 

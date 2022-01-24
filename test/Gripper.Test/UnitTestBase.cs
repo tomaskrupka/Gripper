@@ -22,7 +22,7 @@ namespace Gripper.Test
 
         private static string GetHomepageAbsolutePath() => Path.GetFullPath("../../../Pages/gov_uk/Welcome_to_GOV.UK.htm");
 
-        protected static readonly ICdpClient _webClient;
+        protected static readonly IWebClient _webClient;
 
         protected static T GetService<T>()
         {
@@ -52,7 +52,7 @@ namespace Gripper.Test
 
             _serviceProvider = services.BuildServiceProvider();
             _logger = _serviceProvider.GetService<ILogger<UnitTestBase>>() ?? throw new NullReferenceException();
-            _webClient = _serviceProvider.GetService<ICdpClient>() ?? throw new ApplicationException("I need a non-null web client for testing");
+            _webClient = _serviceProvider.GetService<IWebClient>() ?? throw new ApplicationException("I need a non-null web client for testing");
         }
     }
 }

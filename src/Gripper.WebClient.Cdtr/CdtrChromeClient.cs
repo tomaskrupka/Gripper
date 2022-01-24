@@ -23,10 +23,8 @@ using Microsoft.Extensions.Options;
 
 namespace Gripper.WebClient.Cdtr
 {
-    public partial class CdtrChromeClient : ICdpClient
+    public partial class CdtrChromeClient : IWebClient
     {
-        #region Private
-
         private readonly ILogger _logger;
         private readonly ILoggerFactory _loggerFactory;
         private readonly IElementFactory _cdtrElementFactory;
@@ -41,7 +39,6 @@ namespace Gripper.WebClient.Cdtr
         private readonly CancellationToken _cancellationToken;
 
         private bool _hasDisposalStarted;
-        private ConcurrentDictionary<int, ExecutionContextDescription> _executionContexts;
         private Action<FrameStoppedLoadingEvent>? _frameStoppedLoading;
 
         public IContext? MainContext
@@ -58,182 +55,6 @@ namespace Gripper.WebClient.Cdtr
                 return contexts.First();
             }
         }
-
-        private async Task SubscribeToRdpEventsAsync()
-        {
-            await _chromeSession.Network.Enable(
-                new BaristaLabs.ChromeDevTools.Runtime.Network.EnableCommand { },
-                throwExceptionIfResponseNotReceived: false,
-                cancellationToken: _cancellationToken);
-
-            _chromeSession.Network.SubscribeToRequestWillBeSentEvent(x =>
-            {
-                WebClientEvent?.Invoke(this, new Network_RequestWillBeSentEventArgs(x.RequestId, x.Request.Headers, x.Request.Method, x.Request.Url));
-            });
-
-            await _chromeSession.Page.Enable(throwExceptionIfResponseNotReceived: false, cancellationToken: _cancellationToken);
-
-            _chromeSession.Page.SubscribeToFrameStoppedLoadingEvent(x => _frameStoppedLoading?.Invoke(x));
-            _frameStoppedLoading += x => _logger.LogDebug("Frame stopped loading: {id}", x.FrameId);
-
-            await _chromeSession.Runtime.Enable(throwExceptionIfResponseNotReceived: false, cancellationToken: _cancellationToken);
-
-            _chromeSession.Runtime.SubscribeToExecutionContextCreatedEvent(x =>
-            {
-                _logger.LogDebug("execution context created: {id}, {name}, {origin}.", x.Context.Id, x.Context.Name, x.Context.Origin);
-                _executionContexts[(int)x.Context.Id] = x.Context;
-            });
-
-            _chromeSession.Runtime.SubscribeToExecutionContextDestroyedEvent(x =>
-            {
-                _logger.LogDebug("execution context destroyed: {id}.", x.ExecutionContextId);
-                var contextId = x.ExecutionContextId;
-                _executionContexts.TryRemove((int)contextId, out _);
-            });
-
-            await _chromeSession.DOM.Enable(throwExceptionIfResponseNotReceived: false);
-
-            _chromeSession.DOM.SubscribeToSetChildNodesEvent(x =>
-            {
-                _logger.LogDebug("set child node: Parent: {nodeParent}, nodes: {nodes}", x.ParentId, string.Join(' ', x.Nodes.Select(x => x.NodeId + " " + x.NodeName + " " + x.NodeValue)));
-            });
-        }
-
-        /// <summary>
-        /// Continuously enforce that events triggered on children iFrames are captured.
-        /// Make sure to <see cref="SubscribeToRdpEventsAsync"/>
-        /// </summary>
-        /// <param name="targetAttachment">What strategy shall be used.</param>
-        /// <returns></returns>
-        private void SetupTargetAttachment(TargetAttachmentMode targetAttachment)
-        {
-            switch (targetAttachment)
-            {
-                case TargetAttachmentMode.Default:
-                case TargetAttachmentMode.Auto:
-                    _frameStoppedLoading += async x =>
-                    {
-                        await _chromeSession.Target.SetAutoAttach(new BaristaLabs.ChromeDevTools.Runtime.Target.SetAutoAttachCommand
-                        {
-                            AutoAttach = true,
-                            // Setting WaitForDebuggerOnStart = true requires releasing stalled frames by calling Runtime.RunIfWaitingForDebugger
-                            WaitForDebuggerOnStart = false,
-                            Flatten = true
-                        },
-                        throwExceptionIfResponseNotReceived: false,
-                        cancellationToken: _cancellationToken);
-
-                    };
-
-                    break;
-
-                case TargetAttachmentMode.SeekAndAttach:
-                    LoopSeekAndAttachTargetsAsync(TimeSpan.FromSeconds(10));
-                    break;
-
-                default:
-                    throw new NotImplementedException();
-            }
-        }
-
-        private async Task LoopSeekAndAttachTargetsAsync(TimeSpan loopPeriod)
-        {
-            while (true)
-            {
-                await Task.Delay(loopPeriod);
-                var targets = await _chromeSession.Target.GetTargets(throwExceptionIfResponseNotReceived: false, cancellationToken: _cancellationToken);
-
-                _logger.LogDebug("Found targets: {targetsCount} of which attached: {attachedTargetsCount}", targets.TargetInfos.Length, targets.TargetInfos.Count(x => x.Attached));
-
-                foreach (var target in targets.TargetInfos.Where(x => !x.Attached))
-                {
-                    _logger.LogDebug("Attaching to target: {targetId}", target.TargetId);
-                    await _chromeSession.Target.AttachToTarget(new BaristaLabs.ChromeDevTools.Runtime.Target.AttachToTargetCommand
-                    {
-                        TargetId = target.TargetId
-                    },
-                    throwExceptionIfResponseNotReceived: false,
-                    cancellationToken: _cancellationToken);
-                }
-            }
-        }
-        private void DoPreStartupCleanup(DirectoryInfo userDataDir, BrowserCleanupSettings? startupCleanupOptional)
-        {
-            try
-            {
-                var startupCleanup = (startupCleanupOptional ?? BrowserCleanupSettings.None);
-
-                if (startupCleanup == BrowserCleanupSettings.None)
-                {
-                    _logger.LogDebug("{name} set to {value}. Exiting {this}.", nameof(BrowserCleanupSettings), BrowserCleanupSettings.None, nameof(DoPreStartupCleanup));
-                    return;
-                }
-
-                if (!userDataDir.Exists)
-                {
-                    return;
-                }
-
-                var profileDirectory = userDataDir.GetDirectories().FirstOrDefault(x => x.Name.ToLower() == "default");
-
-                if (profileDirectory == null)
-                {
-                    return;
-                }
-
-                if (startupCleanup.HasFlag(BrowserCleanupSettings.Profile))
-                {
-                    profileDirectory.Delete(true);
-                    return;
-                }
-
-                if (startupCleanup.HasFlag(BrowserCleanupSettings.Cache))
-                {
-                    _logger.LogWarning("Clearing browser cache.");
-                    profileDirectory.GetDirectories().FirstOrDefault(x => x.Name.ToLower() == "cache")?.Delete(true);
-                    profileDirectory.GetDirectories().FirstOrDefault(x => x.Name.ToLower() == "storage")?.Delete(true);
-                    profileDirectory.GetDirectories().FirstOrDefault(x => x.Name.ToLower() == "session storage")?.Delete(true);
-                    profileDirectory.GetDirectories().FirstOrDefault(x => x.Name.ToLower() == "sessions")?.Delete(true);
-                    profileDirectory.GetDirectories().FirstOrDefault(x => x.Name.ToLower() == "local storage")?.Delete(true);
-                }
-
-                if (startupCleanup.HasFlag(BrowserCleanupSettings.Cookies))
-                {
-                    _logger.LogWarning("Clearing browser cookies.");
-                    profileDirectory.GetFiles().FirstOrDefault(x => x.Name.ToLower() == "cookies")?.Delete();
-                    profileDirectory.GetFiles().FirstOrDefault(x => x.Name.ToLower() == "cookies-journal")?.Delete();
-                }
-
-                if (startupCleanup.HasFlag(BrowserCleanupSettings.Logins))
-                {
-                    _logger.LogWarning("Clearing browser logins.");
-                    profileDirectory.GetFiles().FirstOrDefault(x => x.Name.ToLower() == "login data")?.Delete();
-                    profileDirectory.GetFiles().FirstOrDefault(x => x.Name.ToLower() == "login data for account")?.Delete();
-                    profileDirectory.GetFiles().FirstOrDefault(x => x.Name.ToLower() == "login data for account-journal")?.Delete();
-                    profileDirectory.GetFiles().FirstOrDefault(x => x.Name.ToLower() == "login data-journal")?.Delete();
-                }
-
-            }
-            catch (Exception e)
-            {
-                _logger.LogCritical("Failed to {name}: {e}.", nameof(DoPreStartupCleanup), e);
-                throw;
-            }
-        }
-
-        private static DirectoryInfo? GetUserDataDir(string? userDataDirPath)
-        {
-            if (userDataDirPath == null)
-            {
-                return null;
-            }
-
-            return new DirectoryInfo(userDataDirPath);
-        }
-
-        #endregion
-
-        #region Ctor
 
         public CdtrChromeClient(
             ILoggerFactory loggerFactory,
@@ -253,16 +74,6 @@ namespace Gripper.WebClient.Cdtr
             _browserManager.LaunchAsync().Wait();
             _chromeProcess = _browserManager.BrowserProcess;
             
-
-            (_chromeProcess, _chromeSession, _cdtrContextFactory) = LaunchAsync(settings).Result;
-
-            _executionContexts = new ConcurrentDictionary<int, ExecutionContextDescription>();
-
-            _logger.LogDebug("Subscribing to rdp events.");
-
-            SubscribeToRdpEventsAsync().Wait();
-            SetupTargetAttachment(settings.TargetAttachment ?? TargetAttachmentMode.Default);
-
             _cancellationTokenSource = new CancellationTokenSource();
             _cancellationToken = _cancellationTokenSource.Token;
 
@@ -277,11 +88,6 @@ namespace Gripper.WebClient.Cdtr
             _logger.LogDebug("Exiting {this} constructor.", nameof(CdtrChromeClient));
 
         }
-
-        #endregion
-
-        #region Public IWebClient implementation
-
         public event EventHandler<RdpEventArgs>? WebClientEvent;
 
         public async Task<CookieContainer> GetAllCookiesAsync()
@@ -573,6 +379,10 @@ namespace Gripper.WebClient.Cdtr
                 _logger.LogError("Error disposing {this}: {e}", nameof(_chromeSession), e);
             }
         }
-        #endregion
+
+        public Task WaitUntilFramesLoadedAsync()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

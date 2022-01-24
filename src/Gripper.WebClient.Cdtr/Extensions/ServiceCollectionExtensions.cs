@@ -55,7 +55,7 @@ namespace Gripper.WebClient.Extensions
         {
             return services
                 .AddSingleton<IElementFactory, CdtrElementFactory>()
-                .AddSingleton<ICdpClient, CdtrChromeClient>()
+                .AddSingleton<IWebClient, CdtrChromeClient>()
                 .AddSingleton<IJsBuilder, JsBuilder>()
                 .AddSingleton<IBrowserManager, BrowserManager>()
                 .AddDefaultSettings();

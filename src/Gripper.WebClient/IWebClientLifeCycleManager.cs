@@ -9,7 +9,7 @@ namespace Gripper.WebClient
 {
     public interface IWebClientLifeCycleManager
     {
-        public ICdpClient WebClient { get; }
+        public IWebClient WebClient { get; }
         public ManualResetEventSlim WebClientActive { get; }
 
         public void CanKillBrowser();
