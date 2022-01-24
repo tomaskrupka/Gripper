@@ -17,7 +17,7 @@ namespace Gripper.Test.IWebClientTests
             {
                 var cookieObject = Fakers.GetCookie();
                 _injectedCookies.Add(cookieObject);
-                var setCookieResponse = _webClient.ExecuteRdpCommandAsync("Network.setCookie", JToken.FromObject(cookieObject)).Result;
+                var setCookieResponse = _webClient.ExecuteCdpCommandAsync("Network.setCookie", JToken.FromObject(cookieObject)).Result;
             }
         }
 

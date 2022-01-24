@@ -338,7 +338,7 @@ namespace Gripper.WebClient.Cdtr
             return contexts;
         }
 
-        public async Task<JToken> ExecuteRdpCommandAsync(string commandName, JToken commandParams)
+        public async Task<JToken> ExecuteCdpCommandAsync(string commandName, JToken commandParams)
         {
             try
             {
