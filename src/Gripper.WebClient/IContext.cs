@@ -6,7 +6,7 @@ namespace Gripper.WebClient
 {
     public interface IContext
     {
-        public int Id { get; }
+        public long Id { get; }
         public IFrameInfo FrameInfo { get; }
         public Task<JToken> ExecuteScriptAsync(string script, CancellationToken cancellationToken);
         public Task<IElement?> FindElementByCssSelectorAsync(string cssSelector, CancellationToken cancellationToken);

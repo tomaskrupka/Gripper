@@ -22,7 +22,10 @@ namespace Gripper.WebClient.Extensions
             RemoteDebuggingPort = 9244,
             Homepage = "https://github.com/tomaskrupka/Gripper",
             DefaultPageLoadPollSettings = PollSettings.FrameDetectionDefault,
-            TargetAttachment = TargetAttachmentMode.Auto
+            TargetAttachment = TargetAttachmentMode.Auto,
+            BrowserLaunchTimeoutMs = 30_000,
+            BrowserStartupArgs = Array.Empty<string>(),
+            IgnoreSslCertificateErrors = false
         };
 
         private static IServiceCollection AddSettings(this IServiceCollection services, WebClientSettings webClientSettings)
@@ -31,17 +34,19 @@ namespace Gripper.WebClient.Extensions
                 .AddOptions<WebClientSettings>()
                 .Configure(x =>
                 {
-                    x.TriggerKeyboardCommandListener = webClientSettings.TriggerKeyboardCommandListener ?? x.TriggerKeyboardCommandListener;
-                    x.UserDataDir = webClientSettings.UserDataDir ?? x.UserDataDir;
-                    x.StartupCleanup = webClientSettings.StartupCleanup ?? x.StartupCleanup;
-                    x.UseProxy = webClientSettings.UseProxy ?? x.UseProxy;
-                    x.Proxy = webClientSettings.Proxy ?? x.Proxy;
-                    x.BrowserLocation = webClientSettings.BrowserLocation ?? x.BrowserLocation;
-                    x.RemoteDebuggingPort = webClientSettings.RemoteDebuggingPort ?? x.RemoteDebuggingPort;
-                    x.Homepage = webClientSettings.Homepage ?? x.Homepage;
-                    x.DefaultPageLoadPollSettings = webClientSettings.DefaultPageLoadPollSettings ?? x.DefaultPageLoadPollSettings;
-                    x.TargetAttachment = webClientSettings.TargetAttachment ?? x.TargetAttachment;
-                    x.BrowserStartupArgs = webClientSettings.BrowserStartupArgs ?? x.BrowserStartupArgs;
+                    x.TriggerKeyboardCommandListener = webClientSettings.TriggerKeyboardCommandListener;// ?? x.TriggerKeyboardCommandListener;
+                    x.UserDataDir = webClientSettings.UserDataDir;// ?? x.UserDataDir;
+                    x.StartupCleanup = webClientSettings.StartupCleanup;// ?? x.StartupCleanup;
+                    x.UseProxy = webClientSettings.UseProxy;// ?? x.UseProxy;
+                    x.Proxy = webClientSettings.Proxy;// ?? x.Proxy;
+                    x.BrowserLocation = webClientSettings.BrowserLocation;// ?? x.BrowserLocation;
+                    x.RemoteDebuggingPort = webClientSettings.RemoteDebuggingPort;// ?? x.RemoteDebuggingPort;
+                    x.Homepage = webClientSettings.Homepage;// ?? x.Homepage;
+                    x.DefaultPageLoadPollSettings = webClientSettings.DefaultPageLoadPollSettings;// ?? x.DefaultPageLoadPollSettings;
+                    x.TargetAttachment = webClientSettings.TargetAttachment;// ?? x.TargetAttachment;
+                    x.BrowserStartupArgs = webClientSettings.BrowserStartupArgs;// ?? x.BrowserStartupArgs;
+                    x.BrowserLaunchTimeoutMs = webClientSettings.BrowserLaunchTimeoutMs;
+                    x.IgnoreSslCertificateErrors = webClientSettings.IgnoreSslCertificateErrors;
                 });
 
             return services;

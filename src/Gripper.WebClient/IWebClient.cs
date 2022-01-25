@@ -35,7 +35,7 @@ namespace Gripper.WebClient
         /// There is no guarantee w.r.t. the lifespan of the resulting <see cref="IContext"/>s.
         /// </summary>
         /// <returns>A flattened projection of a snapshot of the current iFrame tree into an <see cref="IReadOnlyCollection{IContext}"/></returns>
-        public Task<IReadOnlyCollection<IContext>>? GetContextsAsync();
+        public Task<IReadOnlyCollection<IContext>> GetContextsAsync();
 
         /// <summary>
         /// Gets the current URL of the top page.
