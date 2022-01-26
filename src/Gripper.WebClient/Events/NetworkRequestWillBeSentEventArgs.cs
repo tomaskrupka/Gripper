@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Gripper.WebClient
+namespace Gripper.WebClient.Events
 {
     public class Network_RequestWillBeSentEventArgs : RdpEventArgs
     {

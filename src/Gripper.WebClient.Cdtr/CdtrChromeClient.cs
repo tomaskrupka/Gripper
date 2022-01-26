@@ -33,7 +33,7 @@ namespace Gripper.WebClient.Cdtr
 
         private readonly IBrowserManager _browserManager;
         private readonly ICdpAdapter _cdpAdapter;
-        private readonly ChromeSession _chromeSession;
+        //private readonly ChromeSession _chromeSession;
         private readonly Process _chromeProcess;
 
         private readonly CancellationTokenSource _cancellationTokenSource;
@@ -75,11 +75,13 @@ namespace Gripper.WebClient.Cdtr
             var settings = options.Value;
 
             _chromeProcess = _browserManager.BrowserProcess;
-            
+
             _cancellationTokenSource = new CancellationTokenSource();
             _cancellationToken = _cancellationTokenSource.Token;
 
             _hasDisposalStarted = false;
+
+            _cdpAdapter.WebClientEvent += _cdpAdapter_WebClientEvent;
 
             NavigateAsync(
                 settings.Homepage ?? throw new ArgumentNullException(nameof(settings.Homepage)),
@@ -90,13 +92,21 @@ namespace Gripper.WebClient.Cdtr
             _logger.LogDebug("Exiting {this} constructor.", nameof(CdtrChromeClient));
 
         }
+
+        private void _cdpAdapter_WebClientEvent(object? sender, RdpEventArgs e)
+        {
+
+        }
+
         public event EventHandler<RdpEventArgs>? WebClientEvent;
 
         public async Task<CookieContainer> GetAllCookiesAsync()
         {
             try
             {
-                var rawCookies = await _chromeSession.Network.GetAllCookies(new BaristaLabs.ChromeDevTools.Runtime.Network.GetAllCookiesCommand { }, throwExceptionIfResponseNotReceived: false, cancellationToken: _cancellationToken);
+                var chromeSession = await _cdpAdapter.GetChromeSessionAsync();
+
+                var rawCookies = await chromeSession.Network.GetAllCookies(new BaristaLabs.ChromeDevTools.Runtime.Network.GetAllCookiesCommand { }, throwExceptionIfResponseNotReceived: false, cancellationToken: _cancellationToken);
 
                 _logger.LogDebug("raw cookies: {rawCookies}", rawCookies?.Cookies?.Length.ToString() ?? "null");
 
@@ -131,7 +141,8 @@ namespace Gripper.WebClient.Cdtr
         {
             try
             {
-                var navigationHistory = await _chromeSession.Page.GetNavigationHistory(new Page.GetNavigationHistoryCommand
+                var chromeSession = await _cdpAdapter.GetChromeSessionAsync();
+                var navigationHistory = await chromeSession.Page.GetNavigationHistory(new Page.GetNavigationHistoryCommand
                 {
 
                 },
@@ -160,6 +171,7 @@ namespace Gripper.WebClient.Cdtr
         {
             try
             {
+                var chromeSession = await _cdpAdapter.GetChromeSessionAsync();
 
                 var loadStopwatch = Stopwatch.StartNew();
 
@@ -172,7 +184,7 @@ namespace Gripper.WebClient.Cdtr
 
                 _frameStoppedLoading += frameStoppedLoading;
 
-                var navigateCommandResponse = await _chromeSession.Page.Navigate(new Page.NavigateCommand
+                var navigateCommandResponse = await chromeSession.Page.Navigate(new Page.NavigateCommand
                 {
                     Url = address
                 },
@@ -205,7 +217,7 @@ namespace Gripper.WebClient.Cdtr
 
                     await Task.Delay(pollSettings.PeriodMs, cancellationToken);
 
-                    var frameTreeResult = await _chromeSession.Page.GetFrameTree(throwExceptionIfResponseNotReceived: false);
+                    var frameTreeResult = await chromeSession.Page.GetFrameTree(throwExceptionIfResponseNotReceived: false);
 
                     var framesCount = loadedFramesIds.Count;
 
@@ -219,7 +231,7 @@ namespace Gripper.WebClient.Cdtr
 
                         // Some previously unseen frames might have been attached during the delay.
 
-                        var verificationFrameTreeResult = await _chromeSession.Page.GetFrameTree(throwExceptionIfResponseNotReceived: false);
+                        var verificationFrameTreeResult = await chromeSession.Page.GetFrameTree(throwExceptionIfResponseNotReceived: false);
 
                         var framesLoadedVerification = FramesLoaded(verificationFrameTreeResult.FrameTree);
 
@@ -248,7 +260,9 @@ namespace Gripper.WebClient.Cdtr
         {
             try
             {
-                await _chromeSession.Page.Reload(new Page.ReloadCommand { }, throwExceptionIfResponseNotReceived: false, cancellationToken: _cancellationToken);
+                var chromeSession = await _cdpAdapter.GetChromeSessionAsync();
+
+                await chromeSession.Page.Reload(new Page.ReloadCommand { }, throwExceptionIfResponseNotReceived: false, cancellationToken: _cancellationToken);
                 //await Task.Run(() => _pageLoaded.WaitOne());
             }
             catch (Exception e)
@@ -284,8 +298,9 @@ namespace Gripper.WebClient.Cdtr
 
         public async Task<IReadOnlyCollection<IContext>> GetContextsAsync()
         {
-            var frameTree = (await _chromeSession.Page.GetFrameTree(throwExceptionIfResponseNotReceived: false)).FrameTree;
+            var chromeSession = await _cdpAdapter.GetChromeSessionAsync();
 
+            var frameTree = (await chromeSession.Page.GetFrameTree(throwExceptionIfResponseNotReceived: false)).FrameTree;
             var frames = new List<Frame>();
             AddFrames(frames, frameTree);
 
@@ -293,57 +308,14 @@ namespace Gripper.WebClient.Cdtr
 
             foreach (var frame in frames)
             {
-                if (await _cdtrContextFactory.CreateContextAsync(frame.Id))
+                var frameInfo = new CdtrFrameInfo(frame);
+                var context = await _cdtrContextFactory.CreateContextAsync(frameInfo);
+
+                if (context != null)
                 {
-                    contexts.Add(context ?? 
-                        throw new ApplicationException($"{nameof(IContextFactory.TryCreateContextAsync)} returned true, {nameof(context)} cannot be null."));
+                    contexts.Add(context);
                 }
             }
-
-            //foreach (var frame in frames)
-            //{
-            //    var frameContexts = executionContexts.Where(x => ((JObject)x.AuxData)["frameId"]?.ToString() == frame.Id).ToList();
-            //    if (frameContexts.Count == 0)
-            //    {
-            //        _logger.LogError("{name} failed to find context by frameId {frameId}.", nameof(GetContextsAsync), frame.Id);
-            //    }
-            //    else if (frameContexts.Count == 1)
-            //    {
-            //        var frameContext = frameContexts[0];
-            //        if (frameContext == null)
-            //        {
-            //            _logger.LogError("{name} error: Context with frameId {frameId} was null.", nameof(GetContextsAsync), frame.Id);
-            //        }
-            //        else
-            //        {
-            //            if (await _cdtrContextFactory.TryCreateContextAsync(frame.Id, out IContext? context))
-            //            {
-            //                contexts.Add(context ?? throw new ApplicationException($"{nameof(CdtrContextFactory.TryCreateContextAsync)} returned true, {nameof(context)} cannot be null."));
-            //            }
-            //            else
-            //            {
-            //                _logger.LogError("{name} error: Failed to create context with frameId {frameId}.", nameof(GetContextsAsync), frame.Id);
-            //            }
-            //        }
-            //    }
-            //    else
-            //    {
-            //        var maxId = frameContexts.Max(x => x.Key);
-
-            //        _logger.LogWarning(
-            //            "{name} found {count} contexts with frameId {frameId}. Creating context object for the highest context id: {maxId}.",
-            //            nameof(GetContextsAsync), frameContexts.Count, frame.Id, maxId);
-
-            //        if (_cdtrContextFactory.TryCreateContext(maxId, frame, out IContext? context))
-            //        {
-            //            contexts.Add(context ?? throw new ApplicationException($"{nameof(CdtrContextFactory.TryCreateContext)} returned true, {nameof(context)} cannot be null."));
-            //        }
-            //        else
-            //        {
-            //            _logger.LogError("{name} error: Failed to create context with frameId {frameId}.", nameof(GetContextsAsync), frame.Id);
-            //        }
-            //    }
-            //}
 
             return contexts;
         }
@@ -352,7 +324,8 @@ namespace Gripper.WebClient.Cdtr
         {
             try
             {
-                var resultToken = await Task.Run(() => _chromeSession.SendCommand(commandName, commandParams, throwExceptionIfResponseNotReceived: false, cancellationToken: _cancellationToken));
+            var chromeSession = await _cdpAdapter.GetChromeSessionAsync();
+                var resultToken = await Task.Run(() => chromeSession.SendCommand(commandName, commandParams, throwExceptionIfResponseNotReceived: false, cancellationToken: _cancellationToken));
                 return resultToken;
             }
             catch (Exception e)
@@ -364,30 +337,31 @@ namespace Gripper.WebClient.Cdtr
 
         public void Dispose()
         {
-            if (_hasDisposalStarted)
-            {
-                _logger.LogDebug("Not trigerring {this} dispose. Disposal already started on another thread.", nameof(CdtrChromeClient));
-                return;
-            }
+            //if (_hasDisposalStarted)
+            //{
+            //    _logger.LogDebug("Not trigerring {this} dispose. Disposal already started on another thread.", nameof(CdtrChromeClient));
+            //    return;
+            //}
 
-            _hasDisposalStarted = true;
+            //_hasDisposalStarted = true;
 
-            _logger.LogWarning("Disposing {this}.", nameof(CdtrChromeClient));
+            //_logger.LogWarning("Disposing {this}.", nameof(CdtrChromeClient));
 
             _cancellationTokenSource.Cancel();
 
-            try
-            {
-                _chromeSession.Dispose();
-            }
-            catch (ObjectDisposedException)
-            {
-                _logger.LogDebug("ObjectDisposedException when disposing {object} at {this}.", nameof(_chromeSession), nameof(CdtrChromeClient));
-            }
-            catch (Exception e)
-            {
-                _logger.LogError("Error disposing {this}: {e}", nameof(_chromeSession), e);
-            }
+            //try
+            //{
+            //var chromeSession = await _cdpAdapter.GetChromeSessionAsync();
+            //    chromeSession.Dispose();
+            //}
+            //catch (ObjectDisposedException)
+            //{
+            //    _logger.LogDebug("ObjectDisposedException when disposing {object} at {this}.", nameof(_chromeSession), nameof(CdtrChromeClient));
+            //}
+            //catch (Exception e)
+            //{
+            //    _logger.LogError("Error disposing {this}: {e}", nameof(_chromeSession), e);
+            //}
         }
 
         public Task WaitUntilFramesLoadedAsync(PollSettings pollSettings, CancellationToken cancellationToken)

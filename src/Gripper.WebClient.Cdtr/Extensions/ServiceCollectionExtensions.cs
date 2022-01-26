@@ -63,6 +63,7 @@ namespace Gripper.WebClient.Extensions
                 .AddSingleton<IWebClient, CdtrChromeClient>()
                 .AddSingleton<IJsBuilder, JsBuilder>()
                 .AddSingleton<IBrowserManager, BrowserManager>()
+                .AddSingleton<ICdpAdapter, CdpAdapter>()
                 .AddDefaultSettings();
         }
         //public static IServiceCollection AddGripper(this IServiceCollection services, IConfiguration namedConfigurationSection)

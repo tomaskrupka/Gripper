@@ -40,8 +40,19 @@ namespace Gripper.Test
                 //BrowserLocation = "chrome",
                 UserDataDir = ".\\UnitTestProfile",
                 DefaultPageLoadPollSettings = PollSettings.ElementDetectionDefault,
-                BrowserStartupArgs = new[] { "--headless", "--disable-gpu", "--window-size=1280,1696", }
-            });
+                //BrowserStartupArgs = new[] { "--headless", "--disable-gpu", "--window-size=1280,1696", },
+                BrowserStartupArgs = Array.Empty<string>(),
+                BrowserLaunchTimeoutMs = 30_000,
+
+
+                TriggerKeyboardCommandListener = false,
+                StartupCleanup = BrowserCleanupSettings.None,
+                UseProxy = false,
+                RemoteDebuggingPort = 9244,
+                TargetAttachment = TargetAttachmentMode.Auto,
+                IgnoreSslCertificateErrors = false
+
+            }) ;
 
             services.AddLogging(x =>
             {

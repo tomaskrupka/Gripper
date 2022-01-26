@@ -3,6 +3,8 @@ using BaristaLabs.ChromeDevTools.Runtime.Page;
 using BaristaLabs.ChromeDevTools.Runtime.Runtime;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -36,7 +38,11 @@ namespace Gripper.WebClient.Cdtr
 
             await _chromeSession.Page.Enable(throwExceptionIfResponseNotReceived: false, cancellationToken: cancellationToken);
 
-            _chromeSession.Page.SubscribeToFrameStoppedLoadingEvent(x => _frameStoppedLoading?.Invoke(x));
+            _chromeSession.Page.SubscribeToFrameStoppedLoadingEvent(x =>
+            {
+                _frameStoppedLoading?.Invoke(x);
+                WebClientEvent?.Invoke(x, new RdpEventArgs("Network", "frameStoppedLoading", JToken.FromObject(x)));
+            });
             _frameStoppedLoading += x => _logger.LogDebug("Frame stopped loading: {id}", x.FrameId);
 
             await _chromeSession.Runtime.Enable(throwExceptionIfResponseNotReceived: false, cancellationToken: cancellationToken);
