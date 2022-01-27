@@ -63,14 +63,7 @@ namespace Gripper.WebClient.Cdtr
                 throwExceptionIfResponseNotReceived: false,
                 cancellationToken: cancellationToken);
 
-                if (result?.Result?.Type == "string")
-                {
-                    return result?.Result?.Value?.ToString() ?? JsonConvert.SerializeObject(result);
-                }
-                else
-                {
-                    return JsonConvert.SerializeObject(result);
-                }
+                return JToken.FromObject(result);
             }
             catch (Exception e)
             {

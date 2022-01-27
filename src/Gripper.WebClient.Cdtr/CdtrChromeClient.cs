@@ -27,8 +27,8 @@ namespace Gripper.WebClient.Cdtr
     {
         private readonly ILogger _logger;
         private readonly ILoggerFactory _loggerFactory;
-        private readonly IElementFactory _cdtrElementFactory;
-        private readonly IContextFactory _cdtrContextFactory;
+        private readonly IElementFactory _ElementFactory;
+        private readonly IContextFactory _ContextFactory;
         private readonly IJsBuilder _jsBuilder;
 
         private readonly IBrowserManager _browserManager;
@@ -62,14 +62,16 @@ namespace Gripper.WebClient.Cdtr
             IJsBuilder jsBuilder,
             IBrowserManager browserManager,
             ICdpAdapter cdpAdapter,
+            IContextFactory contextFactory,
             IOptions<WebClientSettings> options)
         {
             _loggerFactory = loggerFactory;
             _logger = loggerFactory.CreateLogger<CdtrChromeClient>();
-            _cdtrElementFactory = cdtrElementFactory;
+            _ElementFactory = cdtrElementFactory;
             _jsBuilder = jsBuilder;
             _browserManager = browserManager;
             _cdpAdapter = cdpAdapter;
+            _ContextFactory = contextFactory;
 
             var settings = options.Value;
 
@@ -310,7 +312,7 @@ namespace Gripper.WebClient.Cdtr
             foreach (var frame in frames)
             {
                 var frameInfo = new CdtrFrameInfo(frame);
-                var context = await _cdtrContextFactory.CreateContextAsync(frameInfo);
+                var context = await _ContextFactory.CreateContextAsync(frameInfo);
 
                 if (context != null)
                 {
