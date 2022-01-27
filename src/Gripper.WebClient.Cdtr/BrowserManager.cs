@@ -22,9 +22,37 @@ namespace Gripper.WebClient.Cdtr
 
         private readonly ILogger _logger;
 
-        public string DebuggerUrl { get; private set; }
+        private Process? _browserProcess;
+        private string? _debuggerUrl;
 
-        public Process BrowserProcess { get; private set; }
+        public string DebuggerUrl
+        {
+            get
+            {
+                return _debuggerUrl ??
+                    throw new ApplicationException(
+                        string.Format(
+                            "Make sure to run and await the {0} method before accessing the {1} property.",
+                            nameof(LaunchAsync),
+                            nameof(DebuggerUrl)));
+            }
+            private set => _debuggerUrl = value;
+        }
+
+        public Process BrowserProcess
+        {
+            get
+            {
+                return _browserProcess ??
+                    throw new ApplicationException(
+                        string.Format(
+                            "Make sure to run and await the {0} method before accessing the {1} property.",
+                                nameof(LaunchAsync),
+                                nameof(BrowserProcess)));
+            }
+
+            private set => _browserProcess = value;
+        }
 
         public BrowserManager(IOptions<WebClientSettings> settings, ILoggerFactory loggerFactory)
         {
@@ -120,96 +148,6 @@ namespace Gripper.WebClient.Cdtr
         {
             throw new NotImplementedException();
         }
-
-        //// TODO: replace this with a separated launcher that will return references to services on demand.
-        //private async Task<(Process, ChromeSession, IContextFactory)> LaunchAsync(WebClientSettings settings)
-        //{
-        //    try
-        //    {
-        //        var userDataDir = GetUserDataDir(settings.UserDataDir);
-
-        //        DoPreStartupCleanup(userDataDir, settings.StartupCleanup);
-
-        //        var browserArgs = new StringBuilder()
-        //            .Append(" --remote-debugging-port=").Append(settings.RemoteDebuggingPort)
-        //            .Append(" --user-data-dir=").Append(userDataDir?.FullName ?? throw new NotImplementedException("TODO: extract this and handle null user data dir."));
-
-        //        switch (settings.TargetAttachment)
-        //        {
-        //            case TargetAttachmentMode.Default:
-        //            case TargetAttachmentMode.Auto:
-        //                browserArgs.Append(" --disable-features=IsolateOrigins,site-per-process");
-        //                break;
-
-        //            case TargetAttachmentMode.SeekAndAttach:
-        //                break;
-
-        //            default:
-        //                throw new NotImplementedException();
-        //        }
-
-        //        if (settings.UseProxy == true)
-        //        {
-        //            _logger.LogDebug("{this} launching chrome with proxy: {proxy}.", nameof(CdtrChromeClient), settings.Proxy?.Address?.ToString() ?? "null");
-        //            browserArgs.Append(" --proxy-server=").Append(settings.Proxy?.Address ?? throw new ApplicationException("Null proxy when UseProxy flag was up."));
-
-        //            if (browserArgs[^1] == '/')
-        //            {
-        //                browserArgs.Remove(browserArgs.Length - 1, 1);
-        //            }
-        //        }
-        //        else
-        //        {
-        //            _logger.LogDebug("{this} launching chrome without proxy.", nameof(CdtrChromeClient));
-        //        }
-
-        //        if (settings.BrowserStartupArgs?.Any() == true)
-        //        {
-        //            foreach (var flag in settings.BrowserStartupArgs)
-        //            {
-        //                browserArgs.Append(' ').Append(flag);
-        //            }
-        //        }
-
-        //        _logger.LogDebug("{this} launching chrome with args: {args}", nameof(CdtrChromeClient), browserArgs.ToString());
-
-        //        var chromeProcess = Process.Start(settings.BrowserLocation, browserArgs.ToString());
-
-        //        _logger.LogDebug("Browser process started: {processId}:{processName}", chromeProcess.Id, chromeProcess.ProcessName);
-
-        //        // TODO: ADD FLAG TO CONFIG FOR THIS. MAKE IT A SERVICE.
-        //        ChildProcessTracker.AddProcess(chromeProcess);
-
-        //        using var httpClient = new HttpClient();
-
-        //        // TODO: ENABLE REMOTE CONNECTION, ADD CONFIG TOKEN FOR THIS
-        //        var remoteSessions = await httpClient.GetAsync($"http://localhost:{settings.RemoteDebuggingPort}/json");
-
-        //        _logger.LogDebug("sessions response: {status}", remoteSessions.StatusCode);
-
-        //        var remoteSessionsContent = await remoteSessions.Content.ReadAsStringAsync();
-
-        //        var sessionInfos = JsonConvert.DeserializeObject<List<ChromeSessionInfo>>(remoteSessionsContent);
-
-        //        _logger.LogDebug("Remote session infos: {remoteSessions}", remoteSessionsContent);
-
-        //        var chromeSession = new ChromeSession(_loggerFactory.CreateLogger<ChromeSession>(), sessionInfos.First(x => x.Type == "page").WebSocketDebuggerUrl);
-
-        //        _logger.LogDebug("ChromeSession launched and connected to Chrome RDP server");
-
-        //        //DoPostStartupCleanupAsync(chromeSession, settings.StartupCleanup).Wait();
-
-        //        var contextFactory = new CdtrContextFactory(_loggerFactory, _cdtrElementFactory, _jsBuilder, chromeSession);
-
-        //        return (chromeProcess, chromeSession, contextFactory);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        _logger.LogError("{name} error: {e}", nameof(LaunchAsync), e);
-        //        throw;
-        //    }
-        //}
-
 
         private void DoPreStartupCleanup(DirectoryInfo userDataDir, BrowserCleanupSettings? startupCleanupOptional)
         {

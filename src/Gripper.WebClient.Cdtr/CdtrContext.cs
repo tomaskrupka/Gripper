@@ -1,8 +1,6 @@
-﻿using BaristaLabs.ChromeDevTools.Runtime;
-using BaristaLabs.ChromeDevTools.Runtime.DOM;
+﻿using BaristaLabs.ChromeDevTools.Runtime.DOM;
 using BaristaLabs.ChromeDevTools.Runtime.Runtime;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Diagnostics;
@@ -72,13 +70,13 @@ namespace Gripper.WebClient.Cdtr
             }
         }
 
-        public async Task<IElement> WaitUntilElementPresentAsync(string cssSelector, PollSettings pollSettings, CancellationToken cancellationToken)
+        public async Task<IElement?> WaitUntilElementPresentAsync(string cssSelector, PollSettings pollSettings, CancellationToken cancellationToken)
         {
             var stopwatch = Stopwatch.StartNew();
 
             while (!cancellationToken.IsCancellationRequested && stopwatch.ElapsedMilliseconds < pollSettings.TimeoutMs)
             {
-                var element = await FindElementByCssSelectorAsync(cssSelector, cancellationToken);
+                var element = await FindElementByCssSelectorAsync(cssSelector);
                 if (element != null)
                 {
                     return element;
@@ -92,7 +90,7 @@ namespace Gripper.WebClient.Cdtr
             return null;
         }
 
-        public async Task<IElement> FindElementByCssSelectorAsync(string cssSelector, CancellationToken cancellationToken)
+        public async Task<IElement?> FindElementByCssSelectorAsync(string cssSelector)
         {
             try
             {
@@ -104,7 +102,7 @@ namespace Gripper.WebClient.Cdtr
                     Expression = expression
                 },
                 throwExceptionIfResponseNotReceived: false,
-                cancellationToken: cancellationToken);
+                cancellationToken: CancellationToken.None);
 
                 if (evaluation?.Result?.ObjectId == null)
                 {
@@ -124,7 +122,7 @@ namespace Gripper.WebClient.Cdtr
                 {
                     ObjectId = evaluation.Result.ObjectId
                 },
-                cancellationToken: cancellationToken,
+                cancellationToken: CancellationToken.None,
                 throwExceptionIfResponseNotReceived: false);
 
                 if (node == null)
@@ -133,7 +131,7 @@ namespace Gripper.WebClient.Cdtr
                     return null;
                 }
 
-                return await _cdtrElementFactory.CreateElementAsync(node.Node.BackendNodeId, cancellationToken);
+                return await _cdtrElementFactory.CreateElementAsync(node.Node.BackendNodeId);
             }
             catch (Exception e)
             {

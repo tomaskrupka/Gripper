@@ -137,9 +137,23 @@ namespace Gripper.WebClient.Cdtr
             _webClientSettings = options.Value;
             _executionContexts = new ConcurrentDictionary<int, ExecutionContextDescription>();
 
-            var startupCts = new CancellationTokenSource(_webClientSettings.BrowserLaunchTimeoutMs);
+            // sanitize the settings
 
-            if (_webClientSettings.LaunchBrowser)
+            var browserLaunchTimeoutMs =
+                _webClientSettings.BrowserLaunchTimeoutMs ??
+                throw new ArgumentNullException("Please set the {name} parameter.", nameof(WebClientSettings.BrowserLaunchTimeoutMs));
+
+            var shallLaunchBrowser =
+                _webClientSettings.LaunchBrowser ??
+                throw new ArgumentNullException("Please set the {name} parameter.", nameof(WebClientSettings.LaunchBrowser));
+
+            var targetAttachmentSettings =
+                _webClientSettings.TargetAttachment ??
+                throw new ArgumentNullException("Please set the {name} parameter.", nameof(WebClientSettings.TargetAttachment));
+
+            var startupCts = new CancellationTokenSource(browserLaunchTimeoutMs);
+
+            if (shallLaunchBrowser)
             {
                 _logger.LogInformation("{this} ctor launching {browserManager}", nameof(CdpAdapter), nameof(browserManager));
 
@@ -148,12 +162,15 @@ namespace Gripper.WebClient.Cdtr
 
             _logger.LogInformation("{this} ctor binding {chromeSession}", nameof(CdpAdapter), nameof(ChromeSession));
 
-            _chromeSession = new ChromeSession(loggerFactory.CreateLogger<ChromeSession>(), browserManager.DebuggerUrl);
+            _chromeSession = new ChromeSession(
+                loggerFactory.CreateLogger<ChromeSession>(),
+                browserManager.DebuggerUrl);
 
             _logger.LogDebug("Subscribing to rdp events.");
 
             SubscribeToRdpEventsAsync(startupCts.Token).Wait();
-            SetupTargetAttachment(_webClientSettings.TargetAttachment);
+
+            SetupTargetAttachment(targetAttachmentSettings);
         }
         public async Task<ChromeSession> GetChromeSessionAsync()
         {

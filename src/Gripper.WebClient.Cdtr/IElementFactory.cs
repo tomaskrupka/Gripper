@@ -9,6 +9,6 @@ namespace Gripper.WebClient.Cdtr
     /// </summary>
     public interface IElementFactory
     {
-        public Task<IElement> CreateElementAsync(long nodeId, CancellationToken cancellationToken);
+        public Task<IElement> CreateElementAsync(long nodeId);
     }
 }
