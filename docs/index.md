@@ -7,3 +7,4 @@ Written in `C#` for `.NET`.
 
 - [About →](about.md)
 - [Quickstart →](quickstart.md)
+- [API reference →](i_web_client.md)
