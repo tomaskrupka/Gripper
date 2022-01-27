@@ -1,29 +1,24 @@
-﻿using BaristaLabs.ChromeDevTools.Runtime;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Microsoft.Extensions.Logging;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Gripper.WebClient.Cdtr
 {
-    public class CdtrElementFactory : ICdtrElementFactory
+    public class CdtrElementFactory : IElementFactory
     {
         private ILoggerFactory _loggerFactory;
-        public CdtrElementFactory(ILoggerFactory loggerFactory)
+        private ICdpAdapter _cpdAdapter;
+        public CdtrElementFactory(ILoggerFactory loggerFactory, ICdpAdapter cdpAdapter)
         {
             _loggerFactory = loggerFactory;
-
+            _cpdAdapter = cdpAdapter;
         }
-        public IElement CreateCdtrElement(long nodeId, ChromeSession chromeSession, CancellationToken cancellationToken)
+        public async Task<IElement> CreateElementAsync(long nodeId, CancellationToken cancellationToken)
         {
             var logger = _loggerFactory.CreateLogger<CdtrElement>();
+            var session = await _cpdAdapter.GetChromeSessionAsync();
 
-            var element = new CdtrElement(logger, chromeSession, nodeId, cancellationToken);
-
-            return element;
+            return new CdtrElement(logger, session, nodeId, cancellationToken);
         }
     }
 }

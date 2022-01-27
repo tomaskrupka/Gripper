@@ -9,13 +9,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Gripper.Test
 {
     public abstract class UnitTestBase
     {
-        private static readonly ILogger _logger;
+        private const string _logFileName = "logs/log_test_fail.txt";
+
+        protected static readonly ILogger _logger;
         private static readonly IServiceProvider _serviceProvider;
 
         private static string GetHomepageAbsolutePath() => Path.GetFullPath("../../../Pages/gov_uk/Welcome_to_GOV.UK.htm");
@@ -30,6 +33,7 @@ namespace Gripper.Test
         static UnitTestBase()
         {
             var services = new ServiceCollection();
+
             services.AddGripper(new WebClientSettings
             {
                 Homepage = GetHomepageAbsolutePath(),
@@ -37,15 +41,29 @@ namespace Gripper.Test
                 //BrowserLocation = "chrome",
                 UserDataDir = ".\\UnitTestProfile",
                 DefaultPageLoadPollSettings = PollSettings.ElementDetectionDefault,
-                BrowserStartupArgs = new[] { "--headless", "--disable-gpu", "--window-size=1280,1696", }
-            });
-            var logFileName = "logs/log_test_fail" /*+ DateTime.Now.ToFileTimeUtc()*/ + ".txt";
+                BrowserStartupArgs = new[] { "--headless", "--disable-gpu", "--window-size=1280,1696", },
+                //BrowserStartupArgs = Array.Empty<string>(),
+                BrowserLaunchTimeoutMs = 30_000,
+
+
+                TriggerKeyboardCommandListener = false,
+                StartupCleanup = BrowserCleanupSettings.None,
+                UseProxy = false,
+                RemoteDebuggingPort = 9244,
+                TargetAttachment = TargetAttachmentMode.Auto,
+                IgnoreSslCertificateErrors = false,
+                LaunchBrowser = true
+            }) ;
+
             services.AddLogging(x =>
             {
-                x.SetMinimumLevel(LogLevel.Debug).AddConsole().AddFile(logFileName, LogLevel.Debug);
+                x.SetMinimumLevel(LogLevel.Debug)
+                .AddConsole()
+                .AddFile(_logFileName, LogLevel.Debug);
             });
 
             _serviceProvider = services.BuildServiceProvider();
+
             _logger = _serviceProvider.GetService<ILogger<UnitTestBase>>() ?? throw new NullReferenceException();
             _webClient = _serviceProvider.GetService<IWebClient>() ?? throw new ApplicationException("I need a non-null web client for testing");
         }
