@@ -25,7 +25,8 @@ namespace Gripper.WebClient.Extensions
             TargetAttachment = TargetAttachmentMode.Auto,
             BrowserLaunchTimeoutMs = 30_000,
             BrowserStartupArgs = Array.Empty<string>(),
-            IgnoreSslCertificateErrors = false
+            IgnoreSslCertificateErrors = false,
+            LaunchBrowser = true
         };
 
         private static IServiceCollection AddSettings(this IServiceCollection services, WebClientSettings webClientSettings)
@@ -47,6 +48,7 @@ namespace Gripper.WebClient.Extensions
                     x.BrowserStartupArgs = webClientSettings.BrowserStartupArgs;// ?? x.BrowserStartupArgs;
                     x.BrowserLaunchTimeoutMs = webClientSettings.BrowserLaunchTimeoutMs;
                     x.IgnoreSslCertificateErrors = webClientSettings.IgnoreSslCertificateErrors;
+                    x.LaunchBrowser = webClientSettings.LaunchBrowser;
                 });
 
             return services;

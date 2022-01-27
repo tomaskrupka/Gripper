@@ -6,11 +6,13 @@ using System.Threading.Tasks;
 
 namespace Gripper.WebClient.Events
 {
-    public class Page_FrameLoadedEventArgs : RdpEventArgs
+    public class Page_FrameStoppedLoadingEventArgs : RdpEventArgs
     {
-        public Page_FrameLoadedEventArgs(object rawEventArgs) : base("Page", "frameLoaded")
+        public string FrameId { get; set; }
+        public Page_FrameStoppedLoadingEventArgs(string frameId) : base("Page", "frameLoaded")
         {
-
+            FrameId = frameId;
         }
+
     }
 }

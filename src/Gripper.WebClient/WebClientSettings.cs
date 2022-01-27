@@ -17,6 +17,7 @@ namespace Gripper.WebClient
         public string BrowserLocation;
         public int RemoteDebuggingPort;
         public string[] BrowserStartupArgs;
+        public bool LaunchBrowser;
         public int BrowserLaunchTimeoutMs;
     }
 }

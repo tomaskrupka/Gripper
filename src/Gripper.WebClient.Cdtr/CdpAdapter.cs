@@ -1,6 +1,7 @@
 ﻿using BaristaLabs.ChromeDevTools.Runtime;
 using BaristaLabs.ChromeDevTools.Runtime.Page;
 using BaristaLabs.ChromeDevTools.Runtime.Runtime;
+using Gripper.WebClient.Events;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -41,7 +42,7 @@ namespace Gripper.WebClient.Cdtr
             _chromeSession.Page.SubscribeToFrameStoppedLoadingEvent(x =>
             {
                 _frameStoppedLoading?.Invoke(x);
-                WebClientEvent?.Invoke(x, new RdpEventArgs("Network", "frameStoppedLoading", JToken.FromObject(x)));
+                WebClientEvent?.Invoke(this, new Page_FrameStoppedLoadingEventArgs(x.FrameId));
             });
             _frameStoppedLoading += x => _logger.LogDebug("Frame stopped loading: {id}", x.FrameId);
 
@@ -138,9 +139,12 @@ namespace Gripper.WebClient.Cdtr
 
             var startupCts = new CancellationTokenSource(_webClientSettings.BrowserLaunchTimeoutMs);
 
-            _logger.LogInformation("{this} ctor launching {browserManager}", nameof(CdpAdapter), nameof(browserManager));
+            if (_webClientSettings.LaunchBrowser)
+            {
+                _logger.LogInformation("{this} ctor launching {browserManager}", nameof(CdpAdapter), nameof(browserManager));
 
-            browserManager.LaunchAsync(startupCts.Token).Wait();
+                browserManager.LaunchAsync(startupCts.Token).Wait();
+            }
 
             _logger.LogInformation("{this} ctor binding {chromeSession}", nameof(CdpAdapter), nameof(ChromeSession));
 

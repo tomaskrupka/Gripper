@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Gripper.Test
@@ -40,8 +41,8 @@ namespace Gripper.Test
                 //BrowserLocation = "chrome",
                 UserDataDir = ".\\UnitTestProfile",
                 DefaultPageLoadPollSettings = PollSettings.ElementDetectionDefault,
-                //BrowserStartupArgs = new[] { "--headless", "--disable-gpu", "--window-size=1280,1696", },
-                BrowserStartupArgs = Array.Empty<string>(),
+                BrowserStartupArgs = new[] { "--headless", "--disable-gpu", "--window-size=1280,1696", },
+                //BrowserStartupArgs = Array.Empty<string>(),
                 BrowserLaunchTimeoutMs = 30_000,
 
 
@@ -50,8 +51,8 @@ namespace Gripper.Test
                 UseProxy = false,
                 RemoteDebuggingPort = 9244,
                 TargetAttachment = TargetAttachmentMode.Auto,
-                IgnoreSslCertificateErrors = false
-
+                IgnoreSslCertificateErrors = false,
+                LaunchBrowser = true
             }) ;
 
             services.AddLogging(x =>
@@ -62,6 +63,7 @@ namespace Gripper.Test
             });
 
             _serviceProvider = services.BuildServiceProvider();
+
             _logger = _serviceProvider.GetService<ILogger<UnitTestBase>>() ?? throw new NullReferenceException();
             _webClient = _serviceProvider.GetService<IWebClient>() ?? throw new ApplicationException("I need a non-null web client for testing");
         }

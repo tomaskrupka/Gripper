@@ -39,7 +39,6 @@ namespace Gripper.WebClient.Cdtr
         private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly CancellationToken _cancellationToken;
 
-        private Action<FrameStoppedLoadingEvent>? _frameStoppedLoading;
         private bool _hasDisposalStarted;
 
         public IContext? MainContext
@@ -81,7 +80,11 @@ namespace Gripper.WebClient.Cdtr
 
             _hasDisposalStarted = false;
 
-            _cdpAdapter.WebClientEvent += _cdpAdapter_WebClientEvent;
+            // We have to actually invoke the own delegate. 
+            // Doing _cdpAdapter.WebClientEvent += WebClientEvent would just add the own FIFO once to the service FIFO (these would be triggered there)
+            // but no one would trigger delegates added later to the own handler.
+            _cdpAdapter.WebClientEvent += (s, e) => WebClientEvent?.Invoke(s, e);
+
 
             NavigateAsync(
                 settings.Homepage ?? throw new ArgumentNullException(nameof(settings.Homepage)),
@@ -90,11 +93,6 @@ namespace Gripper.WebClient.Cdtr
                 .Wait();
 
             _logger.LogDebug("Exiting {this} constructor.", nameof(CdtrChromeClient));
-
-        }
-
-        private void _cdpAdapter_WebClientEvent(object? sender, RdpEventArgs e)
-        {
 
         }
 
@@ -177,12 +175,15 @@ namespace Gripper.WebClient.Cdtr
 
                 var loadedFramesIds = new ConcurrentDictionary<string, byte>();
 
-                Action<FrameStoppedLoadingEvent> frameStoppedLoading = x =>
+                EventHandler<RdpEventArgs> frameStoppedLoading = (s, e) =>
                 {
-                    loadedFramesIds[x.FrameId] = 0;
+                    if (e is Events.Page_FrameStoppedLoadingEventArgs fslEvent)
+                    {
+                        loadedFramesIds[fslEvent.FrameId] = 0;
+                    }
                 };
 
-                _frameStoppedLoading += frameStoppedLoading;
+                WebClientEvent += frameStoppedLoading;
 
                 var navigateCommandResponse = await chromeSession.Page.Navigate(new Page.NavigateCommand
                 {
@@ -247,7 +248,7 @@ namespace Gripper.WebClient.Cdtr
                 _logger.LogDebug("{name} removing delegate from execution list.", nameof(NavigateAsync));
                 _logger.LogDebug("Exiting {name} in {elapsed}", nameof(NavigateAsync), loadStopwatch.Elapsed);
 
-                Delegate.Remove(_frameStoppedLoading, frameStoppedLoading);
+                Delegate.Remove(WebClientEvent, frameStoppedLoading);
             }
             catch (Exception e)
             {
