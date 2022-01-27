@@ -4,7 +4,7 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<Authors>Tomáš Krupka</Authors>
-		<Version>0.4.7-alpha</Version>
+		<Version>0.4.8-alpha</Version>
 		<NeutralLanguage>en-GB</NeutralLanguage>
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
