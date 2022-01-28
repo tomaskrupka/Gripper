@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
 using BaristaLabs.ChromeDevTools.Runtime;
-using Runtime = BaristaLabs.ChromeDevTools.Runtime.Runtime;
 using BaristaLabs.ChromeDevTools.Runtime.Input;
 using BaristaLabs.ChromeDevTools.Runtime.DOM;
 using Microsoft.Extensions.Logging;
 using System.Threading;
-using System.Linq;
 using System.Collections.Generic;
 
 namespace Gripper.WebClient.Cdtr
@@ -16,7 +14,6 @@ namespace Gripper.WebClient.Cdtr
         private ILogger _logger;
         private ChromeSession _chromeSession;
         private long _backendNodeId;
-        private CancellationToken _cancellationToken;
 
         private async Task LogAttributesAsync(string when)
         {
@@ -64,17 +61,18 @@ namespace Gripper.WebClient.Cdtr
             foreach (var command in commands)
             {
                 await Task.Delay(delayBetweenStrokes);
-                var dispatchKeyResponse = await _chromeSession.Input.DispatchKeyEvent(command, throwExceptionIfResponseNotReceived: false, cancellationToken: _cancellationToken);
+                await _chromeSession.Input.DispatchKeyEvent(
+                    command,
+                    throwExceptionIfResponseNotReceived: false);
             }
         }
 
 
-        public CdtrElement(ILogger<CdtrElement> logger, ChromeSession chromeSession, long backendNodeId, CancellationToken cancellationToken)
+        public CdtrElement(ILogger<CdtrElement> logger, ChromeSession chromeSession, long backendNodeId)
         {
             _logger = logger;
             _chromeSession = chromeSession;
             _backendNodeId = backendNodeId;
-            _cancellationToken = cancellationToken;
         }
 
         public async Task ClickAsync()
@@ -85,8 +83,7 @@ namespace Gripper.WebClient.Cdtr
                 {
                     BackendNodeId = _backendNodeId
                 },
-                throwExceptionIfResponseNotReceived: false,
-                cancellationToken: _cancellationToken);
+                throwExceptionIfResponseNotReceived: false);
 
                 var contentQuad = boxModel.Model.Content;
 
@@ -103,8 +100,7 @@ namespace Gripper.WebClient.Cdtr
                     X = contentX,
                     Y = contentY
                 },
-                throwExceptionIfResponseNotReceived: false,
-                cancellationToken: _cancellationToken);
+                throwExceptionIfResponseNotReceived: false);
 
                 // TODO: randomize delay.
 
@@ -118,8 +114,7 @@ namespace Gripper.WebClient.Cdtr
                     X = contentX,
                     Y = contentY
                 },
-                throwExceptionIfResponseNotReceived: false,
-                cancellationToken: _cancellationToken);
+                throwExceptionIfResponseNotReceived: false);
             }
             catch (Exception e)
             {
@@ -166,7 +161,9 @@ namespace Gripper.WebClient.Cdtr
             {
                 foreach (var command in commands)
                 {
-                    var dispatchResponse = await _chromeSession.Input.DispatchKeyEvent(command, throwExceptionIfResponseNotReceived: false, cancellationToken: _cancellationToken);
+                    var dispatchResponse = await _chromeSession.Input.DispatchKeyEvent(
+                        command,
+                        throwExceptionIfResponseNotReceived: false);
                 }
             }
             catch (Exception e)
@@ -176,12 +173,12 @@ namespace Gripper.WebClient.Cdtr
             }
         }
 
-        public Task<string> GetInnerTextAsync()
+        public Task<string> GetTextContentAsyhc()
         {
             throw new NotImplementedException();
         }
 
-        public Task WaitUntilInteractable()
+        public Task WaitUntilInteractable(CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }

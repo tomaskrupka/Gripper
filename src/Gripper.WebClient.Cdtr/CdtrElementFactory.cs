@@ -13,12 +13,12 @@ namespace Gripper.WebClient.Cdtr
             _loggerFactory = loggerFactory;
             _cpdAdapter = cdpAdapter;
         }
-        public async Task<IElement> CreateElementAsync(long nodeId, CancellationToken cancellationToken)
+        public async Task<IElement> CreateElementAsync(long nodeId)
         {
             var logger = _loggerFactory.CreateLogger<CdtrElement>();
             var session = await _cpdAdapter.GetChromeSessionAsync();
 
-            return new CdtrElement(logger, session, nodeId, cancellationToken);
+            return new CdtrElement(logger, session, nodeId);
         }
     }
 }

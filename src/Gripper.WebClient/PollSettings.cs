@@ -2,9 +2,19 @@
 
 namespace Gripper.WebClient
 {
+    /// <summary>
+    /// A data structure to provide settings to polling operations.
+    /// </summary>
     public struct PollSettings
     {
+        /// <summary>
+        /// Defines the period of the polling operation. That is, the length of one cycle in milliseconds.
+        /// </summary>
         public int PeriodMs;
+
+        /// <summary>
+        /// Defines the total timeout period of the polling operation in milliseconds.
+        /// </summary>
         public int TimeoutMs;
 
         public PollSettings(int periodMs, int timeoutMs)

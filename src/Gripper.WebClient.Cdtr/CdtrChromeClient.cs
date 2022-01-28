@@ -33,13 +33,11 @@ namespace Gripper.WebClient.Cdtr
 
         private readonly IBrowserManager _browserManager;
         private readonly ICdpAdapter _cdpAdapter;
-        //private readonly ChromeSession _chromeSession;
+        private readonly ChromeSession _chromeSession;
         private readonly Process _chromeProcess;
 
         private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly CancellationToken _cancellationToken;
-
-        private bool _hasDisposalStarted;
 
         public IContext? MainContext
         {
@@ -65,6 +63,28 @@ namespace Gripper.WebClient.Cdtr
             IContextFactory contextFactory,
             IOptions<WebClientSettings> options)
         {
+            var settings = options.Value;
+
+            #region Sanitize settings
+
+            var browserLaunchTimeoutMs =
+                settings.BrowserLaunchTimeoutMs ??
+                throw new ArgumentNullException("Please set the {name} parameter.", nameof(WebClientSettings.BrowserLaunchTimeoutMs));
+
+            var homepage =
+                settings.Homepage ??
+                throw new ArgumentNullException("Please set the {name} parameter.", nameof(WebClientSettings.Homepage));
+
+            var defaultPageLoadSettings =
+                settings.DefaultPageLoadPollSettings ??
+                throw new ArgumentNullException("Please set the {name} parameter.", nameof(WebClientSettings.DefaultPageLoadPollSettings));
+
+            #endregion
+
+            var startupCts = new CancellationTokenSource(browserLaunchTimeoutMs);
+
+            #region Populate members
+
             _loggerFactory = loggerFactory;
             _logger = loggerFactory.CreateLogger<CdtrChromeClient>();
             _ElementFactory = cdtrElementFactory;
@@ -73,26 +93,19 @@ namespace Gripper.WebClient.Cdtr
             _cdpAdapter = cdpAdapter;
             _ContextFactory = contextFactory;
 
-            var settings = options.Value;
 
             _chromeProcess = _browserManager.BrowserProcess;
+            _chromeSession = _cdpAdapter.GetChromeSessionAsync().Result;
+
+            #endregion
 
             _cancellationTokenSource = new CancellationTokenSource();
             _cancellationToken = _cancellationTokenSource.Token;
 
-            _hasDisposalStarted = false;
-
-            // We have to actually invoke the own delegate. 
-            // Doing _cdpAdapter.WebClientEvent += WebClientEvent would just add the own FIFO once to the service FIFO (these would be triggered there)
-            // but no one would trigger delegates added later to the own handler.
+            // We have to actually invoke the own delegate. _cdpAdapter.WebClientEvent += WebClientEvent would just copy current fifo.
             _cdpAdapter.WebClientEvent += (s, e) => WebClientEvent?.Invoke(s, e);
 
-
-            NavigateAsync(
-                settings.Homepage ?? throw new ArgumentNullException(nameof(settings.Homepage)),
-                settings.DefaultPageLoadPollSettings,
-                CancellationToken.None)
-                .Wait();
+            NavigateAsync(homepage, defaultPageLoadSettings, startupCts.Token).Wait();
 
             _logger.LogDebug("Exiting {this} constructor.", nameof(CdtrChromeClient));
 
@@ -275,36 +288,31 @@ namespace Gripper.WebClient.Cdtr
             }
         }
 
-        //https://social.msdn.microsoft.com/Forums/vstudio/en-US/9bde4870-1599-4958-9ab4-902fa98ba53a/how-do-i-maximizeminimize-applications-programmatically-in-c?forum=csharpgeneral
-        //public Task EnterFullScreenAsync()
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        private static void AddFrames(List<Frame> frames, FrameTree frameTree)
-        {
-            if (frameTree?.Frame == null)
-            {
-                return;
-            }
-
-            frames.Add(frameTree.Frame);
-
-            if (frameTree?.ChildFrames != null && frameTree.ChildFrames.Any())
-            {
-                foreach (var child in frameTree.ChildFrames)
-                {
-                    AddFrames(frames, child);
-                }
-            }
-        }
-
         public async Task<IReadOnlyCollection<IContext>> GetContextsAsync()
         {
+            static void AddFrames(List<Frame> frames, FrameTree frameTree)
+            {
+                if (frameTree?.Frame == null)
+                {
+                    return;
+                }
+
+                frames.Add(frameTree.Frame);
+
+                if (frameTree?.ChildFrames != null && frameTree.ChildFrames.Any())
+                {
+                    foreach (var child in frameTree.ChildFrames)
+                    {
+                        AddFrames(frames, child);
+                    }
+                }
+            }
+
             var chromeSession = await _cdpAdapter.GetChromeSessionAsync();
 
             var frameTree = (await chromeSession.Page.GetFrameTree(throwExceptionIfResponseNotReceived: false)).FrameTree;
             var frames = new List<Frame>();
+
             AddFrames(frames, frameTree);
 
             List<IContext> contexts = new();
@@ -327,8 +335,12 @@ namespace Gripper.WebClient.Cdtr
         {
             try
             {
-            var chromeSession = await _cdpAdapter.GetChromeSessionAsync();
-                var resultToken = await Task.Run(() => chromeSession.SendCommand(commandName, commandParams, throwExceptionIfResponseNotReceived: false, cancellationToken: _cancellationToken));
+                var chromeSession = await _cdpAdapter.GetChromeSessionAsync();
+                var resultToken = await Task.Run(() => chromeSession.SendCommand(
+                    commandName, 
+                    commandParams, 
+                    throwExceptionIfResponseNotReceived: false, 
+                    cancellationToken: _cancellationToken));
                 return resultToken;
             }
             catch (Exception e)
@@ -340,31 +352,7 @@ namespace Gripper.WebClient.Cdtr
 
         public void Dispose()
         {
-            //if (_hasDisposalStarted)
-            //{
-            //    _logger.LogDebug("Not trigerring {this} dispose. Disposal already started on another thread.", nameof(CdtrChromeClient));
-            //    return;
-            //}
-
-            //_hasDisposalStarted = true;
-
-            //_logger.LogWarning("Disposing {this}.", nameof(CdtrChromeClient));
-
             _cancellationTokenSource.Cancel();
-
-            //try
-            //{
-            //var chromeSession = await _cdpAdapter.GetChromeSessionAsync();
-            //    chromeSession.Dispose();
-            //}
-            //catch (ObjectDisposedException)
-            //{
-            //    _logger.LogDebug("ObjectDisposedException when disposing {object} at {this}.", nameof(_chromeSession), nameof(CdtrChromeClient));
-            //}
-            //catch (Exception e)
-            //{
-            //    _logger.LogError("Error disposing {this}: {e}", nameof(_chromeSession), e);
-            //}
         }
 
         public Task WaitUntilFramesLoadedAsync(PollSettings pollSettings, CancellationToken cancellationToken)
