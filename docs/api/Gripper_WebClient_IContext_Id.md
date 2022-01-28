@@ -1,4 +1,4 @@
-### [Gripper.WebClient](Gripper_WebClient.md 'Gripper.WebClient').[IContext](Gripper_WebClient_IContext.md 'Gripper.WebClient.IContext')
+### [Gripper.WebClient](Gripper_WebClient 'Gripper.WebClient').[IContext](Gripper_WebClient_IContext 'Gripper.WebClient.IContext')
 ## IContext.Id Property
 Id of the context as defined by the browser backend.  
 ```csharp

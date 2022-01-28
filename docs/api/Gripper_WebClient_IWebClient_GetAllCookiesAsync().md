@@ -1,4 +1,4 @@
-### [Gripper.WebClient](Gripper_WebClient.md 'Gripper.WebClient').[IWebClient](Gripper_WebClient_IWebClient.md 'Gripper.WebClient.IWebClient')
+### [Gripper.WebClient](Gripper_WebClient 'Gripper.WebClient').[IWebClient](Gripper_WebClient_IWebClient 'Gripper.WebClient.IWebClient')
 ## IWebClient.GetAllCookiesAsync() Method
 Gets all cookies stored by the browser.  
 ```csharp

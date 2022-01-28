@@ -1,4 +1,4 @@
-### [Gripper.WebClient](Gripper_WebClient.md 'Gripper.WebClient').[IFrameInfo](Gripper_WebClient_IFrameInfo.md 'Gripper.WebClient.IFrameInfo')
+### [Gripper.WebClient](Gripper_WebClient 'Gripper.WebClient').[IFrameInfo](Gripper_WebClient_IFrameInfo 'Gripper.WebClient.IFrameInfo')
 ## IFrameInfo.Name Property
 Value of the iFrame 'name' tag.  
 ```csharp

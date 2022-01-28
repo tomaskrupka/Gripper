@@ -1,6 +1,6 @@
-### [Gripper.WebClient](Gripper_WebClient.md 'Gripper.WebClient').[IBrowserManager](Gripper_WebClient_IBrowserManager.md 'Gripper.WebClient.IBrowserManager')
+### [Gripper.WebClient](Gripper_WebClient 'Gripper.WebClient').[IBrowserManager](Gripper_WebClient_IBrowserManager 'Gripper.WebClient.IBrowserManager')
 ## IBrowserManager.LaunchAsync(CancellationToken) Method
-Launches a browser instance and sets the [DebuggerUrl](Gripper_WebClient_IBrowserManager_DebuggerUrl.md 'Gripper.WebClient.IBrowserManager.DebuggerUrl') and [BrowserProcess](Gripper_WebClient_IBrowserManager_BrowserProcess.md 'Gripper.WebClient.IBrowserManager.BrowserProcess') members.  
+Launches a browser instance and sets the [DebuggerUrl](Gripper_WebClient_IBrowserManager_DebuggerUrl 'Gripper.WebClient.IBrowserManager.DebuggerUrl') and [BrowserProcess](Gripper_WebClient_IBrowserManager_BrowserProcess 'Gripper.WebClient.IBrowserManager.BrowserProcess') members.  
 ```csharp
 System.Threading.Tasks.Task LaunchAsync(System.Threading.CancellationToken cancellationToken);
 ```
@@ -10,4 +10,4 @@ System.Threading.Tasks.Task LaunchAsync(System.Threading.CancellationToken cance
   
 #### Returns
 [System.Threading.Tasks.Task](https://docs.microsoft.com/en-us/dotnet/api/System.Threading.Tasks.Task 'System.Threading.Tasks.Task')  
-A [System.Threading.Tasks.Task](https://docs.microsoft.com/en-us/dotnet/api/System.Threading.Tasks.Task 'System.Threading.Tasks.Task')that completes when the [DebuggerUrl](Gripper_WebClient_IBrowserManager_DebuggerUrl.md 'Gripper.WebClient.IBrowserManager.DebuggerUrl') and the [BrowserProcess](Gripper_WebClient_IBrowserManager_BrowserProcess.md 'Gripper.WebClient.IBrowserManager.BrowserProcess') members have been initialized.
+A [System.Threading.Tasks.Task](https://docs.microsoft.com/en-us/dotnet/api/System.Threading.Tasks.Task 'System.Threading.Tasks.Task')that completes when the [DebuggerUrl](Gripper_WebClient_IBrowserManager_DebuggerUrl 'Gripper.WebClient.IBrowserManager.DebuggerUrl') and the [BrowserProcess](Gripper_WebClient_IBrowserManager_BrowserProcess 'Gripper.WebClient.IBrowserManager.BrowserProcess') members have been initialized.

@@ -55,7 +55,7 @@
 
 
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-	  <Exec Command="defaultdocumentation -a bin/Debug/net6.0/Gripper.WebClient.dll -o ../../docs/api" />
+	  <Exec Command="defaultdocumentation -a bin/Debug/net6.0/Gripper.WebClient.dll -x -o ../../docs/api" />
 	</Target>
 
 </Project>

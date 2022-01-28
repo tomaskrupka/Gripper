@@ -1,4 +1,4 @@
-### [Gripper.WebClient](Gripper_WebClient.md 'Gripper.WebClient').[IWebClient](Gripper_WebClient_IWebClient.md 'Gripper.WebClient.IWebClient')
+### [Gripper.WebClient](Gripper_WebClient 'Gripper.WebClient').[IWebClient](Gripper_WebClient_IWebClient 'Gripper.WebClient.IWebClient')
 ## IWebClient.ExecuteCdpCommandAsync(string, JToken) Method
 Tunnels a CDP command directly to the CDP client endpoint. Executes the command literally (no validation), passes the result unmodified.  
 ```csharp

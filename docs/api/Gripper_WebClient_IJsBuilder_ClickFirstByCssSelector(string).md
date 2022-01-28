@@ -1,4 +1,4 @@
-### [Gripper.WebClient](Gripper_WebClient.md 'Gripper.WebClient').[IJsBuilder](Gripper_WebClient_IJsBuilder.md 'Gripper.WebClient.IJsBuilder')
+### [Gripper.WebClient](Gripper_WebClient 'Gripper.WebClient').[IJsBuilder](Gripper_WebClient_IJsBuilder 'Gripper.WebClient.IJsBuilder')
 ## IJsBuilder.ClickFirstByCssSelector(string) Method
 Creates a query similar to 'document.querySelector(...).click().  
 ```csharp

@@ -1,4 +1,4 @@
-### [Gripper.WebClient](Gripper_WebClient.md 'Gripper.WebClient').[PollSettings](Gripper_WebClient_PollSettings.md 'Gripper.WebClient.PollSettings')
+### [Gripper.WebClient](Gripper_WebClient 'Gripper.WebClient').[PollSettings](Gripper_WebClient_PollSettings 'Gripper.WebClient.PollSettings')
 ## PollSettings.TimeoutMs Field
 Defines the total timeout period of the polling operation in milliseconds.  
 ```csharp

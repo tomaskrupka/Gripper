@@ -1,4 +1,4 @@
-### [Gripper.WebClient](Gripper_WebClient.md 'Gripper.WebClient').[RdpEventArgs](Gripper_WebClient_RdpEventArgs.md 'Gripper.WebClient.RdpEventArgs')
+### [Gripper.WebClient](Gripper_WebClient 'Gripper.WebClient').[RdpEventArgs](Gripper_WebClient_RdpEventArgs 'Gripper.WebClient.RdpEventArgs')
 ## RdpEventArgs.DomainName Property
 The namespace of the domain where the event originated, e.g. "Network". The first character is always uppercase.  
 ```csharp

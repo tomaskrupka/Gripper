@@ -1,4 +1,4 @@
-### [Gripper.WebClient](Gripper_WebClient.md 'Gripper.WebClient')
+### [Gripper.WebClient](Gripper_WebClient 'Gripper.WebClient')
 ## RdpEventArgs Class
 The base event args container for any event from all CDP domains.  
 ```csharp
@@ -9,7 +9,7 @@ Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.O
 
 | Properties | |
 | :--- | :--- |
-| [DomainName](Gripper_WebClient_RdpEventArgs_DomainName.md 'Gripper.WebClient.RdpEventArgs.DomainName') | The namespace of the domain where the event originated, e.g. "Network". The first character is always uppercase.<br/> |
-| [EventData](Gripper_WebClient_RdpEventArgs_EventData.md 'Gripper.WebClient.RdpEventArgs.EventData') | Getter for the event data container.<br/> |
-| [EventName](Gripper_WebClient_RdpEventArgs_EventName.md 'Gripper.WebClient.RdpEventArgs.EventName') | The name of the event, e.g. "requestWillBeSent". The first character is always lowercase.<br/> |
-| [HasEventData](Gripper_WebClient_RdpEventArgs_HasEventData.md 'Gripper.WebClient.RdpEventArgs.HasEventData') | Defines whether this event carries some additional data.<br/> |
+| [DomainName](Gripper_WebClient_RdpEventArgs_DomainName 'Gripper.WebClient.RdpEventArgs.DomainName') | The namespace of the domain where the event originated, e.g. "Network". The first character is always uppercase.<br/> |
+| [EventData](Gripper_WebClient_RdpEventArgs_EventData 'Gripper.WebClient.RdpEventArgs.EventData') | Getter for the event data container.<br/> |
+| [EventName](Gripper_WebClient_RdpEventArgs_EventName 'Gripper.WebClient.RdpEventArgs.EventName') | The name of the event, e.g. "requestWillBeSent". The first character is always lowercase.<br/> |
+| [HasEventData](Gripper_WebClient_RdpEventArgs_HasEventData 'Gripper.WebClient.RdpEventArgs.HasEventData') | Defines whether this event carries some additional data.<br/> |

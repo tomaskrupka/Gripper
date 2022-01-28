@@ -1,4 +1,4 @@
-### [Gripper.WebClient](Gripper_WebClient.md 'Gripper.WebClient').[IBrowserManager](Gripper_WebClient_IBrowserManager.md 'Gripper.WebClient.IBrowserManager')
+### [Gripper.WebClient](Gripper_WebClient 'Gripper.WebClient').[IBrowserManager](Gripper_WebClient_IBrowserManager 'Gripper.WebClient.IBrowserManager')
 ## IBrowserManager.DebuggerUrl Property
 The URL of the WebSocket listener of the browser's CDP server.  
 ```csharp

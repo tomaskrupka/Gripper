@@ -1,4 +1,4 @@
-### [Gripper.WebClient](Gripper_WebClient.md 'Gripper.WebClient').[RdpEventArgs](Gripper_WebClient_RdpEventArgs.md 'Gripper.WebClient.RdpEventArgs')
+### [Gripper.WebClient](Gripper_WebClient 'Gripper.WebClient').[RdpEventArgs](Gripper_WebClient_RdpEventArgs 'Gripper.WebClient.RdpEventArgs')
 ## RdpEventArgs.EventName Property
 The name of the event, e.g. "requestWillBeSent". The first character is always lowercase.  
 ```csharp

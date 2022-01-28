@@ -1,4 +1,4 @@
-### [Gripper.WebClient](Gripper_WebClient.md 'Gripper.WebClient')
+### [Gripper.WebClient](Gripper_WebClient 'Gripper.WebClient')
 ## ChildProcessTracker Class
 Allows processes to be automatically killed if this parent process unexpectedly quits.  
 This feature requires Windows 8 or greater. On Windows 7, nothing is done.
@@ -14,4 +14,4 @@ References:
 
 | Methods | |
 | :--- | :--- |
-| [AddProcess(Process)](Gripper_WebClient_ChildProcessTracker_AddProcess(System_Diagnostics_Process).md 'Gripper.WebClient.ChildProcessTracker.AddProcess(System.Diagnostics.Process)') | Add the process to be tracked. If our current process is killed, the child processes<br/>that we are tracking will be automatically killed, too. If the child process terminates<br/>first, that's fine, too. |
+| [AddProcess(Process)](Gripper_WebClient_ChildProcessTracker_AddProcess(System_Diagnostics_Process) 'Gripper.WebClient.ChildProcessTracker.AddProcess(System.Diagnostics.Process)') | Add the process to be tracked. If our current process is killed, the child processes<br/>that we are tracking will be automatically killed, too. If the child process terminates<br/>first, that's fine, too. |

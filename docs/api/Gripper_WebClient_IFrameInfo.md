@@ -1,4 +1,4 @@
-### [Gripper.WebClient](Gripper_WebClient.md 'Gripper.WebClient')
+### [Gripper.WebClient](Gripper_WebClient 'Gripper.WebClient')
 ## IFrameInfo Interface
 Provides access to information about an iFrame on the page,  
 as defined by the browser backend.  
@@ -8,6 +8,6 @@ public interface IFrameInfo
 
 | Properties | |
 | :--- | :--- |
-| [FrameId](Gripper_WebClient_IFrameInfo_FrameId.md 'Gripper.WebClient.IFrameInfo.FrameId') | Id of the Frame as defined by the browser backend.<br/> |
-| [Name](Gripper_WebClient_IFrameInfo_Name.md 'Gripper.WebClient.IFrameInfo.Name') | Value of the iFrame 'name' tag.<br/> |
-| [Url](Gripper_WebClient_IFrameInfo_Url.md 'Gripper.WebClient.IFrameInfo.Url') | Frame document's URL without fragment.<br/> |
+| [FrameId](Gripper_WebClient_IFrameInfo_FrameId 'Gripper.WebClient.IFrameInfo.FrameId') | Id of the Frame as defined by the browser backend.<br/> |
+| [Name](Gripper_WebClient_IFrameInfo_Name 'Gripper.WebClient.IFrameInfo.Name') | Value of the iFrame 'name' tag.<br/> |
+| [Url](Gripper_WebClient_IFrameInfo_Url 'Gripper.WebClient.IFrameInfo.Url') | Frame document's URL without fragment.<br/> |

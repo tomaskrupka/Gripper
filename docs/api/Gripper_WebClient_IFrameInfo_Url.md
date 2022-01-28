@@ -1,4 +1,4 @@
-### [Gripper.WebClient](Gripper_WebClient.md 'Gripper.WebClient').[IFrameInfo](Gripper_WebClient_IFrameInfo.md 'Gripper.WebClient.IFrameInfo')
+### [Gripper.WebClient](Gripper_WebClient 'Gripper.WebClient').[IFrameInfo](Gripper_WebClient_IFrameInfo 'Gripper.WebClient.IFrameInfo')
 ## IFrameInfo.Url Property
 Frame document's URL without fragment.  
 ```csharp

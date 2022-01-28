@@ -1,4 +1,4 @@
-### [Gripper.WebClient](Gripper_WebClient.md 'Gripper.WebClient').[IElement](Gripper_WebClient_IElement.md 'Gripper.WebClient.IElement')
+### [Gripper.WebClient](Gripper_WebClient 'Gripper.WebClient').[IElement](Gripper_WebClient_IElement 'Gripper.WebClient.IElement')
 ## IElement.FocusAsync() Method
 Focuses the element.  
 ```csharp

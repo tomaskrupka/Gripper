@@ -1,4 +1,4 @@
-### [Gripper.WebClient](Gripper_WebClient.md 'Gripper.WebClient').[ChildProcessTracker](Gripper_WebClient_ChildProcessTracker.md 'Gripper.WebClient.ChildProcessTracker')
+### [Gripper.WebClient](Gripper_WebClient 'Gripper.WebClient').[ChildProcessTracker](Gripper_WebClient_ChildProcessTracker 'Gripper.WebClient.ChildProcessTracker')
 ## ChildProcessTracker.AddProcess(Process) Method
 Add the process to be tracked. If our current process is killed, the child processes  
 that we are tracking will be automatically killed, too. If the child process terminates  

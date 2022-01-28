@@ -1,4 +1,4 @@
-### [Gripper.WebClient](Gripper_WebClient.md 'Gripper.WebClient').[IContext](Gripper_WebClient_IContext.md 'Gripper.WebClient.IContext')
+### [Gripper.WebClient](Gripper_WebClient 'Gripper.WebClient').[IContext](Gripper_WebClient_IContext 'Gripper.WebClient.IContext')
 ## IContext.ExecuteScriptAsync(string, CancellationToken) Method
 Executes a script in the global context.  
 ```csharp
