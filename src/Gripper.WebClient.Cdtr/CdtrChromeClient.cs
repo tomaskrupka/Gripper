@@ -3,22 +3,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using BaristaLabs.ChromeDevTools.Runtime;
-using System.Net.Http;
-using Newtonsoft.Json;
 using Page = BaristaLabs.ChromeDevTools.Runtime.Page;
-using Runtime = BaristaLabs.ChromeDevTools.Runtime.Runtime;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
-using BaristaLabs.ChromeDevTools.Runtime.DOM;
-using Gripper.WebClient.ProcessManagement;
 using System.Collections.Concurrent;
 using BaristaLabs.ChromeDevTools.Runtime.Page;
-using System.IO;
-using BaristaLabs.ChromeDevTools.Runtime.Runtime;
 using Microsoft.Extensions.Options;
 
 namespace Gripper.WebClient.Cdtr

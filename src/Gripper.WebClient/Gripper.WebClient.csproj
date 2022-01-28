@@ -25,6 +25,10 @@
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 	</PropertyGroup>
 
+	<PropertyGroup>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<Content Include="icon_gripper.ico" />
 	</ItemGroup>
@@ -48,5 +52,10 @@
 		<PackageReference Include="BaristaLabs.ChromeDevTools.Runtime" Version="70.0.3538.77" />
 		<PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
 	</ItemGroup>
+
+
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+	  <Exec Command="defaultdocumentation -a bin/Debug/net6.0/Gripper.WebClient.dll -o ../../docs/api" />
+	</Target>
 
 </Project>
