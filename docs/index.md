@@ -6,5 +6,5 @@ The main focus is on dynamic SPAs with background workers that are hard to get a
 | Next up | |
 | :--- | :--- |
 | [About&nbsp;→](about) | See if Gripper fits your needs. |
-| [Getting&nbsp;Started&nbsp;→](quickstart.md) | Get a grip in 300_000 milliseconds.|
+| [Getting&nbsp;Started&nbsp;→](quickstart.md) | Take the crash course.|
 | [API&nbsp;Reference&nbsp;→](api/Gripper_WebClient.md) |Browse the API. |
