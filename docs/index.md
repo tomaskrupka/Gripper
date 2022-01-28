@@ -7,4 +7,4 @@ The main focus is on dynamic SPAs with background workers that are hard to get a
 | :--- | :--- |
 | [About&nbsp;→](about) | See if Gripper fits your needs. |
 | [Getting&nbsp;Started&nbsp;→](quickstart.md) | Get a grip in 300_000 milliseconds.|
-| [API&nbsp;Reference&nbsp;→](api/Gripper_WebClient.md) |Browse the [DefaultDocumentation](https://github.com/Doraku/DefaultDocumentation) API docs export. |
+| [API&nbsp;Reference&nbsp;→](api/Gripper_WebClient.md) |Browse the API. |
