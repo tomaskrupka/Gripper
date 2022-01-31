@@ -85,7 +85,6 @@ namespace Gripper.WebClient.Cdtr
             _cdpAdapter = cdpAdapter;
             _ContextFactory = contextFactory;
 
-
             _chromeProcess = _browserManager.BrowserProcess;
             _chromeSession = _cdpAdapter.GetChromeSessionAsync().Result;
 
@@ -109,9 +108,7 @@ namespace Gripper.WebClient.Cdtr
         {
             try
             {
-                var chromeSession = await _cdpAdapter.GetChromeSessionAsync();
-
-                var rawCookies = await chromeSession.Network.GetAllCookies(new BaristaLabs.ChromeDevTools.Runtime.Network.GetAllCookiesCommand { }, throwExceptionIfResponseNotReceived: false, cancellationToken: _cancellationToken);
+                var rawCookies = await _chromeSession.Network.GetAllCookies(new BaristaLabs.ChromeDevTools.Runtime.Network.GetAllCookiesCommand { }, throwExceptionIfResponseNotReceived: false, cancellationToken: _cancellationToken);
 
                 _logger.LogDebug("raw cookies: {rawCookies}", rawCookies?.Cookies?.Length.ToString() ?? "null");
 
@@ -146,8 +143,7 @@ namespace Gripper.WebClient.Cdtr
         {
             try
             {
-                var chromeSession = await _cdpAdapter.GetChromeSessionAsync();
-                var navigationHistory = await chromeSession.Page.GetNavigationHistory(new Page.GetNavigationHistoryCommand
+                var navigationHistory = await _chromeSession.Page.GetNavigationHistory(new Page.GetNavigationHistoryCommand
                 {
 
                 },
@@ -176,86 +172,15 @@ namespace Gripper.WebClient.Cdtr
         {
             try
             {
-                var chromeSession = await _cdpAdapter.GetChromeSessionAsync();
-
-                var loadStopwatch = Stopwatch.StartNew();
-
-                var loadedFramesIds = new ConcurrentDictionary<string, byte>();
-
-                EventHandler<RdpEventArgs> frameStoppedLoading = (s, e) =>
-                {
-                    if (e is Events.Page_FrameStoppedLoadingEventArgs fslEvent)
-                    {
-                        loadedFramesIds[fslEvent.FrameId] = 0;
-                    }
-                };
-
-                WebClientEvent += frameStoppedLoading;
-
-                var navigateCommandResponse = await chromeSession.Page.Navigate(new Page.NavigateCommand
+                var navigateCommandResponse = await _chromeSession.Page.Navigate(new Page.NavigateCommand
                 {
                     Url = address
                 },
                 throwExceptionIfResponseNotReceived: false,
                 cancellationToken: _cancellationToken);
 
-                var frameId = navigateCommandResponse.FrameId;
+                await WaitUntilFramesLoadedAsync(pollSettings, cancellationToken);
 
-                bool FramesLoaded(FrameTree frameTree)
-                {
-                    // empty or unloaded
-                    if (frameTree?.Frame?.Id == null || !loadedFramesIds.ContainsKey(frameTree.Frame.Id))
-                    {
-                        return false;
-                    }
-
-                    // leaf or loaded children
-                    return frameTree.ChildFrames == null || frameTree.ChildFrames.All(x => FramesLoaded(x));
-                }
-
-                while (!cancellationToken.IsCancellationRequested)
-                {
-                    var timedOut = loadStopwatch.ElapsedMilliseconds > pollSettings.TimeoutMs;
-
-                    if (timedOut)
-                    {
-                        _logger.LogInformation("{name} waiting for new iFrames timed out. Some may have not been attached. Consider relaxing the {timeout} parameter.", nameof(NavigateAsync), nameof(PollSettings.TimeoutMs));
-                        break;
-                    }
-
-                    await Task.Delay(pollSettings.PeriodMs, cancellationToken);
-
-                    var frameTreeResult = await chromeSession.Page.GetFrameTree(throwExceptionIfResponseNotReceived: false);
-
-                    var framesCount = loadedFramesIds.Count;
-
-                    var framesLoaded = FramesLoaded(frameTreeResult.FrameTree);
-
-                    _logger.LogDebug("Loaded frames ids: {framesCount}. All loaded: {frameTreeResult}", framesCount, framesLoaded);
-
-                    if (framesLoaded)
-                    {
-                        await Task.Delay(pollSettings.PeriodMs, cancellationToken);
-
-                        // Some previously unseen frames might have been attached during the delay.
-
-                        var verificationFrameTreeResult = await chromeSession.Page.GetFrameTree(throwExceptionIfResponseNotReceived: false);
-
-                        var framesLoadedVerification = FramesLoaded(verificationFrameTreeResult.FrameTree);
-
-                        _logger.LogDebug("Verification: Loaded frames ids: {framesCount}. All loaded: {frameTreeResult}", loadedFramesIds.Count, framesLoadedVerification);
-
-                        if (framesLoadedVerification && loadedFramesIds.Count == framesCount)
-                        {
-                            break;
-                        }
-                    }
-                }
-
-                _logger.LogDebug("{name} removing delegate from execution list.", nameof(NavigateAsync));
-                _logger.LogDebug("Exiting {name} in {elapsed}", nameof(NavigateAsync), loadStopwatch.Elapsed);
-
-                Delegate.Remove(WebClientEvent, frameStoppedLoading);
             }
             catch (Exception e)
             {
@@ -268,9 +193,7 @@ namespace Gripper.WebClient.Cdtr
         {
             try
             {
-                var chromeSession = await _cdpAdapter.GetChromeSessionAsync();
-
-                await chromeSession.Page.Reload(new Page.ReloadCommand { }, throwExceptionIfResponseNotReceived: false, cancellationToken: _cancellationToken);
+                await _chromeSession.Page.Reload(new Page.ReloadCommand { }, throwExceptionIfResponseNotReceived: false, cancellationToken: _cancellationToken);
                 //await Task.Run(() => _pageLoaded.WaitOne());
             }
             catch (Exception e)
@@ -300,9 +223,7 @@ namespace Gripper.WebClient.Cdtr
                 }
             }
 
-            var chromeSession = await _cdpAdapter.GetChromeSessionAsync();
-
-            var frameTree = (await chromeSession.Page.GetFrameTree(throwExceptionIfResponseNotReceived: false)).FrameTree;
+            var frameTree = (await _chromeSession.Page.GetFrameTree(throwExceptionIfResponseNotReceived: false)).FrameTree;
             var frames = new List<Frame>();
 
             AddFrames(frames, frameTree);
@@ -318,6 +239,10 @@ namespace Gripper.WebClient.Cdtr
                 {
                     contexts.Add(context);
                 }
+                else
+                {
+                    _logger.LogWarning("{name} returned null context.", nameof(_ContextFactory));
+                }
             }
 
             return contexts;
@@ -327,11 +252,10 @@ namespace Gripper.WebClient.Cdtr
         {
             try
             {
-                var chromeSession = await _cdpAdapter.GetChromeSessionAsync();
-                var resultToken = await Task.Run(() => chromeSession.SendCommand(
-                    commandName, 
-                    commandParams, 
-                    throwExceptionIfResponseNotReceived: false, 
+                var resultToken = await Task.Run(() => _chromeSession.SendCommand(
+                    commandName,
+                    commandParams,
+                    throwExceptionIfResponseNotReceived: false,
                     cancellationToken: _cancellationToken));
                 return resultToken;
             }
@@ -347,9 +271,84 @@ namespace Gripper.WebClient.Cdtr
             _cancellationTokenSource.Cancel();
         }
 
-        public Task WaitUntilFramesLoadedAsync(PollSettings pollSettings, CancellationToken cancellationToken)
+        public async Task WaitUntilFramesLoadedAsync(PollSettings pollSettings, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            if (pollSettings == PollSettings.PassThrough)
+            {
+                _logger.LogDebug("{name} recieved {settingsName} poll settings. Fast-tracking.", nameof(WaitUntilFramesLoadedAsync), nameof(PollSettings.PassThrough));
+                return;
+            }
+
+            var domBuildStopwatch = Stopwatch.StartNew();
+
+            var loadedFramesIds = new ConcurrentDictionary<string, byte>();
+
+            EventHandler<RdpEventArgs> frameStoppedLoading = (s, e) =>
+            {
+                if (e is Events.Page_FrameStoppedLoadingEventArgs fslEvent)
+                {
+                    loadedFramesIds[fslEvent.FrameId] = 0;
+                }
+            };
+
+            WebClientEvent += frameStoppedLoading;
+
+            bool FramesLoaded(FrameTree frameTree)
+            {
+                // empty or unloaded
+                if (frameTree?.Frame?.Id == null || !loadedFramesIds.ContainsKey(frameTree.Frame.Id))
+                {
+                    return false;
+                }
+
+                // leaf or loaded children
+                return frameTree.ChildFrames == null || frameTree.ChildFrames.All(x => FramesLoaded(x));
+            }
+
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                var timedOut = domBuildStopwatch.ElapsedMilliseconds > pollSettings.TimeoutMs;
+
+                if (timedOut)
+                {
+                    _logger.LogInformation("{name} waiting for new iFrames timed out. Some may have not been attached. Consider relaxing the {timeout} parameter.", nameof(NavigateAsync), nameof(PollSettings.TimeoutMs));
+                    break;
+                }
+
+                await Task.Delay(pollSettings.PeriodMs, cancellationToken);
+
+                var frameTreeResult = await _chromeSession.Page.GetFrameTree(throwExceptionIfResponseNotReceived: false);
+
+                var framesCount = loadedFramesIds.Count;
+
+                var framesLoaded = FramesLoaded(frameTreeResult.FrameTree);
+
+                _logger.LogDebug("Loaded frames ids: {framesCount}. All loaded: {frameTreeResult}", framesCount, framesLoaded);
+
+                // Wait for one more poll period and check one last time. That's to catch fresh iFrames that might have been attached by a background worker thread.
+
+                if (framesLoaded)
+                {
+                    await Task.Delay(pollSettings.PeriodMs, cancellationToken);
+
+                    var verificationFrameTreeResult = await _chromeSession.Page.GetFrameTree(throwExceptionIfResponseNotReceived: false);
+
+                    var framesLoadedVerification = FramesLoaded(verificationFrameTreeResult.FrameTree);
+
+                    _logger.LogDebug("Verification: Loaded frames ids: {framesCount}. All loaded: {frameTreeResult}", loadedFramesIds.Count, framesLoadedVerification);
+
+                    if (framesLoadedVerification && loadedFramesIds.Count == framesCount)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            _logger.LogDebug("{name} removing delegate from execution list.", nameof(NavigateAsync));
+            Delegate.Remove(WebClientEvent, frameStoppedLoading);
+
+            _logger.LogDebug("Exiting {name} in {elapsed}", nameof(NavigateAsync), domBuildStopwatch.Elapsed);
+
         }
     }
 }

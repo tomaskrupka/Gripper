@@ -7,7 +7,7 @@
 
 | Structs | |
 | :--- | :--- |
-| [PollSettings](Gripper_WebClient_PollSettings 'Gripper.WebClient.PollSettings') | A data structure to provide settings to polling operations.<br/> |
+| [PollSettings](Gripper_WebClient_PollSettings 'Gripper.WebClient.PollSettings') | A data structure to provide settings to polling operations. Knows implicit conversions from/to (int periodMs, int timeoutMs).<br/> |
 
 | Interfaces | |
 | :--- | :--- |

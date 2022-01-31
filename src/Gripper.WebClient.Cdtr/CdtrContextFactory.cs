@@ -150,6 +150,8 @@ namespace Gripper.WebClient.Cdtr
                         {
                             var documentBackendNodeIdValid = (long)documentBackendNodeId;
 
+                            _logger.LogInformation("{name} found valid context for frame {frameId}.", nameof(CreateContextAsync), frameInfo.FrameId);
+
                             return new CdtrContext(
                                 frameContext.Id,
                                 documentBackendNodeIdValid,
