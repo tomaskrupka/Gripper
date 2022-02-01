@@ -1,3 +1,4 @@
+#### [Gripper.WebClient](index 'index')
 ### [Gripper.WebClient](Gripper_WebClient 'Gripper.WebClient')
 ## IContext Interface
 Provides a 1-1 mapping to a global execution context of an iFrame that contains a document node.  

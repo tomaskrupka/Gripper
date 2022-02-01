@@ -1,3 +1,4 @@
+#### [Gripper.WebClient](index 'index')
 ### [Gripper.WebClient](Gripper_WebClient 'Gripper.WebClient').[IContext](Gripper_WebClient_IContext 'Gripper.WebClient.IContext')
 ## IContext.WaitUntilElementPresentAsync(string, PollSettings, CancellationToken) Method
 Polls for an element defined by a specified CSS selector.  

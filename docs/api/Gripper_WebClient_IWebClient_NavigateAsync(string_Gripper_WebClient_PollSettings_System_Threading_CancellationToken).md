@@ -1,3 +1,4 @@
+#### [Gripper.WebClient](index 'index')
 ### [Gripper.WebClient](Gripper_WebClient 'Gripper.WebClient').[IWebClient](Gripper_WebClient_IWebClient 'Gripper.WebClient.IWebClient')
 ## IWebClient.NavigateAsync(string, PollSettings, CancellationToken) Method
 Navigates to the address and awaits the resulting [System.Threading.Tasks.Task](https://docs.microsoft.com/en-us/dotnet/api/System.Threading.Tasks.Task 'System.Threading.Tasks.Task') of [WaitUntilFramesLoadedAsync(PollSettings, CancellationToken)](Gripper_WebClient_IWebClient_WaitUntilFramesLoadedAsync(Gripper_WebClient_PollSettings_System_Threading_CancellationToken) 'Gripper.WebClient.IWebClient.WaitUntilFramesLoadedAsync(Gripper.WebClient.PollSettings, System.Threading.CancellationToken)')  

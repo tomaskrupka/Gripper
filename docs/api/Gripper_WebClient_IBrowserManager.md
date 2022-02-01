@@ -1,3 +1,4 @@
+#### [Gripper.WebClient](index 'index')
 ### [Gripper.WebClient](Gripper_WebClient 'Gripper.WebClient')
 ## IBrowserManager Interface
 Provides methods and members to launch, manage, access and destroy a web browser instance.  

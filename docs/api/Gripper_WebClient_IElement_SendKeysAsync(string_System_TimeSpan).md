@@ -1,3 +1,4 @@
+#### [Gripper.WebClient](index 'index')
 ### [Gripper.WebClient](Gripper_WebClient 'Gripper.WebClient').[IElement](Gripper_WebClient_IElement 'Gripper.WebClient.IElement')
 ## IElement.SendKeysAsync(string, TimeSpan) Method
 Sends an array of keystrokes to the browser while keeping the element focused.  

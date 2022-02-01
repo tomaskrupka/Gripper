@@ -1,3 +1,4 @@
+#### [Gripper.WebClient](index 'index')
 ### [Gripper.WebClient](Gripper_WebClient 'Gripper.WebClient').[IFrameInfo](Gripper_WebClient_IFrameInfo 'Gripper.WebClient.IFrameInfo')
 ## IFrameInfo.Name Property
 Value of the iFrame 'name' tag.  

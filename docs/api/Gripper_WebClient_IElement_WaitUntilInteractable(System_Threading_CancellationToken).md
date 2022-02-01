@@ -1,3 +1,4 @@
+#### [Gripper.WebClient](index 'index')
 ### [Gripper.WebClient](Gripper_WebClient 'Gripper.WebClient').[IElement](Gripper_WebClient_IElement 'Gripper.WebClient.IElement')
 ## IElement.WaitUntilInteractable(CancellationToken) Method
 Blocks until the element can receive keyboard or mouse inputs.  

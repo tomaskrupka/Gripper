@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using BaristaLabs.ChromeDevTools.Runtime.Page;
 using Microsoft.Extensions.Options;
+using BaristaLabs.ChromeDevTools.Runtime.Runtime;
 
 namespace Gripper.WebClient.Cdtr
 {
@@ -30,6 +31,19 @@ namespace Gripper.WebClient.Cdtr
 
         private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly CancellationToken _cancellationToken;
+
+        private readonly ConcurrentDictionary<string, byte> _loadedFramesIds;
+
+        private void HandleWebClientEvent(object? sender, RdpEventArgs e)
+        {
+
+            if (e is Events.Page_FrameStoppedLoadingEventArgs fslEvent)
+            {
+                _loadedFramesIds[fslEvent.FrameId] = 0; // using concurrent dictionary as hashset.
+
+                // TODO: in rare cases this is a memory leak. Figure out when to remove the delegate.
+            }
+        }
 
         public IContext? MainContext
         {
@@ -87,14 +101,19 @@ namespace Gripper.WebClient.Cdtr
 
             _chromeProcess = _browserManager.BrowserProcess;
             _chromeSession = _cdpAdapter.GetChromeSessionAsync().Result;
+            _loadedFramesIds = new ConcurrentDictionary<string, byte>();
 
             #endregion
 
             _cancellationTokenSource = new CancellationTokenSource();
             _cancellationToken = _cancellationTokenSource.Token;
 
-            // We have to actually invoke the own delegate. _cdpAdapter.WebClientEvent += WebClientEvent would just copy current fifo.
+            // Tunnelling CDP events for external subscribers.
+            // Watch out, _cdpAdapter.WebClientEvent += WebClientEvent here would just copy current fifo, ignoring future subscriptions.
             _cdpAdapter.WebClientEvent += (s, e) => WebClientEvent?.Invoke(s, e);
+
+            // Private subscribers.
+            _cdpAdapter.WebClientEvent += HandleWebClientEvent;
 
             NavigateAsync(homepage, defaultPageLoadSettings, startupCts.Token).Wait();
 
@@ -281,22 +300,10 @@ namespace Gripper.WebClient.Cdtr
 
             var domBuildStopwatch = Stopwatch.StartNew();
 
-            var loadedFramesIds = new ConcurrentDictionary<string, byte>();
-
-            EventHandler<RdpEventArgs> frameStoppedLoading = (s, e) =>
-            {
-                if (e is Events.Page_FrameStoppedLoadingEventArgs fslEvent)
-                {
-                    loadedFramesIds[fslEvent.FrameId] = 0;
-                }
-            };
-
-            WebClientEvent += frameStoppedLoading;
-
             bool FramesLoaded(FrameTree frameTree)
             {
                 // empty or unloaded
-                if (frameTree?.Frame?.Id == null || !loadedFramesIds.ContainsKey(frameTree.Frame.Id))
+                if (frameTree?.Frame?.Id == null || !_loadedFramesIds.ContainsKey(frameTree.Frame.Id))
                 {
                     return false;
                 }
@@ -319,7 +326,7 @@ namespace Gripper.WebClient.Cdtr
 
                 var frameTreeResult = await _chromeSession.Page.GetFrameTree(throwExceptionIfResponseNotReceived: false);
 
-                var framesCount = loadedFramesIds.Count;
+                var framesCount = _loadedFramesIds.Count;
 
                 var framesLoaded = FramesLoaded(frameTreeResult.FrameTree);
 
@@ -335,17 +342,14 @@ namespace Gripper.WebClient.Cdtr
 
                     var framesLoadedVerification = FramesLoaded(verificationFrameTreeResult.FrameTree);
 
-                    _logger.LogDebug("Verification: Loaded frames ids: {framesCount}. All loaded: {frameTreeResult}", loadedFramesIds.Count, framesLoadedVerification);
+                    _logger.LogDebug("Verification: Loaded frames ids: {framesCount}. All loaded: {frameTreeResult}", _loadedFramesIds.Count, framesLoadedVerification);
 
-                    if (framesLoadedVerification && loadedFramesIds.Count == framesCount)
+                    if (framesLoadedVerification && _loadedFramesIds.Count == framesCount)
                     {
                         break;
                     }
                 }
             }
-
-            _logger.LogDebug("{name} removing delegate from execution list.", nameof(NavigateAsync));
-            Delegate.Remove(WebClientEvent, frameStoppedLoading);
 
             _logger.LogDebug("Exiting {name} in {elapsed}", nameof(NavigateAsync), domBuildStopwatch.Elapsed);
 

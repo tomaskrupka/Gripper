@@ -1,3 +1,4 @@
+#### [Gripper.WebClient](index 'index')
 ## Gripper.WebClient Namespace
 
 | Classes | |
@@ -13,6 +14,7 @@
 | :--- | :--- |
 | [IBrowserManager](Gripper_WebClient_IBrowserManager 'Gripper.WebClient.IBrowserManager') | Provides methods and members to launch, manage, access and destroy a web browser instance.<br/>At mininum, implementations must configure connecting to the CDP endpoint of the browser and pre-startup and post-destroy cleanup.<br/> |
 | [IContext](Gripper_WebClient_IContext 'Gripper.WebClient.IContext') | Provides a 1-1 mapping to a global execution context of an iFrame that contains a document node.<br/> |
+| [IContextFactory](Gripper_WebClient_IContextFactory 'Gripper.WebClient.IContextFactory') | Facilitates 1-1-1 mapping between iFrame-Execution context-IContext.<br/> |
 | [IElement](Gripper_WebClient_IElement 'Gripper.WebClient.IElement') | Provides methods and members to interact with an HTML element on the page.<br/>[IElement](Gripper_WebClient_IElement 'Gripper.WebClient.IElement') can be mapped to a [Node](https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType 'https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType') of any type<br/>and throws a [System.NotSupportedException](https://docs.microsoft.com/en-us/dotnet/api/System.NotSupportedException 'System.NotSupportedException') for incompatible method calls on such nodes.<br/> |
 | [IFrameInfo](Gripper_WebClient_IFrameInfo 'Gripper.WebClient.IFrameInfo') | Provides access to information about an iFrame on the page,<br/>as defined by the browser backend.<br/> |
 | [IJsBuilder](Gripper_WebClient_IJsBuilder 'Gripper.WebClient.IJsBuilder') | Provides builders for repetitive JS expressions.<br/> |

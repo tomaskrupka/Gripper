@@ -1,3 +1,4 @@
+#### [Gripper.WebClient](index 'index')
 ### [Gripper.WebClient](Gripper_WebClient 'Gripper.WebClient').[IWebClient](Gripper_WebClient_IWebClient 'Gripper.WebClient.IWebClient')
 ## IWebClient.WaitUntilFramesLoadedAsync(PollSettings, CancellationToken) Method
 Blocks until either<br/>  

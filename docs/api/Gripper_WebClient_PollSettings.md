@@ -1,3 +1,4 @@
+#### [Gripper.WebClient](index 'index')
 ### [Gripper.WebClient](Gripper_WebClient 'Gripper.WebClient')
 ## PollSettings Struct
 A data structure to provide settings to polling operations. Knows implicit conversions from/to (int periodMs, int timeoutMs).  

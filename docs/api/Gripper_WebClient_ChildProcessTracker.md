@@ -1,3 +1,4 @@
+#### [Gripper.WebClient](index 'index')
 ### [Gripper.WebClient](Gripper_WebClient 'Gripper.WebClient')
 ## ChildProcessTracker Class
 Allows processes to be automatically killed if this parent process unexpectedly quits.  

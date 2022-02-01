@@ -1,3 +1,4 @@
+#### [Gripper.WebClient](index 'index')
 ### [Gripper.WebClient](Gripper_WebClient 'Gripper.WebClient').[IContext](Gripper_WebClient_IContext 'Gripper.WebClient.IContext')
 ## IContext.FindElementByCssSelectorAsync(string) Method
 Finds an element by a CSS selector on the document node of the Frame.  

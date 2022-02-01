@@ -1,3 +1,4 @@
+#### [Gripper.WebClient](index 'index')
 ### [Gripper.WebClient](Gripper_WebClient 'Gripper.WebClient').[IElement](Gripper_WebClient_IElement 'Gripper.WebClient.IElement')
 ## IElement.SendSpecialKeyAsync(SpecialKey) Method
 Sends a [Gripper.WebClient.SpecialKey](https://docs.microsoft.com/en-us/dotnet/api/Gripper.WebClient.SpecialKey 'Gripper.WebClient.SpecialKey') to the browser right after focusing the element.  

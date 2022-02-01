@@ -1,3 +1,4 @@
+#### [Gripper.WebClient](index 'index')
 ### [Gripper.WebClient](Gripper_WebClient 'Gripper.WebClient').[IJsBuilder](Gripper_WebClient_IJsBuilder 'Gripper.WebClient.IJsBuilder')
 ## IJsBuilder.DocumentQuerySelector(string) Method
 Creates a query similar to 'document.querySelector(...).  

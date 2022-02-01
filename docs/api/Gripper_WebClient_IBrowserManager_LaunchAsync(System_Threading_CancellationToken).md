@@ -1,3 +1,4 @@
+#### [Gripper.WebClient](index 'index')
 ### [Gripper.WebClient](Gripper_WebClient 'Gripper.WebClient').[IBrowserManager](Gripper_WebClient_IBrowserManager 'Gripper.WebClient.IBrowserManager')
 ## IBrowserManager.LaunchAsync(CancellationToken) Method
 Launches a browser instance and sets the [DebuggerUrl](Gripper_WebClient_IBrowserManager_DebuggerUrl 'Gripper.WebClient.IBrowserManager.DebuggerUrl') and [BrowserProcess](Gripper_WebClient_IBrowserManager_BrowserProcess 'Gripper.WebClient.IBrowserManager.BrowserProcess') members.  
