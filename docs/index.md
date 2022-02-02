@@ -1,5 +1,4 @@
-Gripper is a .NET web-scraping toolbox that operates in a browser window under its control,
-using the Chrome Devtools Protocol (CDP).
+Gripper is a .NET web-scraping toolbox that operates in a browser window under its control, using the Chrome Devtools Protocol (CDP).
 
 The main focus is on dynamic SPAs with background workers that are hard to get a grip of.
 

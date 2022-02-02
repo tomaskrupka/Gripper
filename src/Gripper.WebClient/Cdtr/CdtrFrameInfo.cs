@@ -4,7 +4,7 @@ namespace Gripper.WebClient.Cdtr
 {
     internal class CdtrFrameInfo : IFrameInfo
     {
-        public CdtrFrameInfo(Frame frame)
+        internal CdtrFrameInfo(Frame frame)
         {
             FrameId = frame.Id;
             Name = frame.Name;

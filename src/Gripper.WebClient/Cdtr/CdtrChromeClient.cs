@@ -16,7 +16,7 @@ using BaristaLabs.ChromeDevTools.Runtime.Runtime;
 
 namespace Gripper.WebClient.Cdtr
 {
-    public partial class CdtrChromeClient : IWebClient
+    internal class CdtrChromeClient : IWebClient
     {
         private readonly ILogger _logger;
         private readonly ILoggerFactory _loggerFactory;
@@ -45,22 +45,7 @@ namespace Gripper.WebClient.Cdtr
             }
         }
 
-        public IContext? MainContext
-        {
-            get
-            {
-                _logger.LogDebug("{myName} running {name} to get main context.", nameof(CdtrChromeClient), nameof(GetContextsAsync));
-                var contexts = GetContextsAsync().Result;
-                if (!contexts.Any())
-                {
-                    _logger.LogWarning("{name} returned no contexts.", nameof(GetContextsAsync));
-                    return null;
-                }
-                return contexts.First();
-            }
-        }
-
-        public CdtrChromeClient(
+        internal CdtrChromeClient(
             ILoggerFactory loggerFactory,
             IElementFactory cdtrElementFactory,
             IJsBuilder jsBuilder,
@@ -109,7 +94,7 @@ namespace Gripper.WebClient.Cdtr
             _cancellationToken = _cancellationTokenSource.Token;
 
             // Tunnelling CDP events for external subscribers.
-            // Watch out, _cdpAdapter.WebClientEvent += WebClientEvent here would just copy current fifo, ignoring future subscriptions.
+            // _cdpAdapter.WebClientEvent += WebClientEvent here would just copy current fifo and ignore future subscriptions.
             _cdpAdapter.WebClientEvent += (s, e) => WebClientEvent?.Invoke(s, e);
 
             // Private subscribers.
@@ -119,6 +104,21 @@ namespace Gripper.WebClient.Cdtr
 
             _logger.LogDebug("Exiting {this} constructor.", nameof(CdtrChromeClient));
 
+        }
+
+        public IContext? MainContext
+        {
+            get
+            {
+                _logger.LogDebug("{myName} running {name} to get main context.", nameof(CdtrChromeClient), nameof(GetContextsAsync));
+                var contexts = GetContextsAsync().Result;
+                if (!contexts.Any())
+                {
+                    _logger.LogWarning("{name} returned no contexts.", nameof(GetContextsAsync));
+                    return null;
+                }
+                return contexts.First();
+            }
         }
 
         public event EventHandler<RdpEventArgs>? WebClientEvent;
@@ -285,11 +285,6 @@ namespace Gripper.WebClient.Cdtr
             }
         }
 
-        public void Dispose()
-        {
-            _cancellationTokenSource.Cancel();
-        }
-
         public async Task WaitUntilFramesLoadedAsync(PollSettings pollSettings, CancellationToken cancellationToken)
         {
             if (pollSettings == PollSettings.PassThrough)
@@ -354,5 +349,11 @@ namespace Gripper.WebClient.Cdtr
             _logger.LogDebug("Exiting {name} in {elapsed}", nameof(NavigateAsync), domBuildStopwatch.Elapsed);
 
         }
+
+        public void Dispose()
+        {
+            _cancellationTokenSource.Cancel();
+        }
+
     }
 }

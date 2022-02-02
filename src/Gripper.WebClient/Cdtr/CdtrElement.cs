@@ -9,7 +9,7 @@ using System.Collections.Generic;
 
 namespace Gripper.WebClient.Cdtr
 {
-    public class CdtrElement : IElement
+    internal class CdtrElement : IElement
     {
         private ILogger _logger;
         private ChromeSession _chromeSession;
@@ -33,6 +33,26 @@ namespace Gripper.WebClient.Cdtr
             }
         }
 
+        private async Task SendKeysAsync(IEnumerable<DispatchKeyEventCommand> commands, TimeSpan delayBetweenStrokes)
+        {
+            await FocusAsync();
+
+            foreach (var command in commands)
+            {
+                await Task.Delay(delayBetweenStrokes);
+                await _chromeSession.Input.DispatchKeyEvent(
+                    command,
+                    throwExceptionIfResponseNotReceived: false);
+            }
+        }
+
+        internal CdtrElement(ILogger<CdtrElement> logger, ChromeSession chromeSession, long backendNodeId)
+        {
+            _logger = logger;
+            _chromeSession = chromeSession;
+            _backendNodeId = backendNodeId;
+        }
+
         public async Task FocusAsync()
         {
             try
@@ -52,27 +72,6 @@ namespace Gripper.WebClient.Cdtr
                 _logger.LogError("Focus error. _nodeId: {_backendNodeId}. Exception: {e}", _backendNodeId, e);
                 throw;
             }
-        }
-
-        private async Task SendKeysAsync(IEnumerable<DispatchKeyEventCommand> commands, TimeSpan delayBetweenStrokes)
-        {
-            await FocusAsync();
-
-            foreach (var command in commands)
-            {
-                await Task.Delay(delayBetweenStrokes);
-                await _chromeSession.Input.DispatchKeyEvent(
-                    command,
-                    throwExceptionIfResponseNotReceived: false);
-            }
-        }
-
-
-        public CdtrElement(ILogger<CdtrElement> logger, ChromeSession chromeSession, long backendNodeId)
-        {
-            _logger = logger;
-            _chromeSession = chromeSession;
-            _backendNodeId = backendNodeId;
         }
 
         public async Task ClickAsync()
@@ -173,7 +172,7 @@ namespace Gripper.WebClient.Cdtr
             }
         }
 
-        public Task<string> GetTextContentAsyhc()
+        public Task<string> GetTextContentAsync()
         {
             throw new NotImplementedException();
         }

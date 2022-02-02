@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Gripper.WebClient.Cdtr
 {
-    public class CdtrContextFactory : IContextFactory
+    internal class CdtrContextFactory : IContextFactory
     {
         private readonly ILoggerFactory _loggerFactory;
         private readonly ICdpAdapter _cdpAdapter;
@@ -70,7 +70,7 @@ namespace Gripper.WebClient.Cdtr
             }
         }
 
-        public CdtrContextFactory(ILoggerFactory loggerFactory, ICdpAdapter cdpAdapter, IElementFactory cdtrElementFactory, IJsBuilder jsBuilder, IContextManager contextManager)
+        internal CdtrContextFactory(ILoggerFactory loggerFactory, ICdpAdapter cdpAdapter, IElementFactory cdtrElementFactory, IJsBuilder jsBuilder, IContextManager contextManager)
         {
             _loggerFactory = loggerFactory;
             _cdpAdapter = cdpAdapter;

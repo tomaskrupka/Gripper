@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Gripper.WebClient.Cdtr
 {
-    public class BrowserManager : IBrowserManager
+    internal class BrowserManager : IBrowserManager
     {
         private readonly ILoggerFactory _loggerFactory;
         private readonly WebClientSettings _settings;
@@ -23,6 +23,78 @@ namespace Gripper.WebClient.Cdtr
 
         private Process? _browserProcess;
         private string? _debuggerUrl;
+
+        private void DoPreStartupCleanup(DirectoryInfo userDataDir, BrowserCleanupSettings? startupCleanupOptional)
+        {
+            try
+            {
+                var startupCleanup = (startupCleanupOptional ?? BrowserCleanupSettings.None);
+
+                if (startupCleanup == BrowserCleanupSettings.None)
+                {
+                    _logger.LogDebug("{name} set to {value}. Exiting {this}.", nameof(BrowserCleanupSettings), BrowserCleanupSettings.None, nameof(DoPreStartupCleanup));
+                    return;
+                }
+
+                if (!userDataDir.Exists)
+                {
+                    return;
+                }
+
+                var profileDirectory = userDataDir.GetDirectories().FirstOrDefault(x => x.Name.ToLower() == "default");
+
+                if (profileDirectory == null)
+                {
+                    return;
+                }
+
+                if (startupCleanup.HasFlag(BrowserCleanupSettings.Profile))
+                {
+                    profileDirectory.Delete(true);
+                    return;
+                }
+
+                if (startupCleanup.HasFlag(BrowserCleanupSettings.Cache))
+                {
+                    _logger.LogWarning("Clearing browser cache.");
+                    profileDirectory.GetDirectories().FirstOrDefault(x => x.Name.ToLower() == "cache")?.Delete(true);
+                    profileDirectory.GetDirectories().FirstOrDefault(x => x.Name.ToLower() == "storage")?.Delete(true);
+                    profileDirectory.GetDirectories().FirstOrDefault(x => x.Name.ToLower() == "session storage")?.Delete(true);
+                    profileDirectory.GetDirectories().FirstOrDefault(x => x.Name.ToLower() == "sessions")?.Delete(true);
+                    profileDirectory.GetDirectories().FirstOrDefault(x => x.Name.ToLower() == "local storage")?.Delete(true);
+                }
+
+                if (startupCleanup.HasFlag(BrowserCleanupSettings.Cookies))
+                {
+                    _logger.LogWarning("Clearing browser cookies.");
+                    profileDirectory.GetFiles().FirstOrDefault(x => x.Name.ToLower() == "cookies")?.Delete();
+                    profileDirectory.GetFiles().FirstOrDefault(x => x.Name.ToLower() == "cookies-journal")?.Delete();
+                }
+
+                if (startupCleanup.HasFlag(BrowserCleanupSettings.Logins))
+                {
+                    _logger.LogWarning("Clearing browser logins.");
+                    profileDirectory.GetFiles().FirstOrDefault(x => x.Name.ToLower() == "login data")?.Delete();
+                    profileDirectory.GetFiles().FirstOrDefault(x => x.Name.ToLower() == "login data for account")?.Delete();
+                    profileDirectory.GetFiles().FirstOrDefault(x => x.Name.ToLower() == "login data for account-journal")?.Delete();
+                    profileDirectory.GetFiles().FirstOrDefault(x => x.Name.ToLower() == "login data-journal")?.Delete();
+                }
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogCritical("Failed to {name}: {e}.", nameof(DoPreStartupCleanup), e);
+                throw;
+            }
+        }
+
+        internal BrowserManager(IOptions<WebClientSettings> settings, ILoggerFactory loggerFactory)
+        {
+            _loggerFactory = loggerFactory;
+            _settings = settings.Value;
+
+            _logger = _loggerFactory.CreateLogger<BrowserManager>();
+        }
 
         public string DebuggerUrl
         {
@@ -51,14 +123,6 @@ namespace Gripper.WebClient.Cdtr
             }
 
             private set => _browserProcess = value;
-        }
-
-        public BrowserManager(IOptions<WebClientSettings> settings, ILoggerFactory loggerFactory)
-        {
-            _loggerFactory = loggerFactory;
-            _settings = settings.Value;
-
-            _logger = _loggerFactory.CreateLogger<BrowserManager>();
         }
 
         public async Task LaunchAsync(CancellationToken cancellationToken)
@@ -148,68 +212,5 @@ namespace Gripper.WebClient.Cdtr
             throw new NotImplementedException();
         }
 
-        private void DoPreStartupCleanup(DirectoryInfo userDataDir, BrowserCleanupSettings? startupCleanupOptional)
-        {
-            try
-            {
-                var startupCleanup = (startupCleanupOptional ?? BrowserCleanupSettings.None);
-
-                if (startupCleanup == BrowserCleanupSettings.None)
-                {
-                    _logger.LogDebug("{name} set to {value}. Exiting {this}.", nameof(BrowserCleanupSettings), BrowserCleanupSettings.None, nameof(DoPreStartupCleanup));
-                    return;
-                }
-
-                if (!userDataDir.Exists)
-                {
-                    return;
-                }
-
-                var profileDirectory = userDataDir.GetDirectories().FirstOrDefault(x => x.Name.ToLower() == "default");
-
-                if (profileDirectory == null)
-                {
-                    return;
-                }
-
-                if (startupCleanup.HasFlag(BrowserCleanupSettings.Profile))
-                {
-                    profileDirectory.Delete(true);
-                    return;
-                }
-
-                if (startupCleanup.HasFlag(BrowserCleanupSettings.Cache))
-                {
-                    _logger.LogWarning("Clearing browser cache.");
-                    profileDirectory.GetDirectories().FirstOrDefault(x => x.Name.ToLower() == "cache")?.Delete(true);
-                    profileDirectory.GetDirectories().FirstOrDefault(x => x.Name.ToLower() == "storage")?.Delete(true);
-                    profileDirectory.GetDirectories().FirstOrDefault(x => x.Name.ToLower() == "session storage")?.Delete(true);
-                    profileDirectory.GetDirectories().FirstOrDefault(x => x.Name.ToLower() == "sessions")?.Delete(true);
-                    profileDirectory.GetDirectories().FirstOrDefault(x => x.Name.ToLower() == "local storage")?.Delete(true);
-                }
-
-                if (startupCleanup.HasFlag(BrowserCleanupSettings.Cookies))
-                {
-                    _logger.LogWarning("Clearing browser cookies.");
-                    profileDirectory.GetFiles().FirstOrDefault(x => x.Name.ToLower() == "cookies")?.Delete();
-                    profileDirectory.GetFiles().FirstOrDefault(x => x.Name.ToLower() == "cookies-journal")?.Delete();
-                }
-
-                if (startupCleanup.HasFlag(BrowserCleanupSettings.Logins))
-                {
-                    _logger.LogWarning("Clearing browser logins.");
-                    profileDirectory.GetFiles().FirstOrDefault(x => x.Name.ToLower() == "login data")?.Delete();
-                    profileDirectory.GetFiles().FirstOrDefault(x => x.Name.ToLower() == "login data for account")?.Delete();
-                    profileDirectory.GetFiles().FirstOrDefault(x => x.Name.ToLower() == "login data for account-journal")?.Delete();
-                    profileDirectory.GetFiles().FirstOrDefault(x => x.Name.ToLower() == "login data-journal")?.Delete();
-                }
-
-            }
-            catch (Exception e)
-            {
-                _logger.LogCritical("Failed to {name}: {e}.", nameof(DoPreStartupCleanup), e);
-                throw;
-            }
-        }
     }
 }

@@ -4,7 +4,6 @@
 | Classes | |
 | :--- | :--- |
 | [CdpAdapter](Gripper_WebClient_Cdtr_CdpAdapter 'Gripper.WebClient.Cdtr.CdpAdapter') |  |
-| [CdtrChromeClient](Gripper_WebClient_Cdtr_CdtrChromeClient 'Gripper.WebClient.Cdtr.CdtrChromeClient') | Private debugging methods.<br/> |
 | [CdtrContext](Gripper_WebClient_Cdtr_CdtrContext 'Gripper.WebClient.Cdtr.CdtrContext') |  |
 | [CdtrContextFactory](Gripper_WebClient_Cdtr_CdtrContextFactory 'Gripper.WebClient.Cdtr.CdtrContextFactory') |  |
 

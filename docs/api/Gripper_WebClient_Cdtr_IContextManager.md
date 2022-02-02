@@ -3,7 +3,7 @@
 ## IContextManager Interface
 Maintains and provides interface to the up-to-date data structure representing the execution contexts on the page.  
 ```csharp
-public interface IContextManager
+internal interface IContextManager
 ```
 
 | Methods | |

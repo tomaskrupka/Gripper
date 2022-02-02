@@ -3,7 +3,7 @@
 ## ICdpAdapter Interface
 Dependency inversion for BaristaLabs.chrome-dev-tools. Creates the ChromeSession for existing CDP client WS endpoint, then manages its lifetime. Tunnels the incoming CDP events and handles execution of CDP calls.   
 ```csharp
-public interface ICdpAdapter
+internal interface ICdpAdapter
 ```
 
 Derived  

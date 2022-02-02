@@ -13,15 +13,6 @@ namespace Gripper.WebClient.Cdtr
 
         private ConcurrentDictionary<long, ExecutionContextDescription> _executionContexts;
 
-        public ContextManager(ILogger<ContextManager> logger, ICdpAdapter cdpAdapter)
-        {
-            _logger = logger;
-            _cdpAdapter = cdpAdapter;
-            _cdpAdapter.WebClientEvent += HandleWebClientEvent;
-
-            _executionContexts = new ConcurrentDictionary<long, ExecutionContextDescription>();
-        }
-
         private void HandleWebClientEvent(object? sender, RdpEventArgs e)
         {
             if (e is Events.Runtime_ExecutionContextCreatedEventArgs ceEvent)
@@ -32,6 +23,15 @@ namespace Gripper.WebClient.Cdtr
             {
                 _executionContexts.TryRemove(cdEvent.ContextId, out _);
             }
+        }
+
+        internal ContextManager(ILogger<ContextManager> logger, ICdpAdapter cdpAdapter)
+        {
+            _logger = logger;
+            _cdpAdapter = cdpAdapter;
+            _cdpAdapter.WebClientEvent += HandleWebClientEvent;
+
+            _executionContexts = new ConcurrentDictionary<long, ExecutionContextDescription>();
         }
 
         public async Task<ICollection<ExecutionContextDescription>> GetContextDescriptionsAsync()

@@ -33,7 +33,7 @@ namespace Gripper.WebClient
         /// Returns the textContent of the element.
         /// </summary>
         /// <returns>The text content of the specified element.</returns>
-        public Task<string> GetTextContentAsyhc();
+        public Task<string> GetTextContentAsync();
 
         /// <summary>
         /// Sends an array of keystrokes to the browser while keeping the element focused.

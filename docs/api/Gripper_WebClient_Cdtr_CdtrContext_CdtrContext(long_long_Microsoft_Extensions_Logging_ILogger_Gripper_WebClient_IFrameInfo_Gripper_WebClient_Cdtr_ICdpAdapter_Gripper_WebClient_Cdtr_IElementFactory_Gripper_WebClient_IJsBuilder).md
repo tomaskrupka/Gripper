@@ -1,9 +1,9 @@
 #### [Gripper.WebClient](index 'index')
 ### [Gripper.WebClient.Cdtr](Gripper_WebClient_Cdtr 'Gripper.WebClient.Cdtr').[CdtrContext](Gripper_WebClient_Cdtr_CdtrContext 'Gripper.WebClient.Cdtr.CdtrContext')
 ## CdtrContext.CdtrContext(long, long, ILogger, IFrameInfo, ICdpAdapter, IElementFactory, IJsBuilder) Constructor
-Ctor. Frame must be loaded when calling this ctor.  
+Ctor.   
 ```csharp
-public CdtrContext(long contextId, long documentBackendNodeId, Microsoft.Extensions.Logging.ILogger logger, Gripper.WebClient.IFrameInfo frameInfo, Gripper.WebClient.Cdtr.ICdpAdapter cdpAdapter, Gripper.WebClient.Cdtr.IElementFactory cdtrElementFactory, Gripper.WebClient.IJsBuilder jsBuilder);
+internal CdtrContext(long contextId, long documentBackendNodeId, Microsoft.Extensions.Logging.ILogger logger, Gripper.WebClient.IFrameInfo frameInfo, Gripper.WebClient.Cdtr.ICdpAdapter cdpAdapter, Gripper.WebClient.Cdtr.IElementFactory cdtrElementFactory, Gripper.WebClient.IJsBuilder jsBuilder);
 ```
 #### Parameters
 <a name='Gripper_WebClient_Cdtr_CdtrContext_CdtrContext(long_long_Microsoft_Extensions_Logging_ILogger_Gripper_WebClient_IFrameInfo_Gripper_WebClient_Cdtr_ICdpAdapter_Gripper_WebClient_Cdtr_IElementFactory_Gripper_WebClient_IJsBuilder)_contextId'></a>
@@ -27,3 +27,5 @@ public CdtrContext(long contextId, long documentBackendNodeId, Microsoft.Extensi
 <a name='Gripper_WebClient_Cdtr_CdtrContext_CdtrContext(long_long_Microsoft_Extensions_Logging_ILogger_Gripper_WebClient_IFrameInfo_Gripper_WebClient_Cdtr_ICdpAdapter_Gripper_WebClient_Cdtr_IElementFactory_Gripper_WebClient_IJsBuilder)_jsBuilder'></a>
 `jsBuilder` [IJsBuilder](Gripper_WebClient_IJsBuilder 'Gripper.WebClient.IJsBuilder')  
   
+### Remarks
+Frame must be loaded when calling this ctor.  

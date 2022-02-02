@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace Gripper.WebClient.Cdtr
 {
-    public class CdpAdapter : ICdpAdapter
+    internal class CdpAdapter : ICdpAdapter
     {
         private readonly ILogger _logger;
         private readonly IBrowserManager _browserManager;
@@ -99,31 +99,7 @@ namespace Gripper.WebClient.Cdtr
             }
         }
 
-        //private async Task LoopSeekAndAttachTargetsAsync(TimeSpan loopPeriod, CancellationToken cancellationToken)
-        //{
-        //    while (!cancellationToken.IsCancellationRequested)
-        //    {
-        //        await Task.Delay(loopPeriod);
-        //        var targets = await _chromeSession.Target.GetTargets(throwExceptionIfResponseNotReceived: false, cancellationToken: cancellationToken);
-
-        //        _logger.LogDebug("Found targets: {targetsCount} of which attached: {attachedTargetsCount}", targets.TargetInfos.Length, targets.TargetInfos.Count(x => x.Attached));
-
-        //        foreach (var target in targets.TargetInfos.Where(x => !x.Attached))
-        //        {
-        //            _logger.LogDebug("Attaching to target: {targetId}", target.TargetId);
-        //            await _chromeSession.Target.AttachToTarget(new BaristaLabs.ChromeDevTools.Runtime.Target.AttachToTargetCommand
-        //            {
-        //                TargetId = target.TargetId
-        //            },
-        //            throwExceptionIfResponseNotReceived: false,
-        //            cancellationToken: cancellationToken);
-        //        }
-        //    }
-        //}
-
-        public event EventHandler<RdpEventArgs>? WebClientEvent;
-
-        public CdpAdapter(ILoggerFactory loggerFactory, IOptions<WebClientSettings> options, IBrowserManager browserManager)
+        internal CdpAdapter(ILoggerFactory loggerFactory, IOptions<WebClientSettings> options, IBrowserManager browserManager)
         {
             _logger = loggerFactory.CreateLogger<CdpAdapter>();
             _browserManager = browserManager;
@@ -164,6 +140,9 @@ namespace Gripper.WebClient.Cdtr
 
             SetupTargetAttachment(targetAttachmentSettings);
         }
+
+        public event EventHandler<RdpEventArgs>? WebClientEvent;
+
         public async Task<ChromeSession> GetChromeSessionAsync()
         {
             return _chromeSession;

@@ -21,12 +21,13 @@ namespace Gripper.WebClient.Cdtr
         private readonly IElementFactory _cdtrElementFactory;
         private readonly IJsBuilder _jsBuilder;
 
-
-
         /// <summary>
-        /// Ctor. Frame must be loaded when calling this ctor.
+        /// Ctor. 
         /// </summary>
-        public CdtrContext(
+        /// <remarks>
+        /// Frame must be loaded when calling this ctor.
+        /// </remarks>
+        internal CdtrContext(
             long contextId,
             long documentBackendNodeId,
             ILogger logger,
