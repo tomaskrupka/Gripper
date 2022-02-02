@@ -52,10 +52,7 @@ jobs:
       
     - name: Publish Gripper.WebClient to github
       run: dotnet nuget push ${{ github.workspace }}/src/Gripper.WebClient/bin/Release/Gripper.WebClient.0*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source github --skip-duplicate
-    
-    - name: Publish Gripper.WebClient.Cdtr to github
-      run: dotnet nuget push ${{ github.workspace }}/src/Gripper.WebClient.Cdtr/bin/Release/Gripper.WebClient.Cdtr.0*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source github --skip-duplicate
-    
+
     - name: Publish Gripper.WebClient to nuget gallery
       uses: brandedoutcast/publish-nuget@v2.5.5
       with:
@@ -64,13 +61,3 @@ jobs:
         PACKAGE_NAME: 'Gripper.WebClient'
         NUGET_KEY: ${{secrets.NUGET_KEY}}
         NUGET_SOURCE: 'https://api.nuget.org'
-        
-    - name: Publish Gripper.WebClient.Cdtr to nuget gallery
-      uses: brandedoutcast/publish-nuget@v2.5.5
-      with:
-        # Filepath of the project to be packaged, relative to root of repository
-        PROJECT_FILE_PATH: ${{ github.workspace }}/src/Gripper.WebClient.Cdtr/Gripper.WebClient.Cdtr.csproj
-        PACKAGE_NAME: 'Gripper.WebClient.Cdtr'
-        NUGET_KEY: ${{secrets.NUGET_KEY}}
-        NUGET_SOURCE: 'https://api.nuget.org'
-      
