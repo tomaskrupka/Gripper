@@ -1,10 +1,6 @@
-﻿using BaristaLabs.ChromeDevTools.Runtime;
-using BaristaLabs.ChromeDevTools.Runtime.Page;
-using BaristaLabs.ChromeDevTools.Runtime.Runtime;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
-namespace Gripper.WebClient.Cdtr
+namespace Gripper.WebClient
 {
     /// <summary>
     /// Facilitates 1-1-1 mapping between iFrame-Execution context-IContext.

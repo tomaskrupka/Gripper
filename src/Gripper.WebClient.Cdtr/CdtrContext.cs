@@ -1,5 +1,6 @@
 ﻿using BaristaLabs.ChromeDevTools.Runtime.DOM;
 using BaristaLabs.ChromeDevTools.Runtime.Runtime;
+using Gripper.WebClient.Models;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using System;
@@ -47,7 +48,7 @@ namespace Gripper.WebClient.Cdtr
 
         public IFrameInfo FrameInfo => _frameInfo;
 
-        public async Task<JToken> ExecuteScriptAsync(string script, CancellationToken cancellationToken)
+        public async Task<RuntimeEvaluateResponse> ExecuteScriptAsync(string script, CancellationToken cancellationToken)
         {
             try
             {
@@ -61,7 +62,7 @@ namespace Gripper.WebClient.Cdtr
                 throwExceptionIfResponseNotReceived: false,
                 cancellationToken: cancellationToken);
 
-                return JToken.FromObject(result);
+                return result.ToRuntimeEvaluateResponse();
             }
             catch (Exception e)
             {

@@ -3,7 +3,7 @@
 namespace Gripper.WebClient
 {
     /// <summary>
-    /// A data structure to provide settings to polling operations.
+    /// A data structure to provide settings to polling operations. Knows implicit conversions from/to (int periodMs, int timeoutMs).
     /// </summary>
     public struct PollSettings
     {
@@ -51,10 +51,15 @@ namespace Gripper.WebClient
             return new PollSettings(value.PeriodMs, value.TimeoutMs);
         }
 
+        public static bool operator ==(PollSettings lhs, PollSettings rhs) => lhs.PeriodMs == rhs.PeriodMs && lhs.TimeoutMs == rhs.TimeoutMs;
+
+        public static bool operator !=(PollSettings lhs, PollSettings rhs) => !(lhs == rhs);
+
         public static PollSettings ElementDetectionLong => (100, 30_000);
         public static PollSettings ElementDetectionDefault => (100, 10_000);
         public static PollSettings ElementDetectionShort => (100, 3_000);
         public static PollSettings FrameDetectionDefault => (1_500, 15_000);
         public static PollSettings FrameDetectionLong => (5_000, 30_000);
+        public static PollSettings PassThrough => (0, 0);
     }
 }

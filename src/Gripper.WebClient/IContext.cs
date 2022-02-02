@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Gripper.WebClient.Models;
+using Newtonsoft.Json.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -29,7 +30,7 @@ namespace Gripper.WebClient
         /// <param name="script">The script to execute.</param>
         /// <param name="cancellationToken">Token to cancel the <see cref="Task"/>.</param>
         /// <returns>A RemoteObject mapped to a <see cref="JToken"/> that represents the result of the operation.</returns>
-        public Task<JToken> ExecuteScriptAsync(string script, CancellationToken cancellationToken);
+        public Task<RuntimeEvaluateResponse> ExecuteScriptAsync(string script, CancellationToken cancellationToken);
 
         /// <summary>
         /// Finds an element by a CSS selector on the document node of the Frame.

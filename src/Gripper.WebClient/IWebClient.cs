@@ -19,9 +19,11 @@ namespace Gripper.WebClient
 
         /// <summary>
         /// An aggregate event handler for events from all CDP domains, all targets.
-        /// <see cref="ExecuteCdpCommandAsync"/> commands '<domain>.Subscribe()' and '<domain>.Unsubscribe()' to a specific CDP domain to start/stop receiving these events.
-        /// Note that target attachment is handled automatically, see <see cref="WebClientSettings"/> for configuration.
         /// </summary>
+        /// <remarks>
+        /// Note that target attachment is handled automatically, see <see cref="WebClientSettings"/> for configuration.
+        /// Call <see cref="ExecuteCdpCommandAsync"/> commands 'domain.Subscribe()' and 'domain.Unsubscribe()' to a specific CDP domain to start/stop receiving these events.
+        /// </remarks>
         public event EventHandler<RdpEventArgs> WebClientEvent;
 
         /// <summary>
@@ -80,11 +82,14 @@ namespace Gripper.WebClient
         public Task ReloadAsync(PollSettings pollSettings, CancellationToken cancellationToken);
 
         /// <summary>
-        /// Tunnels a CDP command directly to the CDP client endpoint. Executes the command literally (no validation), passes the result unmodified.
+        /// Tunnels a CDP command directly to the CDP client endpoint. 
         /// </summary>
-        /// <param name="commandName">Name of the command, e.g. 'Page.navigate'. <seealso cref="https://chromedevtools.github.io/devtools-protocol/"/></param>
+        /// <param name="commandName">Name of the command, e.g. 'Page.navigate'. <see href="https://chromedevtools.github.io/devtools-protocol/"/></param>
         /// <param name="commandParams"></param>
         /// <returns>A <see cref="Task"/> that represents the command execution.</returns>
+        /// <remarks>
+        /// Implementations should xecute the command literally (no validation), and pass the result unmodified.
+        /// </remarks>
         public Task<JToken> ExecuteCdpCommandAsync(string commandName, JToken commandParams);
     }
 }

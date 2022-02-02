@@ -1,26 +1,21 @@
-﻿using BaristaLabs.ChromeDevTools.Runtime;
-using BaristaLabs.ChromeDevTools.Runtime.DOM;
-using BaristaLabs.ChromeDevTools.Runtime.Page;
+﻿using BaristaLabs.ChromeDevTools.Runtime.DOM;
 using BaristaLabs.ChromeDevTools.Runtime.Runtime;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Gripper.WebClient.Cdtr
 {
     public class CdtrContextFactory : IContextFactory
     {
-        private ILoggerFactory _loggerFactory;
-        private ICdpAdapter _cdpAdapter;
-        private IElementFactory _cdtrElementFactory;
-        private IJsBuilder _jsBuilder;
-
-        private ILogger _logger;
+        private readonly ILoggerFactory _loggerFactory;
+        private readonly ICdpAdapter _cdpAdapter;
+        private readonly IElementFactory _cdtrElementFactory;
+        private readonly IJsBuilder _jsBuilder;
+        private readonly IContextManager _contextManager;
+        private readonly ILogger _logger;
 
         /// <summary>
         /// Get root node backend node id. If context has no DOM (e.g. background worker thread) or nothing has been loaded yet, returns null.
@@ -75,19 +70,20 @@ namespace Gripper.WebClient.Cdtr
             }
         }
 
-        public CdtrContextFactory(ILoggerFactory loggerFactory, ICdpAdapter cdpAdapter, IElementFactory cdtrElementFactory, IJsBuilder jsBuilder)
+        public CdtrContextFactory(ILoggerFactory loggerFactory, ICdpAdapter cdpAdapter, IElementFactory cdtrElementFactory, IJsBuilder jsBuilder, IContextManager contextManager)
         {
             _loggerFactory = loggerFactory;
             _cdpAdapter = cdpAdapter;
             _cdtrElementFactory = cdtrElementFactory;
             _jsBuilder = jsBuilder;
+            _contextManager = contextManager;
 
             _logger = _loggerFactory.CreateLogger<CdtrContextFactory>();
         }
 
         public async Task<IContext?> CreateContextAsync(IFrameInfo frameInfo)
         {
-            var executionContexts = await _cdpAdapter.GetContextDescriptionsAsync();
+            var executionContexts = await _contextManager.GetContextDescriptionsAsync();
             var frameContexts = executionContexts.Where(x => ((JObject)x.AuxData)["frameId"]?.ToString() == frameInfo.FrameId).ToList();
 
             if (frameContexts.Count == 0)
@@ -149,6 +145,8 @@ namespace Gripper.WebClient.Cdtr
                         else
                         {
                             var documentBackendNodeIdValid = (long)documentBackendNodeId;
+
+                            _logger.LogInformation("{name} found valid context for frame {frameId}.", nameof(CreateContextAsync), frameInfo.FrameId);
 
                             return new CdtrContext(
                                 frameContext.Id,

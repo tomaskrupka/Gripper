@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Gripper.WebClient.Events
+﻿namespace Gripper.WebClient.Events
 {
     public class Page_FrameStoppedLoadingEventArgs : RdpEventArgs
     {
@@ -13,6 +7,5 @@ namespace Gripper.WebClient.Events
         {
             FrameId = frameId;
         }
-
     }
 }

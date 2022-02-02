@@ -14,7 +14,7 @@ namespace Gripper.WebClient
         /// The namespace of the domain where the event originated, e.g. "Network". The first character is always uppercase.
         /// </summary>
         /// <remarks>
-        /// See the <see cref="https://chromedevtools.github.io/devtools-protocol">API reference</see> for all domains.
+        /// See the <see href="https://chromedevtools.github.io/devtools-protocol">API reference</see> for all domains.
         /// </remarks>
         public string DomainName { get; private set; }
 
@@ -22,7 +22,7 @@ namespace Gripper.WebClient
         /// The name of the event, e.g. "requestWillBeSent". The first character is always lowercase.
         /// </summary>
         /// <remarks>
-        /// See the <see cref="https://chromedevtools.github.io/devtools-protocol">API reference</see> for all domains.
+        /// See the <see href="https://chromedevtools.github.io/devtools-protocol">API reference</see> for all domains.
         /// </remarks>
         public string EventName { get; private set; }
 
