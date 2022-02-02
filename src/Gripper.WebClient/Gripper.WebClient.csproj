@@ -55,8 +55,8 @@
 	</ItemGroup>
 
 
-	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-	  <Exec Command="if $(ConfigurationName) == Debug defaultdocumentation -a bin/Debug/net6.0/Gripper.WebClient.dll -x -o ../../docs/api" />
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)' == 'Debug'">
+	  <Exec Command="defaultdocumentation -a bin/Debug/net6.0/Gripper.WebClient.dll -x -o ../../docs/api" />
 	</Target>
 
 </Project>
