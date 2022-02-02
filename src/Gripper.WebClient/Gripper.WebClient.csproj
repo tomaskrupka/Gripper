@@ -4,7 +4,7 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<Authors>Tomáš Krupka</Authors>
-		<Version>0.4.10-alpha</Version>
+		<Version>0.5.0-alpha</Version>
 		<NeutralLanguage>en-GB</NeutralLanguage>
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
@@ -50,6 +50,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="BaristaLabs.ChromeDevTools.Runtime" Version="70.0.3538.77" />
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
 	</ItemGroup>
 

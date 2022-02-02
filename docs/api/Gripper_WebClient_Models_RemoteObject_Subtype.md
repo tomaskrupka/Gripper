@@ -5,7 +5,7 @@ Gets or sets Object subtype hint. Specified for ```csharp
 object```
  type values only.  
 ```csharp
-public string? Subtype { get; set; }
+public System.Nullable<Gripper.WebClient.Models.RemoteObjectSubtype> Subtype { get; set; }
 ```
 #### Property Value
-[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
+[System.Nullable&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Nullable-1 'System.Nullable`1')[Gripper.WebClient.Models.RemoteObjectSubtype](https://docs.microsoft.com/en-us/dotnet/api/Gripper.WebClient.Models.RemoteObjectSubtype 'Gripper.WebClient.Models.RemoteObjectSubtype')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Nullable-1 'System.Nullable`1')

@@ -3,7 +3,7 @@
 ## RemoteObject.Type Property
 Gets or sets Object type.  
 ```csharp
-public string? Type { get; set; }
+public Gripper.WebClient.Models.RemoteObjectType Type { get; set; }
 ```
 #### Property Value
-[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
+[Gripper.WebClient.Models.RemoteObjectType](https://docs.microsoft.com/en-us/dotnet/api/Gripper.WebClient.Models.RemoteObjectType 'Gripper.WebClient.Models.RemoteObjectType')

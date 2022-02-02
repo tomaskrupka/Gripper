@@ -10,12 +10,12 @@ namespace Gripper.WebClient.Models
         /// <summary>
         /// Gets or sets Object type.
         /// </summary>
-        public string? Type { get; set; }
+        public RemoteObjectType Type { get; set; }
         /// <summary>
         /// Gets or sets Object subtype hint. Specified for <code>object</code> type values only.
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string? Subtype { get; set; }
+        public RemoteObjectSubtype? Subtype { get; set; }
         /// <summary>
         /// Gets or sets Object class (constructor) name. Specified for <code>object</code> type values only.
         /// </summary>
