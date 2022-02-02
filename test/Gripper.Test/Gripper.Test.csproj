@@ -21,7 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Gripper.WebClient.Cdtr\Gripper.WebClient.Cdtr.csproj" />
     <ProjectReference Include="..\..\src\Gripper.WebClient\Gripper.WebClient.csproj" />
   </ItemGroup>
 
