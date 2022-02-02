@@ -5,6 +5,9 @@ Provides a 1-1 mapping to a global execution context of an iFrame that contains 
 ```csharp
 public interface IContext
 ```
+
+Derived  
+&#8627; [CdtrContext](Gripper_WebClient_Cdtr_CdtrContext 'Gripper.WebClient.Cdtr.CdtrContext')  
 ### Remarks
 Implementations must ensure that if there are multiple contexts for an iFrame (e.g. a background worker thread and the main context),  
 the main context is referenced.   

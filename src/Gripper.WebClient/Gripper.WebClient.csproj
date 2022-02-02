@@ -50,6 +50,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="BaristaLabs.ChromeDevTools.Runtime" Version="70.0.3538.77" />
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
 	</ItemGroup>
 
