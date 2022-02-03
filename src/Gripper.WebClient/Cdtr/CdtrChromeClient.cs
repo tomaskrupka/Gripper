@@ -45,7 +45,7 @@ namespace Gripper.WebClient.Cdtr
             }
         }
 
-        internal CdtrChromeClient(
+        public CdtrChromeClient(
             ILoggerFactory loggerFactory,
             IElementFactory cdtrElementFactory,
             IJsBuilder jsBuilder,
@@ -123,7 +123,7 @@ namespace Gripper.WebClient.Cdtr
 
         public event EventHandler<RdpEventArgs>? WebClientEvent;
 
-        public async Task<CookieContainer> GetAllCookiesAsync()
+        public async Task<ICollection<Cookie>> GetAllCookiesAsync()
         {
             try
             {
@@ -131,11 +131,11 @@ namespace Gripper.WebClient.Cdtr
 
                 _logger.LogDebug("raw cookies: {rawCookies}", rawCookies?.Cookies?.Length.ToString() ?? "null");
 
-                var cookieContainer = new CookieContainer();
+                List<Cookie> cookies = new();
 
                 if (rawCookies?.Cookies == null)
                 {
-                    return cookieContainer;
+                    return cookies;
                 }
 
                 foreach (var cookie in rawCookies.Cookies)
@@ -145,10 +145,10 @@ namespace Gripper.WebClient.Cdtr
                         continue;
                     }
 
-                    cookieContainer.Add(new Cookie(cookie.Name, cookie.Value, cookie.Path, cookie.Domain));
+                    cookies.Add(new Cookie(cookie.Name, cookie.Value, cookie.Path, cookie.Domain));
                 }
 
-                return cookieContainer;
+                return cookies;
             }
             catch (Exception e)
             {

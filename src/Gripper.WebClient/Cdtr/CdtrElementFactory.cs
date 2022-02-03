@@ -9,7 +9,7 @@ namespace Gripper.WebClient.Cdtr
         private ILoggerFactory _loggerFactory;
         private ICdpAdapter _cpdAdapter;
 
-        internal CdtrElementFactory(ILoggerFactory loggerFactory, ICdpAdapter cdpAdapter)
+        public CdtrElementFactory(ILoggerFactory loggerFactory, ICdpAdapter cdpAdapter)
         {
             _loggerFactory = loggerFactory;
             _cpdAdapter = cdpAdapter;

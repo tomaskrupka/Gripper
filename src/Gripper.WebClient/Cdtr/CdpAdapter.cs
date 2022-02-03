@@ -99,7 +99,7 @@ namespace Gripper.WebClient.Cdtr
             }
         }
 
-        internal CdpAdapter(ILoggerFactory loggerFactory, IOptions<WebClientSettings> options, IBrowserManager browserManager)
+        public CdpAdapter(ILoggerFactory loggerFactory, IOptions<WebClientSettings> options, IBrowserManager browserManager)
         {
             _logger = loggerFactory.CreateLogger<CdpAdapter>();
             _browserManager = browserManager;

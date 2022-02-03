@@ -18,19 +18,19 @@ namespace Gripper.Test.IWebClientTests
                 var cookieObject = Fakers.GetCookie();
                 _injectedCookies.Add(cookieObject);
                 var setCookieResponse = _webClient.ExecuteCdpCommandAsync("Network.setCookie", JToken.FromObject(cookieObject)).Result;
+                ;
             }
         }
 
         [Test]
         public async Task AllCookiesCaptured()
         {
-            var cookieContainer = await _webClient.GetAllCookiesAsync();
+            var cookies = await _webClient.GetAllCookiesAsync();
 
             Assert.Multiple(() =>
             {
                 foreach (var injectedCookie in _injectedCookies)
                 {
-                    var cookies = cookieContainer.GetCookies(new System.Uri(injectedCookie.domain));
                     CollectionAssert.IsNotEmpty(cookies);
                     Assert.IsTrue(cookies.Any(x => x.Name == injectedCookie.name && x.Value == injectedCookie.value));
                 };

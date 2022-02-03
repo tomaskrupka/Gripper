@@ -16,13 +16,11 @@ namespace Gripper.Test
 {
     public abstract class UnitTestBase
     {
-        private const string _logFileName = "logs/log_test_fail.txt";
-
-        protected static readonly ILogger _logger;
         private static readonly IServiceProvider _serviceProvider;
-
+        private const string _logFileName = "logs/log_test_fail.txt";
         private static string GetHomepageAbsolutePath() => Path.GetFullPath("../../../Pages/gov_uk/Welcome_to_GOV.UK.htm");
 
+        protected static readonly ILogger _logger;
         protected static readonly IWebClient _webClient;
 
         protected static T GetService<T>()
@@ -40,7 +38,7 @@ namespace Gripper.Test
                 BrowserLocation = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
                 //BrowserLocation = "chrome",
                 UserDataDir = ".\\UnitTestProfile",
-                DefaultPageLoadPollSettings = PollSettings.ElementDetectionDefault,
+                DefaultPageLoadPollSettings = (50, 500),
                 BrowserStartupArgs = new[] { "--headless", "--disable-gpu", "--window-size=1280,1696", },
                 //BrowserStartupArgs = Array.Empty<string>(),
                 BrowserLaunchTimeoutMs = 30_000,
@@ -49,11 +47,11 @@ namespace Gripper.Test
                 TriggerKeyboardCommandListener = false,
                 StartupCleanup = BrowserCleanupSettings.None,
                 UseProxy = false,
-                RemoteDebuggingPort = 9244,
+                RemoteDebuggingPort = 9000,
                 TargetAttachment = TargetAttachmentMode.Auto,
                 IgnoreSslCertificateErrors = false,
                 LaunchBrowser = true
-            }) ;
+            });
 
             services.AddLogging(x =>
             {

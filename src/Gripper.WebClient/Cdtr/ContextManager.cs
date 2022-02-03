@@ -25,7 +25,7 @@ namespace Gripper.WebClient.Cdtr
             }
         }
 
-        internal ContextManager(ILogger<ContextManager> logger, ICdpAdapter cdpAdapter)
+        public ContextManager(ILogger<ContextManager> logger, ICdpAdapter cdpAdapter)
         {
             _logger = logger;
             _cdpAdapter = cdpAdapter;

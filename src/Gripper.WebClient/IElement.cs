@@ -6,14 +6,16 @@ namespace Gripper.WebClient
 {
     /// <summary>
     /// Provides methods and members to interact with an HTML element on the page.
-    /// <see cref="IElement"/> can be mapped to a <see href="https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType">Node</see> of any type
-    /// and throws a <see cref="System.NotSupportedException"/> for incompatible method calls on such nodes.
     /// </summary>
+    /// <remarks>
+    /// <see cref="IElement"/> can be mapped to a <see href="https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType">Node</see> of any type, not just Element. <see cref="IElement"/> throws a <see cref="System.NotSupportedException"/> for incompatible method calls on such nodes.
+    /// </remarks>
     public interface IElement
     {
         /// <summary>
         /// Dispatches a click event onto the area of the element.
         /// </summary>
+        /// <param name="clickDurationMs">Delay between the MouseDown and MouseUp events.</param>
         /// <returns>A <see cref="Task"/> representing the click operation</returns>
         /// <remarks>
         /// The implementations should take advantage of the 
@@ -21,7 +23,7 @@ namespace Gripper.WebClient
         /// Do not use the DOM .click() or invoke the onclick() or other mouse events by evaluating a script.
         /// This is unreliable and easy to detect.
         /// </remarks>
-        public Task ClickAsync();
+        public Task ClickAsync(int clickDurationMs);
 
         /// <summary>
         /// Focuses the element.

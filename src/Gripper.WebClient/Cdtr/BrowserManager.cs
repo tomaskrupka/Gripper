@@ -88,7 +88,7 @@ namespace Gripper.WebClient.Cdtr
             }
         }
 
-        internal BrowserManager(IOptions<WebClientSettings> settings, ILoggerFactory loggerFactory)
+        public BrowserManager(IOptions<WebClientSettings> settings, ILoggerFactory loggerFactory)
         {
             _loggerFactory = loggerFactory;
             _settings = settings.Value;

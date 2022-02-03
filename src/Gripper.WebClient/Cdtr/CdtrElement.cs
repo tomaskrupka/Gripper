@@ -74,7 +74,7 @@ namespace Gripper.WebClient.Cdtr
             }
         }
 
-        public async Task ClickAsync()
+        public async Task ClickAsync(int clickDurationMs)
         {
             try
             {
@@ -89,8 +89,6 @@ namespace Gripper.WebClient.Cdtr
                 var contentX = 0.5 * (contentQuad[0] + contentQuad[2]);
                 var contentY = 0.5 * (contentQuad[1] + contentQuad[5]);
 
-                // TODO: randomize click position.
-
                 var mousePressedEventResult = await _chromeSession.Input.DispatchMouseEvent(new DispatchMouseEventCommand
                 {
                     Type = "mousePressed",
@@ -101,9 +99,7 @@ namespace Gripper.WebClient.Cdtr
                 },
                 throwExceptionIfResponseNotReceived: false);
 
-                // TODO: randomize delay.
-
-                await Task.Delay(10);
+                await Task.Delay(clickDurationMs);
 
                 var mouseReleasedEventResult = await _chromeSession.Input.DispatchMouseEvent(new DispatchMouseEventCommand
                 {
@@ -131,26 +127,17 @@ namespace Gripper.WebClient.Cdtr
 
                 await SendKeysAsync(new DispatchKeyEventCommand[]
                 {
-                    //new()
-                    //{
-                    //    Type = "keyDown",
-                    //    Text = key.ToString()
-                    //},
                     new()
                     {
                         Type = "char",
                         Text = key.ToString()
                     },
-                    //new()
-                    //{
-                    //    Type = "keyUp",
-                    //    Text = key.ToString()
-                    //}
                 }, delayBetweenStrokes);
             }
 
             await LogAttributesAsync("after " + nameof(SendKeysAsync));
         }
+
         public async Task SendSpecialKeyAsync(SpecialKey key)
         {
             await FocusAsync();

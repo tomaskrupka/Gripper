@@ -70,7 +70,7 @@ namespace Gripper.WebClient.Cdtr
             }
         }
 
-        internal CdtrContextFactory(ILoggerFactory loggerFactory, ICdpAdapter cdpAdapter, IElementFactory cdtrElementFactory, IJsBuilder jsBuilder, IContextManager contextManager)
+        public CdtrContextFactory(ILoggerFactory loggerFactory, ICdpAdapter cdpAdapter, IElementFactory cdtrElementFactory, IJsBuilder jsBuilder, IContextManager contextManager)
         {
             _loggerFactory = loggerFactory;
             _cdpAdapter = cdpAdapter;
