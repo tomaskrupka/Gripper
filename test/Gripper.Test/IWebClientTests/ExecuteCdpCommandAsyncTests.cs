@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace Gripper.Test.IWebClientTests
 {
-    public class ExecuteRdpCommandAsyncTests : UnitTestBase
+    public class ExecuteCdpCommandAsyncTests : UnitTestBase
     {
 
         [Test]
-        public async Task NetworkSetCookieIsCommandSuccess()
+        public async Task NetworkSetCookieIsCommandIsSuccessful()
         {
             var cookieObject = Fakers.GetCookie();
             var commandResult = await _webClient.ExecuteCdpCommandAsync("Network.setCookie", JToken.FromObject(cookieObject));

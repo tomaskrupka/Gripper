@@ -4,36 +4,47 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Gripper.Test.Models;
 using NUnit.Framework;
 
 namespace Gripper.Test.IWebClientTests
 {
     public class WebClientEventTests : UnitTestBase
     {
-        ManualResetEventSlim _webClientEventRaised;
-
-        [Test]
-        public async Task RequestWillBeSentEventIsRaised()
-        {
-            _webClientEventRaised = new ManualResetEventSlim(false);
-            _webClient.WebClientEvent += HandleWebClientEvent;
-            
-            var cts = new CancellationTokenSource(TimeSpan.FromSeconds(1));
-            await _webClient.MainContext.ExecuteScriptAsync("fetch('https://www.example.com', { mode: 'no-cors'})", cts.Token);
-            _webClientEventRaised.Wait(1000);
-
-        }
+        private readonly ManualResetEventSlim _webClientEventRaised = new(false);
+        private readonly Url _url = Fakers.GetUrl();
 
         private void HandleWebClientEvent(object sender, WebClient.RdpEventArgs e)
         {
             var isCorrectEvent =
                 e is WebClient.Events.Network_RequestWillBeSentEventArgs reqEvent &&
-                reqEvent.DomainName.Contains("google.com");
+                reqEvent.Request.Url.Contains(_url.url);
 
             if (isCorrectEvent)
             {
                 _webClientEventRaised.Set();
             }
         }
+
+        [Test]
+        public async Task RequestWillBeSentEventIsRaised()
+        {
+            _webClient.WebClientEvent += HandleWebClientEvent;
+
+            var fetchCommand = string.Format(
+                "fetch('{0}', {1})", 
+                _url.url, 
+                "{ mode: 'no-cors' }");
+
+            var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+
+            await _webClient.MainContext.ExecuteScriptAsync(fetchCommand, cts.Token);
+
+            _webClientEventRaised.Wait(cts.Token);
+
+            Assert.IsTrue(_webClientEventRaised.IsSet);
+        }
+
+
     }
 }
