@@ -11,20 +11,21 @@ namespace Gripper.Test.IWebClientTests
 {
     internal class ReloadAsyncTests : UnitTestBase
     {
-        [Test]
-        public async Task DeletedElementShouldReappearOnReload()
-        {
-            await _webClient.MainContext.FindElementByCssSelectorAsync("#wrapper");
-            var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+        //[Test]
+        //[NonParallelizable]
+        //public async Task DeletedElementShouldReappearOnReload()
+        //{
+        //    await _webClient.MainContext.FindElementByCssSelectorAsync("#wrapper");
+        //    var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
 
-            await _webClient.MainContext.ExecuteScriptAsync("document.querySelector('#wrapper').remove()", cts.Token);
-            await _webClient.MainContext.FindElementByCssSelectorAsync("#wrapper");
+        //    await _webClient.MainContext.ExecuteScriptAsync("document.querySelector('#wrapper').remove()", cts.Token);
+        //    await _webClient.MainContext.FindElementByCssSelectorAsync("#wrapper");
 
-            await _webClient.ReloadAsync(PollSettings.ElementDetectionDefault, cts.Token);
+        //    await _webClient.ReloadAsync(PollSettings.ElementDetectionDefault, cts.Token);
 
-            var contentWrapper = await _webClient.MainContext.FindElementByCssSelectorAsync("#wrapper");
+        //    var contentWrapper = await _webClient.MainContext.FindElementByCssSelectorAsync("#wrapper");
 
-            Assert.IsNotNull(contentWrapper);
-        }
+        //    Assert.IsNotNull(contentWrapper);
+        //}
     }
 }

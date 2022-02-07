@@ -1,6 +1,5 @@
 ﻿using Gripper.Test.Models;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -22,11 +21,5 @@ namespace Gripper.Test
             MainContext = new() { FrameId = "", UrlSubstring = "Race condition - Wikipedia.htm" },
             ChildContexts = new()
         };
-    }
-    internal class TestSite
-    {
-        internal string Path;
-        internal DomContext MainContext;
-        internal List<DomContext> ChildContexts;
     }
 }

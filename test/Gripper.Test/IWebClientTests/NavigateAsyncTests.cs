@@ -12,6 +12,7 @@ namespace Gripper.Test.IWebClientTests
     public class NavigateAsyncTests : UnitTestBase 
     {
         [Test]
+        [NonParallelizable]
         public async Task ShouldNavigate()
         {
             var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));

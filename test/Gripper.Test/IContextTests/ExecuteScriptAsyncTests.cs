@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Gripper.Test.IContextTests
 {
-    public class ExecuteScriptTests : UnitTestBase
+    public class ExecuteScriptAsyncTests : UnitTestBase
     {
         [Test]
         public async Task DeletedElementShouldDisappear()

@@ -12,13 +12,13 @@ namespace Gripper.Test.IWebClientTests
     public class WebClientEventTests : UnitTestBase
     {
         private readonly ManualResetEventSlim _webClientEventRaised = new(false);
-        private readonly Url _url = Fakers.GetUrl();
+        private readonly string _url = Fakers.GetUrl();
 
         private void HandleWebClientEvent(object sender, WebClient.RdpEventArgs e)
         {
             var isCorrectEvent =
                 e is WebClient.Events.Network_RequestWillBeSentEventArgs reqEvent &&
-                reqEvent.Request.Url.Contains(_url.url);
+                reqEvent.Request.Url.Contains(_url);
 
             if (isCorrectEvent)
             {
@@ -33,7 +33,7 @@ namespace Gripper.Test.IWebClientTests
 
             var fetchCommand = string.Format(
                 "fetch('{0}', {1})", 
-                _url.url, 
+                _url, 
                 "{ mode: 'no-cors' }");
 
             var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
