@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace Gripper.Test.Models
 {
-    internal class Frame
+    internal class DomContext
     {
-        internal string Id { get; set; }
+        internal string FrameId { get; set; }
+        internal string FrameName { get; set; }
         internal string UrlSubstring { get; set; }
     }
 }

@@ -1,7 +1,7 @@
 #### [Gripper.WebClient](index 'index')
 ### [Gripper.WebClient](Gripper_WebClient 'Gripper.WebClient')
 ## IContext Interface
-Provides a 1-1 mapping to a global execution context of an iFrame that contains a document node.  
+Represents a [browsing context](https://developer.mozilla.org/en-US/docs/Glossary/Browsing_context 'https://developer.mozilla.org/en-US/docs/Glossary/Browsing_context'), the environment in which a browser displays a Document.  
 ```csharp
 public interface IContext
 ```
@@ -9,12 +9,11 @@ public interface IContext
 Derived  
 &#8627; [CdtrContext](Gripper_WebClient_Cdtr_CdtrContext 'Gripper.WebClient.Cdtr.CdtrContext')  
 ### Remarks
-Implementations must ensure that if there are multiple contexts for an iFrame (e.g. a background worker thread and the main context),  
-the main context is referenced.   
+For an iFrame with more than one execution contexts (e.g. background workers), this interface will bind the one that maps the DOM.  
 
 | Properties | |
 | :--- | :--- |
-| [FrameInfo](Gripper_WebClient_IContext_FrameInfo 'Gripper.WebClient.IContext.FrameInfo') | Information about the Frame mapped to the context.<br/> |
+| [FrameInfo](Gripper_WebClient_IContext_FrameInfo 'Gripper.WebClient.IContext.FrameInfo') | Information about the Frame containing the context.<br/> |
 | [Id](Gripper_WebClient_IContext_Id 'Gripper.WebClient.IContext.Id') | Id of the context as defined by the browser backend.<br/> |
 
 | Methods | |

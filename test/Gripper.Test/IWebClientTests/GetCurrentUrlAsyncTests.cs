@@ -22,11 +22,11 @@ namespace Gripper.Test.IWebClientTests
         }
 
         [Test]
-        public async Task UrlIsCorrect()
+        public async Task UrlIsCorrectAsync()
         {
             var url = await _webClient.GetCurrentUrlAsync();
             var escapedUrl = System.Uri.EscapeDataString(url);
-            var expectedSubstring = Facts.MainFrame.UrlSubstring;
+            var expectedSubstring = Facts.GovUkTestSite.MainContext.UrlSubstring;
 
             StringAssert.Contains(expectedSubstring, escapedUrl);
         }

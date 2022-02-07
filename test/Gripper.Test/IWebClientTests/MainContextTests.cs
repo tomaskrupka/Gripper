@@ -9,12 +9,27 @@ namespace Gripper.Test.IWebClientTests
 {
     public class MainContextTests : UnitTestBase
     {
+        private IContext _mainContext;
+
+        [OneTimeSetUp]
+        public void RunBeforeAnyTests()
+        {
+            _mainContext = _webClient.MainContext;
+        }
+
         [Test]
         public void MainContextIsNotNull()
         {
-            var context = _webClient.MainContext;
-            Assert.IsNotNull(context);
+            Assert.IsNotNull(_mainContext);
         }
 
+        [Test]
+        public void MainContextContainsExpectedUrlSubstring()
+        {
+            var expected = Facts.GovUkTestSite.MainContext.UrlSubstring;
+            var actual = _mainContext.FrameInfo.Url;
+
+            StringAssert.Contains(expected, actual);
+        }
     }
 }

@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Gripper.WebClient;
 using NUnit.Framework;
@@ -19,30 +17,30 @@ namespace Gripper.Test.IWebClientTests
         }
 
         [Test]
-        public async Task ContextsAreNotNull()
+        public void ContextsAreNotNull()
         {
             Assert.IsNotNull(_contexts);
         }
 
         [Test]
-        public async Task ContextsAreNotEmpty()
+        public void ContextsAreNotEmpty()
         {
             CollectionAssert.IsNotEmpty(_contexts);
         }
 
         [Test]
-        public async Task ContainsContextWithMainContextUrlSubstring()
+        public void ContainsContextWithMainContextUrlSubstring()
         {
-            var containsContextWithMainContextUrlSubstring = _contexts.Any(x => x.FrameInfo.Url.Contains(Facts.MainFrame.UrlSubstring));
+            var containsContextWithMainContextUrlSubstring = _contexts.Any(x => x.FrameInfo.Url.Contains(Facts.GovUkTestSite.MainContext.UrlSubstring));
             Assert.IsTrue(containsContextWithMainContextUrlSubstring);
         }
 
         [Test]
-        public async Task ContainsContextWithEmbeddedContextUrlSubstring()
+        public void ContainsContextWithEmbeddedContextUrlSubstring()
         {
             var containsContextWithEmbeddedContextUrlSubstring = true;
 
-            foreach (var embeddedContext in Facts.ChildFrames)
+            foreach (var embeddedContext in Facts.GovUkTestSite.ChildContexts)
             {
                 containsContextWithEmbeddedContextUrlSubstring &= _contexts.Any(x => x.FrameInfo.Url.Contains(embeddedContext.UrlSubstring));
             }
@@ -51,13 +49,13 @@ namespace Gripper.Test.IWebClientTests
         }
 
         [Test]
-        public async Task ContainsContextWithEmbeddedContextName()
+        public void ContainsContextWithEmbeddedContextName()
         {
             var containsContextWithEmbeddedContextName = true;
 
-            foreach (var embeddedContext in Facts.ChildFrames)
+            foreach (var embeddedContext in Facts.GovUkTestSite.ChildContexts)
             {
-                containsContextWithEmbeddedContextName &= _contexts.Any(x => x.FrameInfo.Name == embeddedContext.Id);
+                containsContextWithEmbeddedContextName &= _contexts.Any(x => x.FrameInfo.Name == embeddedContext.FrameId);
             }
 
             Assert.IsTrue(containsContextWithEmbeddedContextName);

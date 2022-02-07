@@ -18,7 +18,6 @@ namespace Gripper.Test
     {
         private static readonly IServiceProvider _serviceProvider;
         private const string _logFileName = "logs/log_test_fail.txt";
-        private static string GetHomepageAbsolutePath() => Path.GetFullPath("../../../Pages/gov_uk/Welcome_to_GOV.UK.htm");
 
         protected static readonly ILogger _logger;
         protected static readonly IWebClient _webClient;
@@ -34,7 +33,7 @@ namespace Gripper.Test
 
             services.AddGripper(new WebClientSettings
             {
-                Homepage = GetHomepageAbsolutePath(),
+                Homepage = Facts.GovUkTestSite.Path,
                 BrowserLocation = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
                 //BrowserLocation = "chrome",
                 UserDataDir = ".\\UnitTestProfile",
