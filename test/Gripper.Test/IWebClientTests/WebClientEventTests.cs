@@ -29,7 +29,7 @@ namespace Gripper.Test.IWebClientTests
         [Test]
         public async Task RequestWillBeSentEventIsRaised()
         {
-            _webClient.WebClientEvent += HandleWebClientEvent;
+            _commonWebClient.WebClientEvent += HandleWebClientEvent;
 
             var fetchCommand = string.Format(
                 "fetch('{0}', {1})", 
@@ -38,7 +38,7 @@ namespace Gripper.Test.IWebClientTests
 
             var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
 
-            await _webClient.MainContext.ExecuteScriptAsync(fetchCommand, cts.Token);
+            await _commonWebClient.MainContext.ExecuteScriptAsync(fetchCommand, cts.Token);
 
             _webClientEventRaised.Wait(cts.Token);
 

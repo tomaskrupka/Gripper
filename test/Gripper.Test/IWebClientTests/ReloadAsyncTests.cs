@@ -11,21 +11,23 @@ namespace Gripper.Test.IWebClientTests
 {
     internal class ReloadAsyncTests : UnitTestBase
     {
-        //[Test]
-        //[NonParallelizable]
-        //public async Task DeletedElementShouldReappearOnReload()
-        //{
-        //    await _webClient.MainContext.FindElementByCssSelectorAsync("#wrapper");
-        //    var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+        [Test]
+        [NonParallelizable]
+        public async Task DeletedElementShouldReappearOnReload()
+        {
+            var gripper = GetService<IWebClient>();
 
-        //    await _webClient.MainContext.ExecuteScriptAsync("document.querySelector('#wrapper').remove()", cts.Token);
-        //    await _webClient.MainContext.FindElementByCssSelectorAsync("#wrapper");
+            await gripper.MainContext.FindElementByCssSelectorAsync("#wrapper");
+            var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
 
-        //    await _webClient.ReloadAsync(PollSettings.ElementDetectionDefault, cts.Token);
+            await gripper.MainContext.ExecuteScriptAsync("document.querySelector('#wrapper').remove()", cts.Token);
+            await gripper.MainContext.FindElementByCssSelectorAsync("#wrapper");
 
-        //    var contentWrapper = await _webClient.MainContext.FindElementByCssSelectorAsync("#wrapper");
+            await gripper.ReloadAsync(PollSettings.ElementDetectionDefault, cts.Token);
 
-        //    Assert.IsNotNull(contentWrapper);
-        //}
+            var contentWrapper = await gripper.MainContext.FindElementByCssSelectorAsync("#wrapper");
+
+            Assert.IsNotNull(contentWrapper);
+        }
     }
 }

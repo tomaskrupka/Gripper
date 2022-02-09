@@ -1,4 +1,6 @@
 ﻿using Gripper.WebClient.Cdtr;
+using Gripper.WebClient.Settings;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 
@@ -6,65 +8,29 @@ namespace Gripper.WebClient.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        // TODO: Extract this to appconfig.json
-        private static readonly WebClientSettings _defaultSettings = new()
-        {
-            TriggerKeyboardCommandListener = false,
-            UserDataDir = "C:\\GripperProfiles\\Default",
-            StartupCleanup = BrowserCleanupSettings.None,
-            UseProxy = false,
-            BrowserLocation = @"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
-            RemoteDebuggingPort = 9244,
-            Homepage = "https://github.com/tomaskrupka/Gripper",
-            DefaultPageLoadPollSettings = PollSettings.FrameDetectionDefault,
-            TargetAttachment = TargetAttachmentMode.Auto,
-            BrowserLaunchTimeoutMs = 30_000,
-            BrowserStartupArgs = Array.Empty<string>(),
-            IgnoreSslCertificateErrors = false,
-            LaunchBrowser = true
-        };
-
         private static IServiceCollection AddSettings(this IServiceCollection services, WebClientSettings webClientSettings)
         {
             services
                 .AddOptions<WebClientSettings>()
-                .Configure(x =>
-                {
-                    x.TriggerKeyboardCommandListener = webClientSettings.TriggerKeyboardCommandListener;// ?? x.TriggerKeyboardCommandListener;
-                    x.UserDataDir = webClientSettings.UserDataDir;// ?? x.UserDataDir;
-                    x.StartupCleanup = webClientSettings.StartupCleanup;// ?? x.StartupCleanup;
-                    x.UseProxy = webClientSettings.UseProxy;// ?? x.UseProxy;
-                    x.Proxy = webClientSettings.Proxy;// ?? x.Proxy;
-                    x.BrowserLocation = webClientSettings.BrowserLocation;// ?? x.BrowserLocation;
-                    x.RemoteDebuggingPort = webClientSettings.RemoteDebuggingPort;// ?? x.RemoteDebuggingPort;
-                    x.Homepage = webClientSettings.Homepage;// ?? x.Homepage;
-                    x.DefaultPageLoadPollSettings = webClientSettings.DefaultPageLoadPollSettings;// ?? x.DefaultPageLoadPollSettings;
-                    x.TargetAttachment = webClientSettings.TargetAttachment;// ?? x.TargetAttachment;
-                    x.BrowserStartupArgs = webClientSettings.BrowserStartupArgs;// ?? x.BrowserStartupArgs;
-                    x.BrowserLaunchTimeoutMs = webClientSettings.BrowserLaunchTimeoutMs;
-                    x.IgnoreSslCertificateErrors = webClientSettings.IgnoreSslCertificateErrors;
-                    x.LaunchBrowser = webClientSettings.LaunchBrowser;
-                });
+                .Configure(x => x.RewriteWith(webClientSettings));
 
             return services;
         }
 
         private static IServiceCollection AddDefaultSettings(this IServiceCollection services)
         {
-            return services.AddSettings(_defaultSettings);
+            return services.AddSettings(Settings.WebClientSettingsGenerator.DefaultSettings);
         }
         public static IServiceCollection AddGripper(this IServiceCollection services)
         {
-            services.AddSingleton<IWebClient, CdtrChromeClient>();
-
             return services
-                .AddSingleton<IElementFactory, CdtrElementFactory>()
-                //.AddSingleton<IWebClient, CdtrChromeClient>()
+                .AddTransient<IElementFactory, CdtrElementFactory>()
+                .AddTransient<IWebClient, CdtrChromeClient>()
+                .AddTransient<IBrowserManager, BrowserManager>()
+                .AddTransient<ICdpAdapter, CdpAdapter>()
+                .AddTransient<IContextFactory, CdtrContextFactory>()
+                .AddTransient<IContextManager, ContextManager>()
                 .AddSingleton<IJsBuilder, JsBuilder>()
-                .AddSingleton<IBrowserManager, BrowserManager>()
-                .AddSingleton<ICdpAdapter, CdpAdapter>()
-                .AddSingleton<IContextFactory, CdtrContextFactory>()
-                .AddSingleton<IContextManager, ContextManager>()
                 .AddDefaultSettings();
         }
         //public static IServiceCollection AddGripper(this IServiceCollection services, IConfiguration namedConfigurationSection)

@@ -12,13 +12,13 @@ namespace Gripper.Test.IContextTests
         [Test]
         public void MainContextIdIsDefined()
         {
-            Assert.IsTrue(_webClient.MainContext.Id > 0);
+            Assert.IsTrue(_commonWebClient.MainContext.Id > 0);
         }
 
         [Test]
         public async Task AllContextsIdsAreDefined()
         {
-            var contexts = await _webClient.GetContextsAsync();
+            var contexts = await _commonWebClient.GetContextsAsync();
 
             Assert.Multiple(() =>
             {

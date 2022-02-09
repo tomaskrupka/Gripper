@@ -94,18 +94,23 @@ namespace Gripper.WebClient.Cdtr
             _settings = settings.Value;
 
             _logger = _loggerFactory.CreateLogger<BrowserManager>();
+
+            if (_settings.LaunchBrowser)
+            {
+                var startupCts = new CancellationTokenSource(_settings.BrowserLaunchTimeoutMs);
+                LaunchAsync(startupCts.Token).Wait();
+            }
         }
 
         public string DebuggerUrl
         {
             get
             {
-                return _debuggerUrl ??
-                    throw new ApplicationException(
-                        string.Format(
-                            "Make sure to run and await the {0} method before accessing the {1} property.",
-                            nameof(LaunchAsync),
-                            nameof(DebuggerUrl)));
+                return _debuggerUrl ?? throw new ApplicationException(
+                    string.Format(
+                        "Make sure to run and await the {0} method before accessing the {1} property.",
+                        nameof(LaunchAsync),
+                        nameof(DebuggerUrl)));
             }
             private set => _debuggerUrl = value;
         }
@@ -114,12 +119,11 @@ namespace Gripper.WebClient.Cdtr
         {
             get
             {
-                return _browserProcess ??
-                    throw new ApplicationException(
-                        string.Format(
-                            "Make sure to run and await the {0} method before accessing the {1} property.",
-                                nameof(LaunchAsync),
-                                nameof(BrowserProcess)));
+                return _browserProcess ?? throw new ApplicationException(
+                    string.Format(
+                        "Make sure to run and await the {0} method before accessing the {1} property.",
+                        nameof(LaunchAsync),
+                        nameof(BrowserProcess)));
             }
 
             private set => _browserProcess = value;
@@ -175,7 +179,11 @@ namespace Gripper.WebClient.Cdtr
 
             var browserLocation =
                 _settings.BrowserLocation ??
-                throw new ApplicationException(string.Format("{0} needs a non-null {1}", nameof(LaunchAsync), nameof(_settings.BrowserLocation)));
+                throw new ApplicationException(
+                    string.Format(
+                        "{0} needs a non-null {1}",
+                        nameof(LaunchAsync),
+                        nameof(_settings.BrowserLocation)));
 
             DoPreStartupCleanup(userDataDir, _settings.StartupCleanup);
 

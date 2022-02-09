@@ -105,40 +105,19 @@ namespace Gripper.WebClient.Cdtr
             _browserManager = browserManager;
             _webClientSettings = options.Value;
 
-            // sanitize the settings
+            var startupCts = new CancellationTokenSource(_webClientSettings.BrowserLaunchTimeoutMs);
 
-            var browserLaunchTimeoutMs =
-                _webClientSettings.BrowserLaunchTimeoutMs ??
-                throw new ArgumentNullException("Please set the {name} parameter.", nameof(WebClientSettings.BrowserLaunchTimeoutMs));
-
-            var shallLaunchBrowser =
-                _webClientSettings.LaunchBrowser ??
-                throw new ArgumentNullException("Please set the {name} parameter.", nameof(WebClientSettings.LaunchBrowser));
-
-            var targetAttachmentSettings =
-                _webClientSettings.TargetAttachment ??
-                throw new ArgumentNullException("Please set the {name} parameter.", nameof(WebClientSettings.TargetAttachment));
-
-            var startupCts = new CancellationTokenSource(browserLaunchTimeoutMs);
-
-            if (shallLaunchBrowser)
-            {
-                _logger.LogInformation("{this} ctor launching {browserManager}", nameof(CdpAdapter), nameof(browserManager));
-
-                browserManager.LaunchAsync(startupCts.Token).Wait();
-            }
-
-            _logger.LogInformation("{this} ctor binding {chromeSession}", nameof(CdpAdapter), nameof(ChromeSession));
+            _logger.LogInformation("{this} ctor binding {chromeSession}...", nameof(CdpAdapter), nameof(ChromeSession));
 
             _chromeSession = new ChromeSession(
                 loggerFactory.CreateLogger<ChromeSession>(),
                 browserManager.DebuggerUrl);
 
-            _logger.LogDebug("Subscribing to rdp events.");
+            _logger.LogDebug("{this} ctor subscribing to rdp events...", nameof(CdpAdapter));
 
             SubscribeToRdpEventsAsync(startupCts.Token).Wait();
 
-            SetupTargetAttachment(targetAttachmentSettings);
+            SetupTargetAttachment(_webClientSettings.TargetAttachment);
         }
 
         public event EventHandler<RdpEventArgs>? WebClientEvent;

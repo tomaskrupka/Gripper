@@ -20,7 +20,9 @@ namespace Gripper.Test
         private const string _logFileName = "logs/log_test_fail.txt";
 
         protected static readonly ILogger _logger;
-        protected static readonly IWebClient _webClient;
+
+        // for testing of calls that should not affect each other in parallel runtime.
+        protected static readonly IWebClient _commonWebClient;
 
         protected static T GetService<T>()
         {
@@ -30,27 +32,31 @@ namespace Gripper.Test
         static UnitTestBase()
         {
             var services = new ServiceCollection();
+            var settingsAction = WebClient.Settings.WebClientSettingsGenerator.GetForUnitTesting();
+            settingsAction += x => x.Homepage = Facts.GovUkTestSite.Path;
 
-            services.AddGripper(new WebClientSettings
-            {
-                Homepage = Facts.GovUkTestSite.Path,
-                BrowserLocation = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-                //BrowserLocation = "chrome",
-                UserDataDir = ".\\UnitTestProfile",
-                DefaultPageLoadPollSettings = (50, 500),
-                BrowserStartupArgs = new[] { "--headless", "--disable-gpu", "--window-size=1280,1696", },
-                //BrowserStartupArgs = Array.Empty<string>(),
-                BrowserLaunchTimeoutMs = 30_000,
+            services.AddGripper(settingsAction);
+
+            //services.AddGripper(new WebClientSettings
+            //{
+            //    Homepage = Facts.GovUkTestSite.Path,
+            //    BrowserLocation = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+            //    //BrowserLocation = "chrome",
+            //    UserDataDir = ".\\UnitTestProfile",
+            //    DefaultPageLoadPollSettings = (50, 500),
+            //    BrowserStartupArgs = new[] { "--headless", "--disable-gpu", "--window-size=1280,1696", },
+            //    //BrowserStartupArgs = Array.Empty<string>(),
+            //    BrowserLaunchTimeoutMs = 30_000,
 
 
-                TriggerKeyboardCommandListener = false,
-                StartupCleanup = BrowserCleanupSettings.None,
-                UseProxy = false,
-                RemoteDebuggingPort = 9000,
-                TargetAttachment = TargetAttachmentMode.Auto,
-                IgnoreSslCertificateErrors = false,
-                LaunchBrowser = true
-            });
+            //    TriggerKeyboardCommandListener = false,
+            //    StartupCleanup = BrowserCleanupSettings.None,
+            //    UseProxy = false,
+            //    RemoteDebuggingPort = 9000,
+            //    TargetAttachment = TargetAttachmentMode.Auto,
+            //    IgnoreSslCertificateErrors = false,
+            //    LaunchBrowser = true
+            //});
 
             services.AddLogging(x =>
             {
@@ -62,7 +68,7 @@ namespace Gripper.Test
             _serviceProvider = services.BuildServiceProvider();
 
             _logger = _serviceProvider.GetService<ILogger<UnitTestBase>>() ?? throw new NullReferenceException();
-            _webClient = _serviceProvider.GetService<IWebClient>() ?? throw new ApplicationException("I need a non-null web client for testing");
+            _commonWebClient = _serviceProvider.GetService<IWebClient>() ?? throw new ApplicationException("I need a non-null web client for testing");
         }
     }
 }

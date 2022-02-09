@@ -14,7 +14,7 @@ namespace Gripper.Test.IWebClientTests
         [OneTimeSetUp]
         public void RunBeforeAnyTests()
         {
-            _mainContext = _webClient.MainContext;
+            _mainContext = _commonWebClient.MainContext;
         }
 
         [Test]

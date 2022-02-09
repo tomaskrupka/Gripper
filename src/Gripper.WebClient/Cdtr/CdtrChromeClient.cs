@@ -12,7 +12,6 @@ using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using BaristaLabs.ChromeDevTools.Runtime.Page;
 using Microsoft.Extensions.Options;
-using BaristaLabs.ChromeDevTools.Runtime.Runtime;
 
 namespace Gripper.WebClient.Cdtr
 {
@@ -39,9 +38,9 @@ namespace Gripper.WebClient.Cdtr
 
             if (e is Events.Page_FrameStoppedLoadingEventArgs fslEvent)
             {
-                _loadedFramesIds[fslEvent.FrameId] = 0; // using concurrent dictionary as hashset.
+                _loadedFramesIds[fslEvent.FrameId] = 0; // using concurrent dictionary as concurrent hashset.
 
-                // TODO: in rare cases this is a memory leak. Figure out when to remove the delegate.
+                // TODO: This is a memory leak, we never remove the frames. Figure out when to remove the delegate.
             }
         }
 
@@ -56,23 +55,7 @@ namespace Gripper.WebClient.Cdtr
         {
             var settings = options.Value;
 
-            #region Sanitize settings
-
-            var browserLaunchTimeoutMs =
-                settings.BrowserLaunchTimeoutMs ??
-                throw new ArgumentNullException("Please set the {name} parameter.", nameof(WebClientSettings.BrowserLaunchTimeoutMs));
-
-            var homepage =
-                settings.Homepage ??
-                throw new ArgumentNullException("Please set the {name} parameter.", nameof(WebClientSettings.Homepage));
-
-            var defaultPageLoadSettings =
-                settings.DefaultPageLoadPollSettings ??
-                throw new ArgumentNullException("Please set the {name} parameter.", nameof(WebClientSettings.DefaultPageLoadPollSettings));
-
-            #endregion
-
-            var startupCts = new CancellationTokenSource(browserLaunchTimeoutMs);
+            var startupCts = new CancellationTokenSource(settings.BrowserLaunchTimeoutMs);
 
             #region Populate members
 
@@ -94,13 +77,13 @@ namespace Gripper.WebClient.Cdtr
             _cancellationToken = _cancellationTokenSource.Token;
 
             // Tunnelling CDP events for external subscribers.
-            // _cdpAdapter.WebClientEvent += WebClientEvent here would just copy current fifo and ignore future subscriptions.
+            // Beware that _cdpAdapter.WebClientEvent += WebClientEvent here would just copy current fifo and ignore future subscriptions.
             _cdpAdapter.WebClientEvent += (s, e) => WebClientEvent?.Invoke(s, e);
 
             // Private subscribers.
             _cdpAdapter.WebClientEvent += HandleWebClientEvent;
 
-            NavigateAsync(homepage, defaultPageLoadSettings, startupCts.Token).Wait();
+            NavigateAsync(settings.Homepage, settings.DefaultPageLoadPollSettings, startupCts.Token).Wait();
 
             _logger.LogDebug("Exiting {this} constructor.", nameof(CdtrChromeClient));
 
@@ -289,7 +272,10 @@ namespace Gripper.WebClient.Cdtr
         {
             if (pollSettings == PollSettings.PassThrough)
             {
-                _logger.LogDebug("{name} recieved {settingsName} poll settings. Fast-tracking.", nameof(WaitUntilFramesLoadedAsync), nameof(PollSettings.PassThrough));
+                _logger.LogDebug(
+                    "{name} recieved {passThroughSettings} poll settings. Fast-tracking.",
+                    nameof(WaitUntilFramesLoadedAsync), 
+                    nameof(PollSettings.PassThrough));
                 return;
             }
 
@@ -313,7 +299,10 @@ namespace Gripper.WebClient.Cdtr
 
                 if (timedOut)
                 {
-                    _logger.LogInformation("{name} waiting for new iFrames timed out. Some may have not been attached. Consider relaxing the {timeout} parameter.", nameof(NavigateAsync), nameof(PollSettings.TimeoutMs));
+                    _logger.LogInformation(
+                        "{name} waiting for new iFrames timed out. Some may have not been attached. Consider relaxing the {timeout} parameter.",
+                        nameof(WaitUntilFramesLoadedAsync),
+                        nameof(PollSettings.TimeoutMs));
                     break;
                 }
 
@@ -325,7 +314,10 @@ namespace Gripper.WebClient.Cdtr
 
                 var framesLoaded = FramesLoaded(frameTreeResult.FrameTree);
 
-                _logger.LogDebug("Loaded frames ids: {framesCount}. All loaded: {frameTreeResult}", framesCount, framesLoaded);
+                _logger.LogDebug(
+                    "Loaded frames ids: {framesCount}. All loaded: {frameTreeResult}",
+                    framesCount, 
+                    framesLoaded);
 
                 // Wait for one more poll period and check one last time. That's to catch fresh iFrames that might have been attached by a background worker thread.
 
@@ -337,7 +329,10 @@ namespace Gripper.WebClient.Cdtr
 
                     var framesLoadedVerification = FramesLoaded(verificationFrameTreeResult.FrameTree);
 
-                    _logger.LogDebug("Verification: Loaded frames ids: {framesCount}. All loaded: {frameTreeResult}", _loadedFramesIds.Count, framesLoadedVerification);
+                    _logger.LogDebug(
+                        "Verification: Loaded frames ids: {framesCount}. All loaded: {frameTreeResult}",
+                        _loadedFramesIds.Count, 
+                        framesLoadedVerification);
 
                     if (framesLoadedVerification && _loadedFramesIds.Count == framesCount)
                     {
@@ -346,7 +341,10 @@ namespace Gripper.WebClient.Cdtr
                 }
             }
 
-            _logger.LogDebug("Exiting {name} in {elapsed}", nameof(NavigateAsync), domBuildStopwatch.Elapsed);
+            _logger.LogDebug(
+                "Exiting {name} in {elapsed}",
+                nameof(WaitUntilFramesLoadedAsync),
+                domBuildStopwatch.Elapsed);
 
         }
 

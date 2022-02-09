@@ -12,7 +12,7 @@ namespace Gripper.Test.IContextTests
         [Test]
         public void IsNotNull()
         {
-            Assert.IsNotNull(_webClient.MainContext.FrameInfo);
+            Assert.IsNotNull(_commonWebClient.MainContext.FrameInfo);
         }
     }
 }

@@ -17,16 +17,16 @@ namespace Gripper.Test.IWebClientTests
         {
             var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
 
-            await _webClient.NavigateAsync(Facts.WikipediaTestSite.Path, PollSettings.ElementDetectionDefault, cts.Token);
+            await _commonWebClient.NavigateAsync(Facts.WikipediaTestSite.Path, PollSettings.ElementDetectionDefault, cts.Token);
 
-            var wikipediaUrl = await _webClient.GetCurrentUrlAsync();
+            var wikipediaUrl = await _commonWebClient.GetCurrentUrlAsync();
             var escapedWikipediaUrlSubstring = Uri.EscapeDataString(Facts.WikipediaTestSite.MainContext.UrlSubstring);
 
             StringAssert.Contains(escapedWikipediaUrlSubstring, wikipediaUrl);
 
-            await _webClient.NavigateAsync(Facts.GovUkTestSite.Path, PollSettings.ElementDetectionDefault, cts.Token);
+            await _commonWebClient.NavigateAsync(Facts.GovUkTestSite.Path, PollSettings.ElementDetectionDefault, cts.Token);
 
-            var govUkUrl = await _webClient.GetCurrentUrlAsync();
+            var govUkUrl = await _commonWebClient.GetCurrentUrlAsync();
             var escapedGovUkUrlSubstring = Uri.EscapeDataString(Facts.GovUkTestSite.MainContext.UrlSubstring);
 
             StringAssert.Contains(escapedGovUkUrlSubstring, govUkUrl);

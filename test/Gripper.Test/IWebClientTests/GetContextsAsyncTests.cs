@@ -13,7 +13,7 @@ namespace Gripper.Test.IWebClientTests
         [OneTimeSetUp]
         public async Task RunBeforeAnyTests()
         {
-            _contexts = await _webClient.GetContextsAsync();
+            _contexts = await _commonWebClient.GetContextsAsync();
         }
 
         [Test]

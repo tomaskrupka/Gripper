@@ -5,6 +5,7 @@
 | :--- | :--- |
 | [ChildProcessTracker](Gripper_WebClient_ChildProcessTracker 'Gripper.WebClient.ChildProcessTracker') | Allows processes to be automatically killed if this parent process unexpectedly quits.<br/>This feature requires Windows 8 or greater. On Windows 7, nothing is done. |
 | [RdpEventArgs](Gripper_WebClient_RdpEventArgs 'Gripper.WebClient.RdpEventArgs') | The base event args container for any event from all CDP domains.<br/> |
+| [WebClientSettings](Gripper_WebClient_WebClientSettings 'Gripper.WebClient.WebClientSettings') |  |
 
 | Structs | |
 | :--- | :--- |
