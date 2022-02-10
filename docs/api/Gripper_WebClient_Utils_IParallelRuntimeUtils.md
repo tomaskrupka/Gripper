@@ -6,7 +6,7 @@ State container for running multiple [IWebClient](Gripper_WebClient_IWebClient '
 public interface IParallelRuntimeUtils
 ```
 ### Remarks
-This is a global state container. Instantiate as a singleton.  
+Instantiate as a singleton.  
 
 | Methods | |
 | :--- | :--- |

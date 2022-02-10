@@ -8,4 +8,4 @@ object```
 public System.Nullable<Gripper.WebClient.Models.RemoteObjectSubtype> Subtype { get; set; }
 ```
 #### Property Value
-[System.Nullable&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Nullable-1 'System.Nullable`1')[Gripper.WebClient.Models.RemoteObjectSubtype](https://docs.microsoft.com/en-us/dotnet/api/Gripper.WebClient.Models.RemoteObjectSubtype 'Gripper.WebClient.Models.RemoteObjectSubtype')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Nullable-1 'System.Nullable`1')
+[System.Nullable&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Nullable-1 'System.Nullable`1')[RemoteObjectSubtype](Gripper_WebClient_Models_RemoteObjectSubtype 'Gripper.WebClient.Models.RemoteObjectSubtype')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Nullable-1 'System.Nullable`1')

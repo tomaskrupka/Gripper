@@ -8,4 +8,4 @@ internal interface IContextManager
 
 | Methods | |
 | :--- | :--- |
-| [GetContextDescriptionsAsync()](Gripper_WebClient_Cdtr_IContextManager_GetContextDescriptionsAsync() 'Gripper.WebClient.Cdtr.IContextManager.GetContextDescriptionsAsync()') | Gets a collection of active execution contexts.<br/> |
+| [GetContextDescriptions()](Gripper_WebClient_Cdtr_IContextManager_GetContextDescriptions() 'Gripper.WebClient.Cdtr.IContextManager.GetContextDescriptions()') | Gets a collection of active execution contexts.<br/> |

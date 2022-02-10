@@ -1,7 +1,7 @@
 #### [Gripper.WebClient](index 'index')
 ### [Gripper.WebClient.Models](Gripper_WebClient_Models 'Gripper.WebClient.Models').[RemoteObject](Gripper_WebClient_Models_RemoteObject 'Gripper.WebClient.Models.RemoteObject')
 ## RemoteObject.UnserializableValue Property
-Gets or sets Primitive value which can not be JSON-string?ified does not have ```csharp
+Gets or sets Primitive value which can not be JSON-stringified does not have ```csharp
 value```
 , but gets this property.  
 ```csharp

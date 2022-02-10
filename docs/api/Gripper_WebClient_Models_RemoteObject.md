@@ -17,5 +17,5 @@ Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.O
 | [Preview](Gripper_WebClient_Models_RemoteObject_Preview 'Gripper.WebClient.Models.RemoteObject.Preview') | Gets or sets Preview containing abbreviated property values. Specified for  type values only.<br/> |
 | [Subtype](Gripper_WebClient_Models_RemoteObject_Subtype 'Gripper.WebClient.Models.RemoteObject.Subtype') | Gets or sets Object subtype hint. Specified for  type values only.<br/> |
 | [Type](Gripper_WebClient_Models_RemoteObject_Type 'Gripper.WebClient.Models.RemoteObject.Type') | Gets or sets Object type.<br/> |
-| [UnserializableValue](Gripper_WebClient_Models_RemoteObject_UnserializableValue 'Gripper.WebClient.Models.RemoteObject.UnserializableValue') | Gets or sets Primitive value which can not be JSON-string?ified does not have , but gets this property.<br/> |
+| [UnserializableValue](Gripper_WebClient_Models_RemoteObject_UnserializableValue 'Gripper.WebClient.Models.RemoteObject.UnserializableValue') | Gets or sets Primitive value which can not be JSON-stringified does not have , but gets this property.<br/> |
 | [Value](Gripper_WebClient_Models_RemoteObject_Value 'Gripper.WebClient.Models.RemoteObject.Value') | Gets or sets Remote object value in case of primitive values or JSON values (if it was requested).<br/> |

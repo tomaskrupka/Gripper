@@ -12,7 +12,6 @@ namespace Gripper.Test.IWebClientTests
     internal class ReloadAsyncTests : UnitTestBase
     {
         [Test]
-        [NonParallelizable]
         public async Task DeletedElementShouldReappearOnReload()
         {
             var gripper = GetRequiredService<IWebClient>();

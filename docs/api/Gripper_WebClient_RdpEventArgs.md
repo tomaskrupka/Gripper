@@ -8,6 +8,9 @@ public class RdpEventArgs : System.EventArgs
 
 Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [System.EventArgs](https://docs.microsoft.com/en-us/dotnet/api/System.EventArgs 'System.EventArgs') &#129106; RdpEventArgs  
 
+Derived  
+&#8627; [Network_RequestWillBeSentEventArgs](Gripper_WebClient_Events_Network_RequestWillBeSentEventArgs 'Gripper.WebClient.Events.Network_RequestWillBeSentEventArgs')  
+
 | Properties | |
 | :--- | :--- |
 | [DomainName](Gripper_WebClient_RdpEventArgs_DomainName 'Gripper.WebClient.RdpEventArgs.DomainName') | The namespace of the domain where the event originated, e.g. "Network". The first character is always uppercase.<br/> |

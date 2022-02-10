@@ -8,4 +8,4 @@ internal interface IElementFactory
 
 | Methods | |
 | :--- | :--- |
-| [CreateElementAsync(long)](Gripper_WebClient_Cdtr_IElementFactory_CreateElementAsync(long) 'Gripper.WebClient.Cdtr.IElementFactory.CreateElementAsync(long)') | Create element that mirrors the backend node with given id.<br/> |
+| [CreateElement(long)](Gripper_WebClient_Cdtr_IElementFactory_CreateElement(long) 'Gripper.WebClient.Cdtr.IElementFactory.CreateElement(long)') | Create element that mirrors the backend node with given id.<br/> |

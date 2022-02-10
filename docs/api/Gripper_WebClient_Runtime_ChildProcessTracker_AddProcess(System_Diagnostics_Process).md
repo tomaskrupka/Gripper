@@ -12,4 +12,4 @@ public void AddProcess(System.Diagnostics.Process process);
 `process` [System.Diagnostics.Process](https://docs.microsoft.com/en-us/dotnet/api/System.Diagnostics.Process 'System.Diagnostics.Process')  
   
 
-Implements [AddProcess(Process)](https://docs.microsoft.com/en-us/dotnet/api/Gripper.WebClient.Runtime.IChildProcessTracker.AddProcess#Gripper_WebClient_Runtime_IChildProcessTracker_AddProcess_System_Diagnostics_Process_ 'Gripper.WebClient.Runtime.IChildProcessTracker.AddProcess(System.Diagnostics.Process)')  
+Implements [AddProcess(Process)](Gripper_WebClient_Runtime_IChildProcessTracker_AddProcess(System_Diagnostics_Process) 'Gripper.WebClient.Runtime.IChildProcessTracker.AddProcess(System.Diagnostics.Process)')  

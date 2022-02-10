@@ -11,8 +11,11 @@
 | [PropertyPreview](Gripper_WebClient_Models_PropertyPreview 'Gripper.WebClient.Models.PropertyPreview') | Property preview object.<br/> |
 | [RemoteObject](Gripper_WebClient_Models_RemoteObject 'Gripper.WebClient.Models.RemoteObject') | Mirror object referencing original JavaScript object.<br/> |
 | [RuntimeEvaluateResponse](Gripper_WebClient_Models_RuntimeEvaluateResponse 'Gripper.WebClient.Models.RuntimeEvaluateResponse') | Evaluates expression on global object.<br/> |
+| [RuntimeEvaluateResponseExtensions](Gripper_WebClient_Models_RuntimeEvaluateResponseExtensions 'Gripper.WebClient.Models.RuntimeEvaluateResponseExtensions') | Utils for easier consumption of Runtime.Evaluate() calls responses.<br/> |
 | [StackTrace](Gripper_WebClient_Models_StackTrace 'Gripper.WebClient.Models.StackTrace') | Call frames for assertions or error messages.<br/> |
 
 | Enums | |
 | :--- | :--- |
-| [UnserializableValue](Gripper_WebClient_Models_UnserializableValue 'Gripper.WebClient.Models.UnserializableValue') | Primitive value which cannot be JSON-string?ified.<br/> |
+| [RemoteObjectSubtype](Gripper_WebClient_Models_RemoteObjectSubtype 'Gripper.WebClient.Models.RemoteObjectSubtype') | Remote object subtype allowed values.<br/> |
+| [RemoteObjectType](Gripper_WebClient_Models_RemoteObjectType 'Gripper.WebClient.Models.RemoteObjectType') | Remote object type allowed values.<br/> |
+| [UnserializableValue](Gripper_WebClient_Models_UnserializableValue 'Gripper.WebClient.Models.UnserializableValue') | Primitive value which cannot be JSON-stringified.<br/> |

@@ -6,4 +6,4 @@ Gets or sets Object type.
 public Gripper.WebClient.Models.RemoteObjectType Type { get; set; }
 ```
 #### Property Value
-[Gripper.WebClient.Models.RemoteObjectType](https://docs.microsoft.com/en-us/dotnet/api/Gripper.WebClient.Models.RemoteObjectType 'Gripper.WebClient.Models.RemoteObjectType')
+[RemoteObjectType](Gripper_WebClient_Models_RemoteObjectType 'Gripper.WebClient.Models.RemoteObjectType')

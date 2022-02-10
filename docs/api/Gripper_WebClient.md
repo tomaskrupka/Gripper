@@ -3,6 +3,7 @@
 
 | Classes | |
 | :--- | :--- |
+| [HttpRequest](Gripper_WebClient_HttpRequest 'Gripper.WebClient.HttpRequest') | Contains Http Request metadata.<br/> |
 | [RdpEventArgs](Gripper_WebClient_RdpEventArgs 'Gripper.WebClient.RdpEventArgs') | The base event args container for any event from all CDP domains.<br/> |
 | [WebClientSettings](Gripper_WebClient_WebClientSettings 'Gripper.WebClient.WebClientSettings') |  |
 
@@ -21,4 +22,6 @@
 
 | Enums | |
 | :--- | :--- |
+| [BrowserCleanupSettings](Gripper_WebClient_BrowserCleanupSettings 'Gripper.WebClient.BrowserCleanupSettings') | Provides options for pre-startup cleanup of the user profile directory.<br/> |
+| [SpecialKey](Gripper_WebClient_SpecialKey 'Gripper.WebClient.SpecialKey') | Represents a special key as defined [here.](https://github.com/chromedp/chromedp/blob/fd310a9b849a/kb/keys.go 'https://github.com/chromedp/chromedp/blob/fd310a9b849a/kb/keys.go') |
 | [TargetAttachmentMode](Gripper_WebClient_TargetAttachmentMode 'Gripper.WebClient.TargetAttachmentMode') | Configures response to the [ Chromium bug 924937 ](https://bugs.chromium.org/p/chromium/issues/detail?id=924937#c13 'https://bugs.chromium.org/p/chromium/issues/detail?id=924937#c13') <br/>which affects how targets (iFrames) are attached.<br/> |

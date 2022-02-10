@@ -9,10 +9,13 @@ internal interface ICdpAdapter
 Derived  
 &#8627; [CdpAdapter](Gripper_WebClient_Cdtr_CdpAdapter 'Gripper.WebClient.Cdtr.CdpAdapter')  
 
+| Properties | |
+| :--- | :--- |
+| [ChromeSession](Gripper_WebClient_Cdtr_ICdpAdapter_ChromeSession 'Gripper.WebClient.Cdtr.ICdpAdapter.ChromeSession') | Gets reference to the [ChromeSession](Gripper_WebClient_Cdtr_ICdpAdapter_ChromeSession 'Gripper.WebClient.Cdtr.ICdpAdapter.ChromeSession') singleton.<br/> |
+
 | Methods | |
 | :--- | :--- |
 | [BindAsync(IBrowserManager)](Gripper_WebClient_Cdtr_ICdpAdapter_BindAsync(Gripper_WebClient_IBrowserManager) 'Gripper.WebClient.Cdtr.ICdpAdapter.BindAsync(Gripper.WebClient.IBrowserManager)') | Binds the instance to the websocket endpoint of a running instance of an [IBrowserManager](Gripper_WebClient_IBrowserManager 'Gripper.WebClient.IBrowserManager').<br/> |
-| [GetChromeSessionAsync()](Gripper_WebClient_Cdtr_ICdpAdapter_GetChromeSessionAsync() 'Gripper.WebClient.Cdtr.ICdpAdapter.GetChromeSessionAsync()') | Gets reference to the [BaristaLabs.ChromeDevTools.Runtime.ChromeSession](https://docs.microsoft.com/en-us/dotnet/api/BaristaLabs.ChromeDevTools.Runtime.ChromeSession 'BaristaLabs.ChromeDevTools.Runtime.ChromeSession') singleton.<br/> |
 
 | Events | |
 | :--- | :--- |
