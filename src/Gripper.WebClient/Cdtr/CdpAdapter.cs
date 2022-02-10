@@ -15,44 +15,45 @@ using System.Threading.Tasks;
 
 namespace Gripper.WebClient.Cdtr
 {
-    public class CdpAdapter : ICdpAdapter
+    internal class CdpAdapter : ICdpAdapter
     {
+        private readonly ILoggerFactory _loggerFactory;
         private readonly ILogger _logger;
-        private readonly IBrowserManager _browserManager;
+        private IBrowserManager? _browserManager;
         private readonly WebClientSettings _webClientSettings;
-        private readonly ChromeSession _chromeSession;
+        private ChromeSession? _chromeSession;
 
         private async Task SubscribeToRdpEventsAsync(CancellationToken cancellationToken)
         {
-            await _chromeSession.Network.Enable(
+            await ChromeSession.Network.Enable(
                 new BaristaLabs.ChromeDevTools.Runtime.Network.EnableCommand { },
                 throwExceptionIfResponseNotReceived: false,
                 cancellationToken: cancellationToken);
 
-            _chromeSession.Network.SubscribeToRequestWillBeSentEvent(x =>
+            ChromeSession.Network.SubscribeToRequestWillBeSentEvent(x =>
             {
                 WebClientEvent?.Invoke(this, new Network_RequestWillBeSentEventArgs(x.RequestId, x.Request.Headers, x.Request.Method, x.Request.Url));
             });
 
-            await _chromeSession.Page.Enable(
+            await ChromeSession.Page.Enable(
                 throwExceptionIfResponseNotReceived: false,
                 cancellationToken: cancellationToken);
 
-            _chromeSession.Page.SubscribeToFrameStoppedLoadingEvent(x =>
+            ChromeSession.Page.SubscribeToFrameStoppedLoadingEvent(x =>
             {
                 _logger.LogDebug("Frame stopped loading: {id}", x.FrameId);
                 WebClientEvent?.Invoke(this, new Page_FrameStoppedLoadingEventArgs(x.FrameId));
             });
 
-            await _chromeSession.Runtime.Enable(throwExceptionIfResponseNotReceived: false, cancellationToken: cancellationToken);
+            await ChromeSession.Runtime.Enable(throwExceptionIfResponseNotReceived: false, cancellationToken: cancellationToken);
 
-            _chromeSession.Runtime.SubscribeToExecutionContextCreatedEvent(x =>
+            ChromeSession.Runtime.SubscribeToExecutionContextCreatedEvent(x =>
             {
                 _logger.LogDebug("execution context created: {id}, {name}, {origin}.", x.Context.Id, x.Context.Name, x.Context.Origin);
                 WebClientEvent?.Invoke(this, new Runtime_ExecutionContextCreatedEventArgs(x.Context));
             });
 
-            _chromeSession.Runtime.SubscribeToExecutionContextDestroyedEvent(x =>
+            ChromeSession.Runtime.SubscribeToExecutionContextDestroyedEvent(x =>
             {
                 _logger.LogDebug("execution context destroyed: {id}.", x.ExecutionContextId);
                 WebClientEvent?.Invoke(this, new Runtime_ExecutionContextDestroyedEventArgs(x.ExecutionContextId));
@@ -75,7 +76,7 @@ namespace Gripper.WebClient.Cdtr
                     {
                         if (e is Page_FrameStoppedLoadingEventArgs)
                         {
-                            await _chromeSession.Target.SetAutoAttach(new BaristaLabs.ChromeDevTools.Runtime.Target.SetAutoAttachCommand
+                            await ChromeSession.Target.SetAutoAttach(new BaristaLabs.ChromeDevTools.Runtime.Target.SetAutoAttachCommand
                             {
                                 AutoAttach = true,
                                 // Setting WaitForDebuggerOnStart = true requires releasing stalled frames by calling Runtime.RunIfWaitingForDebugger
@@ -99,74 +100,40 @@ namespace Gripper.WebClient.Cdtr
             }
         }
 
-        //private async Task LoopSeekAndAttachTargetsAsync(TimeSpan loopPeriod, CancellationToken cancellationToken)
-        //{
-        //    while (!cancellationToken.IsCancellationRequested)
-        //    {
-        //        await Task.Delay(loopPeriod);
-        //        var targets = await _chromeSession.Target.GetTargets(throwExceptionIfResponseNotReceived: false, cancellationToken: cancellationToken);
-
-        //        _logger.LogDebug("Found targets: {targetsCount} of which attached: {attachedTargetsCount}", targets.TargetInfos.Length, targets.TargetInfos.Count(x => x.Attached));
-
-        //        foreach (var target in targets.TargetInfos.Where(x => !x.Attached))
-        //        {
-        //            _logger.LogDebug("Attaching to target: {targetId}", target.TargetId);
-        //            await _chromeSession.Target.AttachToTarget(new BaristaLabs.ChromeDevTools.Runtime.Target.AttachToTargetCommand
-        //            {
-        //                TargetId = target.TargetId
-        //            },
-        //            throwExceptionIfResponseNotReceived: false,
-        //            cancellationToken: cancellationToken);
-        //        }
-        //    }
-        //}
+        public CdpAdapter(ILoggerFactory loggerFactory, IOptions<WebClientSettings> options)
+        {
+            _loggerFactory = loggerFactory;
+            _logger = loggerFactory.CreateLogger<CdpAdapter>();
+            _webClientSettings = options.Value;
+        }
 
         public event EventHandler<RdpEventArgs>? WebClientEvent;
 
-        public CdpAdapter(ILoggerFactory loggerFactory, IOptions<WebClientSettings> options, IBrowserManager browserManager)
+        public ChromeSession ChromeSession
         {
-            _logger = loggerFactory.CreateLogger<CdpAdapter>();
+            get => _chromeSession ??
+                throw new ApplicationException(
+                    string.Format(
+                        "You must first run {0} before accessing the {1}.",
+                        nameof(BindAsync),
+                        nameof(ChromeSession)));
+        }
+
+        public async Task BindAsync(IBrowserManager browserManager)
+        {
+            var startupCts = new CancellationTokenSource(_webClientSettings.BrowserLaunchTimeoutMs);
+
             _browserManager = browserManager;
-            _webClientSettings = options.Value;
-
-            // sanitize the settings
-
-            var browserLaunchTimeoutMs =
-                _webClientSettings.BrowserLaunchTimeoutMs ??
-                throw new ArgumentNullException("Please set the {name} parameter.", nameof(WebClientSettings.BrowserLaunchTimeoutMs));
-
-            var shallLaunchBrowser =
-                _webClientSettings.LaunchBrowser ??
-                throw new ArgumentNullException("Please set the {name} parameter.", nameof(WebClientSettings.LaunchBrowser));
-
-            var targetAttachmentSettings =
-                _webClientSettings.TargetAttachment ??
-                throw new ArgumentNullException("Please set the {name} parameter.", nameof(WebClientSettings.TargetAttachment));
-
-            var startupCts = new CancellationTokenSource(browserLaunchTimeoutMs);
-
-            if (shallLaunchBrowser)
-            {
-                _logger.LogInformation("{this} ctor launching {browserManager}", nameof(CdpAdapter), nameof(browserManager));
-
-                browserManager.LaunchAsync(startupCts.Token).Wait();
-            }
-
-            _logger.LogInformation("{this} ctor binding {chromeSession}", nameof(CdpAdapter), nameof(ChromeSession));
+            _logger.LogInformation("{this} ctor binding {chromeSession}...", nameof(CdpAdapter), nameof(ChromeSession));
 
             _chromeSession = new ChromeSession(
-                loggerFactory.CreateLogger<ChromeSession>(),
+                _loggerFactory.CreateLogger<ChromeSession>(),
                 browserManager.DebuggerUrl);
 
-            _logger.LogDebug("Subscribing to rdp events.");
+            _logger.LogDebug("{this} ctor subscribing to rdp events...", nameof(CdpAdapter));
 
-            SubscribeToRdpEventsAsync(startupCts.Token).Wait();
-
-            SetupTargetAttachment(targetAttachmentSettings);
-        }
-        public async Task<ChromeSession> GetChromeSessionAsync()
-        {
-            return _chromeSession;
+            await SubscribeToRdpEventsAsync(startupCts.Token);
+            SetupTargetAttachment(_webClientSettings.TargetAttachment);
         }
     }
 }

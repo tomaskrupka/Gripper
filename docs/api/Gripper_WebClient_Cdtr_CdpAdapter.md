@@ -2,13 +2,10 @@
 ### [Gripper.WebClient.Cdtr](Gripper_WebClient_Cdtr 'Gripper.WebClient.Cdtr')
 ## CdpAdapter Class
 ```csharp
-public class CdpAdapter :
-Gripper.WebClient.Cdtr.ICdpAdapter
+internal class CdpAdapter
 ```
 
 Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; CdpAdapter  
-
-Implements [ICdpAdapter](Gripper_WebClient_Cdtr_ICdpAdapter 'Gripper.WebClient.Cdtr.ICdpAdapter')  
 
 | Methods | |
 | :--- | :--- |

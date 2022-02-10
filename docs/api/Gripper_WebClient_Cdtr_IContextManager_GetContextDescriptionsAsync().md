@@ -3,7 +3,7 @@
 ## IContextManager.GetContextDescriptionsAsync() Method
 Gets a collection of active execution contexts.  
 ```csharp
-System.Threading.Tasks.Task<System.Collections.Generic.ICollection<BaristaLabs.ChromeDevTools.Runtime.Runtime.ExecutionContextDescription>> GetContextDescriptionsAsync();
+internal System.Threading.Tasks.Task<System.Collections.Generic.ICollection<BaristaLabs.ChromeDevTools.Runtime.Runtime.ExecutionContextDescription>> GetContextDescriptionsAsync();
 ```
 #### Returns
 [System.Threading.Tasks.Task&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Threading.Tasks.Task-1 'System.Threading.Tasks.Task`1')[System.Collections.Generic.ICollection&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.ICollection-1 'System.Collections.Generic.ICollection`1')[BaristaLabs.ChromeDevTools.Runtime.Runtime.ExecutionContextDescription](https://docs.microsoft.com/en-us/dotnet/api/BaristaLabs.ChromeDevTools.Runtime.Runtime.ExecutionContextDescription 'BaristaLabs.ChromeDevTools.Runtime.Runtime.ExecutionContextDescription')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.ICollection-1 'System.Collections.Generic.ICollection`1')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Threading.Tasks.Task-1 'System.Threading.Tasks.Task`1')  

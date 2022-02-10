@@ -30,7 +30,7 @@ namespace Gripper.WebClient
         /// Gets all cookies stored by the browser.
         /// </summary>
         /// <returns>A <see cref="CookieContainer"/> that can be plugged as-is into an <see cref="System.Net.Http.HttpClientHandler"/></returns>
-        public Task<CookieContainer> GetAllCookiesAsync();
+        public Task<ICollection<Cookie>> GetAllCookiesAsync();
 
         /// <summary>
         /// Gets an <see cref="IReadOnlyCollection{T}"/> of interactable contexts.

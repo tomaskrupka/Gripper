@@ -8,7 +8,7 @@ namespace Gripper.Test.IWebClientTests
         [Test]
         public async Task UrlIsNotNullAsync()
         {
-            var url = await _webClient.GetCurrentUrlAsync();
+            var url = await _commonWebClient.GetCurrentUrlAsync();
 
             Assert.IsNotNull(url);
         }
@@ -16,17 +16,17 @@ namespace Gripper.Test.IWebClientTests
         [Test]
         public async Task UrlIsNotEmptyAsync()
         {
-            var url = await _webClient.GetCurrentUrlAsync();
+            var url = await _commonWebClient.GetCurrentUrlAsync();
 
             Assert.IsNotEmpty(url);
         }
 
         [Test]
-        public async Task UrlIsCorrect()
+        public async Task UrlIsCorrectAsync()
         {
-            var url = await _webClient.GetCurrentUrlAsync();
+            var url = await _commonWebClient.GetCurrentUrlAsync();
             var escapedUrl = System.Uri.EscapeDataString(url);
-            var expectedSubstring = "Welcome_to_GOV.UK.htm";
+            var expectedSubstring = Facts.GovUkTestSite.MainContext.UrlSubstring;
 
             StringAssert.Contains(expectedSubstring, escapedUrl);
         }

@@ -10,23 +10,18 @@
   - [Configuration](#configuration)
   - [Launching the browser](#launching-the-browser)
 
-# Packaging
+# Package
 
-The Gripper interface is packed as [Gripper.WebClient](https://www.nuget.org/packages/Gripper.WebClient/) on Nuget.
-The standard implementation is packed separately as [Gripper.WebClient.Cdtr](https://www.nuget.org/packages/Gripper.WebClient.Cdtr/).
+Gripper is packed as [Gripper.WebClient](https://www.nuget.org/packages/Gripper.WebClient/) on Nuget.
+The standard implementation separated as `Gripper.WebClient.Cdtr` namespace within the same package.
 
-Please refer to the nuget.org package pages for version info, release notes and the ``.nupkg``s.
+The dependencies of Gripper are:
+- .NET6.0
+- [chrome-dev-tools runtime](https://www.nuget.org/packages/BaristaLabs.ChromeDevTools.Runtime/)
+- [Microsoft.Extensions.Configuration](https://www.nuget.org/packages/Microsoft.Extensions.Configuration/)
+- [Microsoft.Extensions.Logging](https://www.nuget.org/packages/Microsoft.Extensions.Logging/)
 
-Both packages are built against ``.NET 6.0``.
-In the case of ``Gripper.WebClient`` it's the only dependency.
-The ``Gripper.WebClient.Cdtr`` implementation package also depends on the [chrome-dev-tools-runtime](https://www.nuget.org/packages/BaristaLabs.ChromeDevTools.Runtime/). 
-
-Note:
-This is messy and will be fixed soon™ in a backward compatible way. When the implementation is free from dependencies, it will be packed into ``Gripper.WebClient`` together with the interface.
-
-Note: 
-This way, client services using Gripper can depend on its API without having to pull any dependency.
-Only the DI host then needs to provide the implementation the dependency.
+See the current list [here](https://www.nuget.org/packages/Gripper.WebClient/0.5.0-alpha#dependencies-tab).
 
 # Deployment
 
@@ -41,9 +36,7 @@ How to add Gripper to your .NET project.
 
 ## Windows
 
-Note: The current version of the package is a prerelease.
-When installing from the CLI, don't forget the `--prerelease` flag.
-In the Visual Studio Nuget package manager, toggle the Prerelease checkbox.
+Note: The current version of the package is a prerelease. When installing from the CLI, don't forget the `--prerelease` flag. In the Visual Studio Nuget package manager, toggle the Prerelease checkbox.
 
 Creating a console app, adding the `Gripper.WebClient` package reference and running it looks as follows.
 
@@ -79,9 +72,7 @@ Hello, World!
 
 Soon™
 
-# Runtime
-
-## Hosting
+# Hosting
 
 Let's create a standalone service called ``GripperService`` that uses Gripper.
 It can be built and packed separately depending just on the API package.
@@ -147,9 +138,9 @@ IHost host = Host.CreateDefaultBuilder(args)
 await host.RunAsync();
 ```
 
-## Configuration
+# Configuration
 
 In order to avoid hardcoding Gripper configuration explicitly,
 you may prefer to take advantage of the built-in configuration extensions.
 
-## Launching the browser
+# Launching the browser

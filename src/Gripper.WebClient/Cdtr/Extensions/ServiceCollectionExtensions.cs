@@ -1,4 +1,8 @@
 ﻿using Gripper.WebClient.Cdtr;
+using Gripper.WebClient.Runtime;
+using Gripper.WebClient.Settings;
+using Gripper.WebClient.Utils;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 
@@ -6,79 +10,69 @@ namespace Gripper.WebClient.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        // TODO: Extract this to appconfig.json
-        private static readonly WebClientSettings _defaultSettings = new()
-        {
-            TriggerKeyboardCommandListener = false,
-            UserDataDir = "C:\\GripperProfiles\\Default",
-            StartupCleanup = BrowserCleanupSettings.None,
-            UseProxy = false,
-            BrowserLocation = @"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
-            RemoteDebuggingPort = 9244,
-            Homepage = "https://github.com/tomaskrupka/Gripper",
-            DefaultPageLoadPollSettings = PollSettings.FrameDetectionDefault,
-            TargetAttachment = TargetAttachmentMode.Auto,
-            BrowserLaunchTimeoutMs = 30_000,
-            BrowserStartupArgs = Array.Empty<string>(),
-            IgnoreSslCertificateErrors = false,
-            LaunchBrowser = true
-        };
-
         private static IServiceCollection AddSettings(this IServiceCollection services, WebClientSettings webClientSettings)
         {
             services
                 .AddOptions<WebClientSettings>()
-                .Configure(x =>
-                {
-                    x.TriggerKeyboardCommandListener = webClientSettings.TriggerKeyboardCommandListener;// ?? x.TriggerKeyboardCommandListener;
-                    x.UserDataDir = webClientSettings.UserDataDir;// ?? x.UserDataDir;
-                    x.StartupCleanup = webClientSettings.StartupCleanup;// ?? x.StartupCleanup;
-                    x.UseProxy = webClientSettings.UseProxy;// ?? x.UseProxy;
-                    x.Proxy = webClientSettings.Proxy;// ?? x.Proxy;
-                    x.BrowserLocation = webClientSettings.BrowserLocation;// ?? x.BrowserLocation;
-                    x.RemoteDebuggingPort = webClientSettings.RemoteDebuggingPort;// ?? x.RemoteDebuggingPort;
-                    x.Homepage = webClientSettings.Homepage;// ?? x.Homepage;
-                    x.DefaultPageLoadPollSettings = webClientSettings.DefaultPageLoadPollSettings;// ?? x.DefaultPageLoadPollSettings;
-                    x.TargetAttachment = webClientSettings.TargetAttachment;// ?? x.TargetAttachment;
-                    x.BrowserStartupArgs = webClientSettings.BrowserStartupArgs;// ?? x.BrowserStartupArgs;
-                    x.BrowserLaunchTimeoutMs = webClientSettings.BrowserLaunchTimeoutMs;
-                    x.IgnoreSslCertificateErrors = webClientSettings.IgnoreSslCertificateErrors;
-                    x.LaunchBrowser = webClientSettings.LaunchBrowser;
-                });
+                .Configure(x => x.RewriteWith(webClientSettings));
 
             return services;
         }
 
         private static IServiceCollection AddDefaultSettings(this IServiceCollection services)
         {
-            return services.AddSettings(_defaultSettings);
+            return services.AddSettings(Settings.WebClientSettingsGenerator.DefaultSettings);
         }
+        /// <summary>
+        /// Adds Gripper to service collection.
+        /// </summary>
+        /// <param name="services"></param>
+        /// <returns>The same <see cref="IServiceCollection"/> instance so that additional calls can be chained.</returns>
         public static IServiceCollection AddGripper(this IServiceCollection services)
         {
+
             return services
-                .AddSingleton<IElementFactory, CdtrElementFactory>()
-                .AddSingleton<IWebClient, CdtrChromeClient>()
+                // Create as many as you want. Each will pull settings, bootstrap its own browser, resolve scoped services and clean up at dispose.
+                .AddTransient<IWebClient, CdtrChromeClient>()
+
+                // Don't pull these directly. IWebClient will resolve these within its scope.
+                .AddScoped<IElementFactory, CdtrElementFactory>()
+                .AddScoped<IBrowserManager, BrowserManager>()
+                .AddScoped<ICdpAdapter, CdpAdapter>()
+                .AddScoped<IContextFactory, CdtrContextFactory>()
+                .AddScoped<IContextManager, ContextManager>()
+
+                // Stateless utils
                 .AddSingleton<IJsBuilder, JsBuilder>()
-                .AddSingleton<IBrowserManager, BrowserManager>()
-                .AddSingleton<ICdpAdapter, CdpAdapter>()
-                .AddSingleton<IContextFactory, CdtrContextFactory>()
-                .AddSingleton<IContextManager, ContextManager>()
+
+                // Global state containers
+                .AddSingleton<IParallelRuntimeUtils, ParallelRuntimeUtils>()
+                .AddSingleton<IChildProcessTracker, ChildProcessTracker>()
+
+                // Extensions only overwrite updated members.
                 .AddDefaultSettings();
         }
-        //public static IServiceCollection AddGripper(this IServiceCollection services, IConfiguration namedConfigurationSection)
-        //{
-        //    services
-        //        .AddGripper()
-        //        .Configure<WebClientSettings>(namedConfigurationSection);
 
-        //    return services;
-        //}
+        /// <summary>
+        /// Adds Gripper to service collection.
+        /// </summary>
+        /// <param name="services">Service collection to load gripper into.</param>
+        /// <param name="configureOptions">Lambda to run on a <see cref="WebClientSettings"/> instance before it is passed to the <see cref="IWebClient"/> as configuration object.</param>
+        /// <returns>The same <see cref="IServiceCollection"/> instance so that additional calls can be chained.</returns>
         public static IServiceCollection AddGripper(this IServiceCollection services, Action<WebClientSettings> configureOptions)
         {
             return services
                 .AddGripper()
                 .Configure(configureOptions);
         }
+
+
+        /// <summary>
+        /// Adds Gripper to service collection.
+        /// </summary>
+        /// <param name="services">Service collection to load gripper into.</param>
+        /// <param name="settings">A <see cref="WebClientSettings"/> that is passed to the <see cref="IWebClient"/> as configuration object.</param>
+        /// <returns>The same <see cref="IServiceCollection"/> instance so that additional calls can be chained.</returns>
         public static IServiceCollection AddGripper(this IServiceCollection services, WebClientSettings settings)
         {
             return services

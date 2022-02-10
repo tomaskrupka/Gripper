@@ -2,7 +2,7 @@
 ### [Gripper.WebClient.Cdtr](Gripper_WebClient_Cdtr 'Gripper.WebClient.Cdtr')
 ## CdtrContextFactory Class
 ```csharp
-public class CdtrContextFactory :
+internal class CdtrContextFactory :
 Gripper.WebClient.IContextFactory
 ```
 

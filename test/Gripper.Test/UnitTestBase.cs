@@ -16,44 +16,23 @@ namespace Gripper.Test
 {
     public abstract class UnitTestBase
     {
-        private const string _logFileName = "logs/log_test_fail.txt";
+        private static readonly IServiceProvider _serviceProvider;
+        private const string _logFileName = "testlog.txt";
 
         protected static readonly ILogger _logger;
-        private static readonly IServiceProvider _serviceProvider;
 
-        private static string GetHomepageAbsolutePath() => Path.GetFullPath("../../../Pages/gov_uk/Welcome_to_GOV.UK.htm");
+        // For calls that can be tested in parallel.
+        protected static readonly IWebClient _commonWebClient;
 
-        protected static readonly IWebClient _webClient;
-
-        protected static T GetService<T>()
-        {
-            return _serviceProvider.GetService<T>() ?? throw new NullReferenceException();
-        }
+        protected static T GetRequiredService<T>() => _serviceProvider.GetRequiredService<T>();
 
         static UnitTestBase()
         {
             var services = new ServiceCollection();
+            var settingsAction = WebClient.Settings.WebClientSettingsGenerator.GetForUnitTesting();
+            settingsAction += x => x.Homepage = Facts.GovUkTestSite.Path;
 
-            services.AddGripper(new WebClientSettings
-            {
-                Homepage = GetHomepageAbsolutePath(),
-                BrowserLocation = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-                //BrowserLocation = "chrome",
-                UserDataDir = ".\\UnitTestProfile",
-                DefaultPageLoadPollSettings = PollSettings.ElementDetectionDefault,
-                BrowserStartupArgs = new[] { "--headless", "--disable-gpu", "--window-size=1280,1696", },
-                //BrowserStartupArgs = Array.Empty<string>(),
-                BrowserLaunchTimeoutMs = 30_000,
-
-
-                TriggerKeyboardCommandListener = false,
-                StartupCleanup = BrowserCleanupSettings.None,
-                UseProxy = false,
-                RemoteDebuggingPort = 9244,
-                TargetAttachment = TargetAttachmentMode.Auto,
-                IgnoreSslCertificateErrors = false,
-                LaunchBrowser = true
-            }) ;
+            services.AddGripper(settingsAction);
 
             services.AddLogging(x =>
             {
@@ -64,8 +43,8 @@ namespace Gripper.Test
 
             _serviceProvider = services.BuildServiceProvider();
 
-            _logger = _serviceProvider.GetService<ILogger<UnitTestBase>>() ?? throw new NullReferenceException();
-            _webClient = _serviceProvider.GetService<IWebClient>() ?? throw new ApplicationException("I need a non-null web client for testing");
+            _logger = _serviceProvider.GetRequiredService<ILogger<UnitTestBase>>();
+            _commonWebClient = _serviceProvider.GetRequiredService<IWebClient>();
         }
     }
 }

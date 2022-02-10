@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 namespace Gripper.WebClient
 {
     /// <summary>
-    /// Provides a 1-1 mapping to a global execution context of an iFrame that contains a document node.
+    /// Represents a <see href="https://developer.mozilla.org/en-US/docs/Glossary/Browsing_context">browsing context</see>, the environment in which the browser displays a Document.
     /// </summary>
     /// <remarks>
-    /// Implementations must ensure that if there are multiple contexts for an iFrame (e.g. a background worker thread and the main context),
-    /// the main context is referenced. 
+    /// For an iFrame with more than one execution contexts (e.g. background workers), this interface will bind the one that maps the DOM.
     /// </remarks>
     public interface IContext
     {
@@ -20,7 +19,7 @@ namespace Gripper.WebClient
         public long Id { get; }
 
         /// <summary>
-        /// Information about the Frame mapped to the context.
+        /// Information about the Frame containing the context.
         /// </summary>
         public IFrameInfo FrameInfo { get; }
 

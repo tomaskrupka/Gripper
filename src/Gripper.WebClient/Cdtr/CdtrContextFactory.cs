@@ -1,5 +1,6 @@
 ﻿using BaristaLabs.ChromeDevTools.Runtime.DOM;
 using BaristaLabs.ChromeDevTools.Runtime.Runtime;
+using Gripper.WebClient.Utils;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using System;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Gripper.WebClient.Cdtr
 {
-    public class CdtrContextFactory : IContextFactory
+    internal class CdtrContextFactory : IContextFactory
     {
         private readonly ILoggerFactory _loggerFactory;
         private readonly ICdpAdapter _cdpAdapter;
@@ -28,7 +29,7 @@ namespace Gripper.WebClient.Cdtr
             {
                 _logger.LogDebug("Looking for DOM root node, contextId: {contextId}.", contextId);
 
-                var chromeSession = await _cdpAdapter.GetChromeSessionAsync();
+                var chromeSession = _cdpAdapter.ChromeSession;
 
                 var myDocument = await chromeSession.Runtime.Evaluate(
                 new EvaluateCommand
@@ -83,7 +84,7 @@ namespace Gripper.WebClient.Cdtr
 
         public async Task<IContext?> CreateContextAsync(IFrameInfo frameInfo)
         {
-            var executionContexts = await _contextManager.GetContextDescriptionsAsync();
+            var executionContexts = _contextManager.GetContextDescriptions();
             var frameContexts = executionContexts.Where(x => ((JObject)x.AuxData)["frameId"]?.ToString() == frameInfo.FrameId).ToList();
 
             if (frameContexts.Count == 0)

@@ -1,5 +1,4 @@
-﻿using BaristaLabs.ChromeDevTools.Runtime.Runtime;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace Gripper.WebClient.Models
 {
@@ -18,13 +17,5 @@ namespace Gripper.WebClient.Models
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public ExceptionDetails? ExceptionDetails { get; set; }
-    }
-    public static class RuntimeEvaluateResponseExtensions
-    {
-        public static RuntimeEvaluateResponse ToRuntimeEvaluateResponse(this EvaluateCommandResponse rawResponse)
-        {
-            var serialized = JsonConvert.SerializeObject(rawResponse, Formatting.None);
-            return JsonConvert.DeserializeObject<RuntimeEvaluateResponse>(serialized);
-        }
     }
 }

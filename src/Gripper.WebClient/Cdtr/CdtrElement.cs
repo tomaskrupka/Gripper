@@ -9,7 +9,7 @@ using System.Collections.Generic;
 
 namespace Gripper.WebClient.Cdtr
 {
-    public class CdtrElement : IElement
+    internal class CdtrElement : IElement
     {
         private ILogger _logger;
         private ChromeSession _chromeSession;
@@ -33,6 +33,26 @@ namespace Gripper.WebClient.Cdtr
             }
         }
 
+        private async Task SendKeysAsync(IEnumerable<DispatchKeyEventCommand> commands, TimeSpan delayBetweenStrokes)
+        {
+            await FocusAsync();
+
+            foreach (var command in commands)
+            {
+                await Task.Delay(delayBetweenStrokes);
+                await _chromeSession.Input.DispatchKeyEvent(
+                    command,
+                    throwExceptionIfResponseNotReceived: false);
+            }
+        }
+
+        internal CdtrElement(ILogger<CdtrElement> logger, ChromeSession chromeSession, long backendNodeId)
+        {
+            _logger = logger;
+            _chromeSession = chromeSession;
+            _backendNodeId = backendNodeId;
+        }
+
         public async Task FocusAsync()
         {
             try
@@ -54,28 +74,7 @@ namespace Gripper.WebClient.Cdtr
             }
         }
 
-        private async Task SendKeysAsync(IEnumerable<DispatchKeyEventCommand> commands, TimeSpan delayBetweenStrokes)
-        {
-            await FocusAsync();
-
-            foreach (var command in commands)
-            {
-                await Task.Delay(delayBetweenStrokes);
-                await _chromeSession.Input.DispatchKeyEvent(
-                    command,
-                    throwExceptionIfResponseNotReceived: false);
-            }
-        }
-
-
-        public CdtrElement(ILogger<CdtrElement> logger, ChromeSession chromeSession, long backendNodeId)
-        {
-            _logger = logger;
-            _chromeSession = chromeSession;
-            _backendNodeId = backendNodeId;
-        }
-
-        public async Task ClickAsync()
+        public async Task ClickAsync(int clickDurationMs)
         {
             try
             {
@@ -90,8 +89,6 @@ namespace Gripper.WebClient.Cdtr
                 var contentX = 0.5 * (contentQuad[0] + contentQuad[2]);
                 var contentY = 0.5 * (contentQuad[1] + contentQuad[5]);
 
-                // TODO: randomize click position.
-
                 var mousePressedEventResult = await _chromeSession.Input.DispatchMouseEvent(new DispatchMouseEventCommand
                 {
                     Type = "mousePressed",
@@ -102,9 +99,7 @@ namespace Gripper.WebClient.Cdtr
                 },
                 throwExceptionIfResponseNotReceived: false);
 
-                // TODO: randomize delay.
-
-                await Task.Delay(10);
+                await Task.Delay(clickDurationMs);
 
                 var mouseReleasedEventResult = await _chromeSession.Input.DispatchMouseEvent(new DispatchMouseEventCommand
                 {
@@ -132,26 +127,17 @@ namespace Gripper.WebClient.Cdtr
 
                 await SendKeysAsync(new DispatchKeyEventCommand[]
                 {
-                    //new()
-                    //{
-                    //    Type = "keyDown",
-                    //    Text = key.ToString()
-                    //},
                     new()
                     {
                         Type = "char",
                         Text = key.ToString()
                     },
-                    //new()
-                    //{
-                    //    Type = "keyUp",
-                    //    Text = key.ToString()
-                    //}
                 }, delayBetweenStrokes);
             }
 
             await LogAttributesAsync("after " + nameof(SendKeysAsync));
         }
+
         public async Task SendSpecialKeyAsync(SpecialKey key)
         {
             await FocusAsync();
@@ -173,7 +159,7 @@ namespace Gripper.WebClient.Cdtr
             }
         }
 
-        public Task<string> GetTextContentAsyhc()
+        public Task<string> GetTextContentAsync()
         {
             throw new NotImplementedException();
         }

@@ -7,8 +7,13 @@ namespace Gripper.WebClient.Cdtr
     /// <summary>
     /// Dependency inversion vehicle for <see cref="CdtrElement"/> implementations.
     /// </summary>
-    public interface IElementFactory
+    internal interface IElementFactory
     {
-        public Task<IElement> CreateElementAsync(long nodeId);
+        /// <summary>
+        /// Create element that mirrors the backend node with given id.
+        /// </summary>
+        /// <param name="nodeId">The id of the backend node</param>
+        /// <returns></returns>
+        internal IElement CreateElement(long nodeId);
     }
 }

@@ -932,8 +932,21 @@ We’ll send you a link to a feedback form. It will take only 2 minutes to
 </div>
 
       </div>
+	  
+<!-- 
+	Taken from https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe as-is to make sure we're requesting cached content.
+	1) We don't pull data from the origin.
+	2) The content will be there for a long time.
+	3) It will be served quickly.
+ -->
+<iframe id="inlineFrameExample"
+    title="Inline Frame Example"
+    width="300"
+    height="200"
+    src="https://www.openstreetmap.org/export/embed.html?bbox=-0.004017949104309083%2C51.47612752641776%2C0.00030577182769775396%2C51.478569861898606&layer=mapnik">
+</iframe>
 
-      <footer class="gem-c-layout-footer govuk-footer gem-c-layout-footer--border" role="contentinfo">
+<footer class="gem-c-layout-footer govuk-footer gem-c-layout-footer--border" role="contentinfo">
   <div class="govuk-width-container" data-module="gem-track-click">
       <div class="govuk-footer__navigation">
             <div class="govuk-grid-column-two-thirds govuk-!-display-none-print">

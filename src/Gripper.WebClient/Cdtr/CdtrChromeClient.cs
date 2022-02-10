@@ -12,16 +12,23 @@ using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using BaristaLabs.ChromeDevTools.Runtime.Page;
 using Microsoft.Extensions.Options;
-using BaristaLabs.ChromeDevTools.Runtime.Runtime;
+using Microsoft.Extensions.DependencyInjection;
+using Gripper.WebClient.Utils;
 
 namespace Gripper.WebClient.Cdtr
 {
-    public partial class CdtrChromeClient : IWebClient
+    /// <summary>
+    /// Instantiate as transient.
+    /// </summary>
+    internal class CdtrChromeClient : IWebClient
     {
+        // The scope is one browser window with one CDP connection.
+        private readonly IServiceScope _serviceScope;
+
         private readonly ILogger _logger;
         private readonly ILoggerFactory _loggerFactory;
-        private readonly IElementFactory _ElementFactory;
-        private readonly IContextFactory _ContextFactory;
+        private readonly IElementFactory _elementFactory;
+        private readonly IContextFactory _contextFactory;
         private readonly IJsBuilder _jsBuilder;
 
         private readonly IBrowserManager _browserManager;
@@ -39,10 +46,58 @@ namespace Gripper.WebClient.Cdtr
 
             if (e is Events.Page_FrameStoppedLoadingEventArgs fslEvent)
             {
-                _loadedFramesIds[fslEvent.FrameId] = 0; // using concurrent dictionary as hashset.
+                _loadedFramesIds[fslEvent.FrameId] = 0; // using concurrent dictionary as concurrent hashset.
 
-                // TODO: in rare cases this is a memory leak. Figure out when to remove the delegate.
+                // TODO: This is a memory leak, we never remove the frames. Figure out when to remove the delegate.
             }
+        }
+
+        public CdtrChromeClient(
+            ILoggerFactory loggerFactory,
+            IJsBuilder jsBuilder,
+            IOptions<WebClientSettings> options,
+            IServiceScopeFactory serviceScopeFactory)
+        {
+            var settings = options.Value;
+
+            var startupCts = new CancellationTokenSource(settings.BrowserLaunchTimeoutMs);
+
+            // not 'using', disposing manually at this.Dispose()
+            _serviceScope = serviceScopeFactory.CreateScope();
+
+            _loggerFactory = loggerFactory;
+            _logger = loggerFactory.CreateLogger<CdtrChromeClient>();
+            _elementFactory = _serviceScope.ServiceProvider.GetRequiredService<IElementFactory>();
+            _jsBuilder = jsBuilder;
+            _browserManager = _serviceScope.ServiceProvider.GetRequiredService<IBrowserManager>();
+            _cdpAdapter = _serviceScope.ServiceProvider.GetRequiredService<ICdpAdapter>();
+            _contextFactory = _serviceScope.ServiceProvider.GetRequiredService<IContextFactory>();
+
+            if (settings.LaunchBrowser)
+            {
+                _browserManager.LaunchAsync(startupCts.Token).Wait();
+            }
+
+            _cdpAdapter.BindAsync(_browserManager).Wait();
+
+            _chromeProcess = _browserManager.BrowserProcess;
+            _chromeSession = _cdpAdapter.ChromeSession;
+            _loadedFramesIds = new ConcurrentDictionary<string, byte>();
+
+            _cancellationTokenSource = new CancellationTokenSource();
+            _cancellationToken = _cancellationTokenSource.Token;
+
+            // Tunnelling CDP events for external subscribers.
+            // Beware that _cdpAdapter.WebClientEvent += WebClientEvent here would just copy current fifo and ignore future subscriptions.
+            _cdpAdapter.WebClientEvent += (s, e) => WebClientEvent?.Invoke(s, e);
+
+            // Private subscribers.
+            _cdpAdapter.WebClientEvent += HandleWebClientEvent;
+
+            NavigateAsync(settings.Homepage, settings.DefaultPageLoadPollSettings, startupCts.Token).Wait();
+
+            _logger.LogDebug("Exiting {this} constructor.", nameof(CdtrChromeClient));
+
         }
 
         public IContext? MainContext
@@ -60,70 +115,9 @@ namespace Gripper.WebClient.Cdtr
             }
         }
 
-        public CdtrChromeClient(
-            ILoggerFactory loggerFactory,
-            IElementFactory cdtrElementFactory,
-            IJsBuilder jsBuilder,
-            IBrowserManager browserManager,
-            ICdpAdapter cdpAdapter,
-            IContextFactory contextFactory,
-            IOptions<WebClientSettings> options)
-        {
-            var settings = options.Value;
-
-            #region Sanitize settings
-
-            var browserLaunchTimeoutMs =
-                settings.BrowserLaunchTimeoutMs ??
-                throw new ArgumentNullException("Please set the {name} parameter.", nameof(WebClientSettings.BrowserLaunchTimeoutMs));
-
-            var homepage =
-                settings.Homepage ??
-                throw new ArgumentNullException("Please set the {name} parameter.", nameof(WebClientSettings.Homepage));
-
-            var defaultPageLoadSettings =
-                settings.DefaultPageLoadPollSettings ??
-                throw new ArgumentNullException("Please set the {name} parameter.", nameof(WebClientSettings.DefaultPageLoadPollSettings));
-
-            #endregion
-
-            var startupCts = new CancellationTokenSource(browserLaunchTimeoutMs);
-
-            #region Populate members
-
-            _loggerFactory = loggerFactory;
-            _logger = loggerFactory.CreateLogger<CdtrChromeClient>();
-            _ElementFactory = cdtrElementFactory;
-            _jsBuilder = jsBuilder;
-            _browserManager = browserManager;
-            _cdpAdapter = cdpAdapter;
-            _ContextFactory = contextFactory;
-
-            _chromeProcess = _browserManager.BrowserProcess;
-            _chromeSession = _cdpAdapter.GetChromeSessionAsync().Result;
-            _loadedFramesIds = new ConcurrentDictionary<string, byte>();
-
-            #endregion
-
-            _cancellationTokenSource = new CancellationTokenSource();
-            _cancellationToken = _cancellationTokenSource.Token;
-
-            // Tunnelling CDP events for external subscribers.
-            // Watch out, _cdpAdapter.WebClientEvent += WebClientEvent here would just copy current fifo, ignoring future subscriptions.
-            _cdpAdapter.WebClientEvent += (s, e) => WebClientEvent?.Invoke(s, e);
-
-            // Private subscribers.
-            _cdpAdapter.WebClientEvent += HandleWebClientEvent;
-
-            NavigateAsync(homepage, defaultPageLoadSettings, startupCts.Token).Wait();
-
-            _logger.LogDebug("Exiting {this} constructor.", nameof(CdtrChromeClient));
-
-        }
-
         public event EventHandler<RdpEventArgs>? WebClientEvent;
 
-        public async Task<CookieContainer> GetAllCookiesAsync()
+        public async Task<ICollection<Cookie>> GetAllCookiesAsync()
         {
             try
             {
@@ -131,11 +125,11 @@ namespace Gripper.WebClient.Cdtr
 
                 _logger.LogDebug("raw cookies: {rawCookies}", rawCookies?.Cookies?.Length.ToString() ?? "null");
 
-                var cookieContainer = new CookieContainer();
+                List<Cookie> cookies = new();
 
                 if (rawCookies?.Cookies == null)
                 {
-                    return cookieContainer;
+                    return cookies;
                 }
 
                 foreach (var cookie in rawCookies.Cookies)
@@ -145,10 +139,10 @@ namespace Gripper.WebClient.Cdtr
                         continue;
                     }
 
-                    cookieContainer.Add(new Cookie(cookie.Name, cookie.Value, cookie.Path, cookie.Domain));
+                    cookies.Add(new Cookie(cookie.Name, cookie.Value, cookie.Path, cookie.Domain));
                 }
 
-                return cookieContainer;
+                return cookies;
             }
             catch (Exception e)
             {
@@ -213,7 +207,6 @@ namespace Gripper.WebClient.Cdtr
             try
             {
                 await _chromeSession.Page.Reload(new Page.ReloadCommand { }, throwExceptionIfResponseNotReceived: false, cancellationToken: _cancellationToken);
-                //await Task.Run(() => _pageLoaded.WaitOne());
             }
             catch (Exception e)
             {
@@ -252,7 +245,7 @@ namespace Gripper.WebClient.Cdtr
             foreach (var frame in frames)
             {
                 var frameInfo = new CdtrFrameInfo(frame);
-                var context = await _ContextFactory.CreateContextAsync(frameInfo);
+                var context = await _contextFactory.CreateContextAsync(frameInfo);
 
                 if (context != null)
                 {
@@ -260,7 +253,7 @@ namespace Gripper.WebClient.Cdtr
                 }
                 else
                 {
-                    _logger.LogWarning("{name} returned null context.", nameof(_ContextFactory));
+                    _logger.LogWarning("{name} returned null context.", nameof(_contextFactory));
                 }
             }
 
@@ -285,16 +278,14 @@ namespace Gripper.WebClient.Cdtr
             }
         }
 
-        public void Dispose()
-        {
-            _cancellationTokenSource.Cancel();
-        }
-
         public async Task WaitUntilFramesLoadedAsync(PollSettings pollSettings, CancellationToken cancellationToken)
         {
             if (pollSettings == PollSettings.PassThrough)
             {
-                _logger.LogDebug("{name} recieved {settingsName} poll settings. Fast-tracking.", nameof(WaitUntilFramesLoadedAsync), nameof(PollSettings.PassThrough));
+                _logger.LogDebug(
+                    "{name} recieved {passThroughSettings} poll settings. Fast-tracking.",
+                    nameof(WaitUntilFramesLoadedAsync), 
+                    nameof(PollSettings.PassThrough));
                 return;
             }
 
@@ -318,7 +309,10 @@ namespace Gripper.WebClient.Cdtr
 
                 if (timedOut)
                 {
-                    _logger.LogInformation("{name} waiting for new iFrames timed out. Some may have not been attached. Consider relaxing the {timeout} parameter.", nameof(NavigateAsync), nameof(PollSettings.TimeoutMs));
+                    _logger.LogInformation(
+                        "{name} waiting for new iFrames timed out. Some may have not been attached. Consider relaxing the {timeout} parameter.",
+                        nameof(WaitUntilFramesLoadedAsync),
+                        nameof(PollSettings.TimeoutMs));
                     break;
                 }
 
@@ -330,7 +324,10 @@ namespace Gripper.WebClient.Cdtr
 
                 var framesLoaded = FramesLoaded(frameTreeResult.FrameTree);
 
-                _logger.LogDebug("Loaded frames ids: {framesCount}. All loaded: {frameTreeResult}", framesCount, framesLoaded);
+                _logger.LogDebug(
+                    "Loaded frames ids: {framesCount}. All loaded: {frameTreeResult}",
+                    framesCount, 
+                    framesLoaded);
 
                 // Wait for one more poll period and check one last time. That's to catch fresh iFrames that might have been attached by a background worker thread.
 
@@ -342,7 +339,10 @@ namespace Gripper.WebClient.Cdtr
 
                     var framesLoadedVerification = FramesLoaded(verificationFrameTreeResult.FrameTree);
 
-                    _logger.LogDebug("Verification: Loaded frames ids: {framesCount}. All loaded: {frameTreeResult}", _loadedFramesIds.Count, framesLoadedVerification);
+                    _logger.LogDebug(
+                        "Verification: Loaded frames ids: {framesCount}. All loaded: {frameTreeResult}",
+                        _loadedFramesIds.Count, 
+                        framesLoadedVerification);
 
                     if (framesLoadedVerification && _loadedFramesIds.Count == framesCount)
                     {
@@ -351,8 +351,18 @@ namespace Gripper.WebClient.Cdtr
                 }
             }
 
-            _logger.LogDebug("Exiting {name} in {elapsed}", nameof(NavigateAsync), domBuildStopwatch.Elapsed);
+            _logger.LogDebug(
+                "Exiting {name} in {elapsed}",
+                nameof(WaitUntilFramesLoadedAsync),
+                domBuildStopwatch.Elapsed);
 
         }
+
+        public void Dispose()
+        {
+            _cancellationTokenSource.Cancel();
+            _serviceScope.Dispose();
+        }
+
     }
 }

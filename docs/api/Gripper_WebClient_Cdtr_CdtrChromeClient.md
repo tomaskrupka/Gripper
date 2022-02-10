@@ -1,9 +1,9 @@
 #### [Gripper.WebClient](index 'index')
 ### [Gripper.WebClient.Cdtr](Gripper_WebClient_Cdtr 'Gripper.WebClient.Cdtr')
 ## CdtrChromeClient Class
-Private debugging methods.  
+Instantiate as transient.  
 ```csharp
-public class CdtrChromeClient :
+internal class CdtrChromeClient :
 Gripper.WebClient.IWebClient,
 System.IDisposable
 ```
