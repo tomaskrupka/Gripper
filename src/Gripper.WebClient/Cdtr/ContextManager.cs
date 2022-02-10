@@ -34,7 +34,7 @@ namespace Gripper.WebClient.Cdtr
             _executionContexts = new ConcurrentDictionary<long, ExecutionContextDescription>();
         }
 
-        public async Task<ICollection<ExecutionContextDescription>> GetContextDescriptionsAsync()
+        public ICollection<ExecutionContextDescription> GetContextDescriptions()
         {
             return _executionContexts.Values;
         }

@@ -14,7 +14,7 @@ namespace Gripper.Test.IContextTests
         [Test]
         public async Task DeletedElementShouldDisappear()
         {
-            var gripper = GetService<IWebClient>();
+            var gripper = GetRequiredService<IWebClient>();
             var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
             await gripper.MainContext.ExecuteScriptAsync("document.querySelector('#wrapper').remove()", cts.Token);
             var contentWrapper = await gripper.MainContext.FindElementByCssSelectorAsync("#wrapper");

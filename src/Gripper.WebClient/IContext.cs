@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace Gripper.WebClient
 {
     /// <summary>
-    /// Represents a <see href="https://developer.mozilla.org/en-US/docs/Glossary/Browsing_context">browsing context</see>, the environment in which a browser displays a Document.
+    /// Represents a <see href="https://developer.mozilla.org/en-US/docs/Glossary/Browsing_context">browsing context</see>, the environment in which the browser displays a Document.
     /// </summary>
     /// <remarks>
     /// For an iFrame with more than one execution contexts (e.g. background workers), this interface will bind the one that maps the DOM.

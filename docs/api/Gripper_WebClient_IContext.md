@@ -1,7 +1,7 @@
 #### [Gripper.WebClient](index 'index')
 ### [Gripper.WebClient](Gripper_WebClient 'Gripper.WebClient')
 ## IContext Interface
-Represents a [browsing context](https://developer.mozilla.org/en-US/docs/Glossary/Browsing_context 'https://developer.mozilla.org/en-US/docs/Glossary/Browsing_context'), the environment in which a browser displays a Document.  
+Represents a [browsing context](https://developer.mozilla.org/en-US/docs/Glossary/Browsing_context 'https://developer.mozilla.org/en-US/docs/Glossary/Browsing_context'), the environment in which the browser displays a Document.  
 ```csharp
 public interface IContext
 ```

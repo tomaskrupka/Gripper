@@ -15,7 +15,7 @@ namespace Gripper.Test.IWebClientTests
         [NonParallelizable]
         public async Task DeletedElementShouldReappearOnReload()
         {
-            var gripper = GetService<IWebClient>();
+            var gripper = GetRequiredService<IWebClient>();
 
             await gripper.MainContext.FindElementByCssSelectorAsync("#wrapper");
             var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));

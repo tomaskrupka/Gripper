@@ -27,7 +27,7 @@ namespace Gripper.WebClient.Models
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public object? Value { get; set; }
         /// <summary>
-        /// Gets or sets Primitive value which can not be JSON-string?ified does not have <code>value</code>, but gets this property.
+        /// Gets or sets Primitive value which can not be JSON-stringified does not have <code>value</code>, but gets this property.
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public UnserializableValue? UnserializableValue { get; set; }

@@ -14,14 +14,19 @@ namespace Gripper.WebClient.Cdtr
     internal interface ICdpAdapter
     {
         /// <summary>
+        /// Gets reference to the <see cref="ChromeSession"/> singleton.
+        /// </summary>
+        internal ChromeSession ChromeSession { get; }
+
+        /// <summary>
         /// Enables subscription to any CDP event.
         /// </summary>
         internal event EventHandler<RdpEventArgs>? WebClientEvent;
 
         /// <summary>
-        /// Gets reference to the <see cref="ChromeSession"/> singleton.
+        /// Binds the instance to the websocket endpoint of a running instance of an <see cref="IBrowserManager"/>.
         /// </summary>
-        /// <returns>The <see cref="ChromeSession"/> singleton that belongs to the CDP endpoint as configured.</returns>
-        internal Task<ChromeSession> GetChromeSessionAsync();
+        /// <returns></returns>
+        internal Task BindAsync(IBrowserManager browserManager);
     }
 }

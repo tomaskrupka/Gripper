@@ -28,7 +28,7 @@ namespace Gripper.Test.IContextTests
         [Test]
         public async Task IsNotNullIfElementExists()
         {
-            var gripper = GetService<IWebClient>();
+            var gripper = GetRequiredService<IWebClient>();
             var mainContext = gripper.MainContext;
             var element = await mainContext.FindElementByCssSelectorAsync("#wrapper");
             Assert.IsNotNull(element);

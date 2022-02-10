@@ -17,17 +17,14 @@ namespace Gripper.Test
     public abstract class UnitTestBase
     {
         private static readonly IServiceProvider _serviceProvider;
-        private const string _logFileName = "logs/log_test_fail.txt";
+        private const string _logFileName = "testlog.txt";
 
         protected static readonly ILogger _logger;
 
-        // for testing of calls that should not affect each other in parallel runtime.
+        // For calls that can be tested in parallel.
         protected static readonly IWebClient _commonWebClient;
 
-        protected static T GetService<T>()
-        {
-            return _serviceProvider.GetService<T>() ?? throw new NullReferenceException();
-        }
+        protected static T GetRequiredService<T>() => _serviceProvider.GetRequiredService<T>();
 
         static UnitTestBase()
         {
@@ -36,27 +33,6 @@ namespace Gripper.Test
             settingsAction += x => x.Homepage = Facts.GovUkTestSite.Path;
 
             services.AddGripper(settingsAction);
-
-            //services.AddGripper(new WebClientSettings
-            //{
-            //    Homepage = Facts.GovUkTestSite.Path,
-            //    BrowserLocation = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-            //    //BrowserLocation = "chrome",
-            //    UserDataDir = ".\\UnitTestProfile",
-            //    DefaultPageLoadPollSettings = (50, 500),
-            //    BrowserStartupArgs = new[] { "--headless", "--disable-gpu", "--window-size=1280,1696", },
-            //    //BrowserStartupArgs = Array.Empty<string>(),
-            //    BrowserLaunchTimeoutMs = 30_000,
-
-
-            //    TriggerKeyboardCommandListener = false,
-            //    StartupCleanup = BrowserCleanupSettings.None,
-            //    UseProxy = false,
-            //    RemoteDebuggingPort = 9000,
-            //    TargetAttachment = TargetAttachmentMode.Auto,
-            //    IgnoreSslCertificateErrors = false,
-            //    LaunchBrowser = true
-            //});
 
             services.AddLogging(x =>
             {
@@ -67,8 +43,8 @@ namespace Gripper.Test
 
             _serviceProvider = services.BuildServiceProvider();
 
-            _logger = _serviceProvider.GetService<ILogger<UnitTestBase>>() ?? throw new NullReferenceException();
-            _commonWebClient = _serviceProvider.GetService<IWebClient>() ?? throw new ApplicationException("I need a non-null web client for testing");
+            _logger = _serviceProvider.GetRequiredService<ILogger<UnitTestBase>>();
+            _commonWebClient = _serviceProvider.GetRequiredService<IWebClient>();
         }
     }
 }

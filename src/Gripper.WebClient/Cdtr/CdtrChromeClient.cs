@@ -12,15 +12,23 @@ using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using BaristaLabs.ChromeDevTools.Runtime.Page;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.DependencyInjection;
+using Gripper.WebClient.Utils;
 
 namespace Gripper.WebClient.Cdtr
 {
+    /// <summary>
+    /// Instantiate as transient.
+    /// </summary>
     internal class CdtrChromeClient : IWebClient
     {
+        // The scope is one browser window with one CDP connection.
+        private readonly IServiceScope _serviceScope;
+
         private readonly ILogger _logger;
         private readonly ILoggerFactory _loggerFactory;
-        private readonly IElementFactory _ElementFactory;
-        private readonly IContextFactory _ContextFactory;
+        private readonly IElementFactory _elementFactory;
+        private readonly IContextFactory _contextFactory;
         private readonly IJsBuilder _jsBuilder;
 
         private readonly IBrowserManager _browserManager;
@@ -46,32 +54,35 @@ namespace Gripper.WebClient.Cdtr
 
         public CdtrChromeClient(
             ILoggerFactory loggerFactory,
-            IElementFactory cdtrElementFactory,
             IJsBuilder jsBuilder,
-            IBrowserManager browserManager,
-            ICdpAdapter cdpAdapter,
-            IContextFactory contextFactory,
-            IOptions<WebClientSettings> options)
+            IOptions<WebClientSettings> options,
+            IServiceScopeFactory serviceScopeFactory)
         {
             var settings = options.Value;
 
             var startupCts = new CancellationTokenSource(settings.BrowserLaunchTimeoutMs);
 
-            #region Populate members
+            // not 'using', disposing manually at this.Dispose()
+            _serviceScope = serviceScopeFactory.CreateScope();
 
             _loggerFactory = loggerFactory;
             _logger = loggerFactory.CreateLogger<CdtrChromeClient>();
-            _ElementFactory = cdtrElementFactory;
+            _elementFactory = _serviceScope.ServiceProvider.GetRequiredService<IElementFactory>();
             _jsBuilder = jsBuilder;
-            _browserManager = browserManager;
-            _cdpAdapter = cdpAdapter;
-            _ContextFactory = contextFactory;
+            _browserManager = _serviceScope.ServiceProvider.GetRequiredService<IBrowserManager>();
+            _cdpAdapter = _serviceScope.ServiceProvider.GetRequiredService<ICdpAdapter>();
+            _contextFactory = _serviceScope.ServiceProvider.GetRequiredService<IContextFactory>();
+
+            if (settings.LaunchBrowser)
+            {
+                _browserManager.LaunchAsync(startupCts.Token).Wait();
+            }
+
+            _cdpAdapter.BindAsync(_browserManager).Wait();
 
             _chromeProcess = _browserManager.BrowserProcess;
-            _chromeSession = _cdpAdapter.GetChromeSessionAsync().Result;
+            _chromeSession = _cdpAdapter.ChromeSession;
             _loadedFramesIds = new ConcurrentDictionary<string, byte>();
-
-            #endregion
 
             _cancellationTokenSource = new CancellationTokenSource();
             _cancellationToken = _cancellationTokenSource.Token;
@@ -196,7 +207,6 @@ namespace Gripper.WebClient.Cdtr
             try
             {
                 await _chromeSession.Page.Reload(new Page.ReloadCommand { }, throwExceptionIfResponseNotReceived: false, cancellationToken: _cancellationToken);
-                //await Task.Run(() => _pageLoaded.WaitOne());
             }
             catch (Exception e)
             {
@@ -235,7 +245,7 @@ namespace Gripper.WebClient.Cdtr
             foreach (var frame in frames)
             {
                 var frameInfo = new CdtrFrameInfo(frame);
-                var context = await _ContextFactory.CreateContextAsync(frameInfo);
+                var context = await _contextFactory.CreateContextAsync(frameInfo);
 
                 if (context != null)
                 {
@@ -243,7 +253,7 @@ namespace Gripper.WebClient.Cdtr
                 }
                 else
                 {
-                    _logger.LogWarning("{name} returned null context.", nameof(_ContextFactory));
+                    _logger.LogWarning("{name} returned null context.", nameof(_contextFactory));
                 }
             }
 
@@ -351,6 +361,7 @@ namespace Gripper.WebClient.Cdtr
         public void Dispose()
         {
             _cancellationTokenSource.Cancel();
+            _serviceScope.Dispose();
         }
 
     }

@@ -1,4 +1,6 @@
 ﻿using BaristaLabs.ChromeDevTools.Runtime;
+using Gripper.WebClient.Runtime;
+using Gripper.WebClient.Utils;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -17,6 +19,8 @@ namespace Gripper.WebClient.Cdtr
     internal class BrowserManager : IBrowserManager
     {
         private readonly ILoggerFactory _loggerFactory;
+        private readonly IParallelRuntimeUtils _parallelRuntimeUtils;
+        private readonly IChildProcessTracker _childProcessTracker;
         private readonly WebClientSettings _settings;
 
         private readonly ILogger _logger;
@@ -88,18 +92,18 @@ namespace Gripper.WebClient.Cdtr
             }
         }
 
-        public BrowserManager(IOptions<WebClientSettings> settings, ILoggerFactory loggerFactory)
+        public BrowserManager(
+            IOptions<WebClientSettings> settings,
+            ILoggerFactory loggerFactory, 
+            IParallelRuntimeUtils parallelRuntimeUtils, 
+            IChildProcessTracker childProcessTracker)
         {
             _loggerFactory = loggerFactory;
             _settings = settings.Value;
+            _parallelRuntimeUtils = parallelRuntimeUtils;
+            _childProcessTracker = childProcessTracker;
 
             _logger = _loggerFactory.CreateLogger<BrowserManager>();
-
-            if (_settings.LaunchBrowser)
-            {
-                var startupCts = new CancellationTokenSource(_settings.BrowserLaunchTimeoutMs);
-                LaunchAsync(startupCts.Token).Wait();
-            }
         }
 
         public string DebuggerUrl
@@ -135,8 +139,10 @@ namespace Gripper.WebClient.Cdtr
                 _settings.UserDataDir ??
                 throw new ApplicationException(string.Format("{0} needs a non-null {1}", nameof(LaunchAsync), nameof(_settings.UserDataDir))));
 
+            var port = _parallelRuntimeUtils.GetFreshTcpPort();
+
             var startupArgsSb = new StringBuilder()
-                .Append(" --remote-debugging-port=").Append(_settings.RemoteDebuggingPort)
+                .Append(" --remote-debugging-port=").Append(port)
                 .Append(" --user-data-dir=").Append(userDataDir.FullName);
 
             switch (_settings.TargetAttachment)
@@ -195,13 +201,12 @@ namespace Gripper.WebClient.Cdtr
 
             _logger.LogDebug("Browser process started: {processId}:{processName}", BrowserProcess.Id, BrowserProcess.ProcessName);
 
-            // TODO: ADD FLAG TO CONFIG FOR THIS. MAKE IT A SERVICE.
-            ChildProcessTracker.AddProcess(BrowserProcess);
+            _childProcessTracker.AddProcess(BrowserProcess);
 
             using var httpClient = new HttpClient();
 
             // TODO: ENABLE REMOTE CONNECTION, ADD CONFIG TOKEN FOR THIS
-            var remoteSessions = await httpClient.GetAsync($"http://localhost:{_settings.RemoteDebuggingPort}/json", cancellationToken);
+            var remoteSessions = await httpClient.GetAsync($"http://localhost:{port}/json", cancellationToken);
 
             _logger.LogDebug("sessions response: {status}", remoteSessions.StatusCode);
 

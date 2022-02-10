@@ -15,6 +15,6 @@ namespace Gripper.WebClient.Cdtr
         /// Gets a collection of active execution contexts.
         /// </summary>
         /// <returns>A snapshot of the data structure tracking the CDP execution contexts.</returns>
-        internal Task<ICollection<ExecutionContextDescription>> GetContextDescriptionsAsync();
+        internal ICollection<ExecutionContextDescription> GetContextDescriptions();
     }
 }

@@ -7,6 +7,9 @@ public interface IWebClient :
 System.IDisposable
 ```
 
+Derived  
+&#8627; [CdtrChromeClient](Gripper_WebClient_Cdtr_CdtrChromeClient 'Gripper.WebClient.Cdtr.CdtrChromeClient')  
+
 Implements [System.IDisposable](https://docs.microsoft.com/en-us/dotnet/api/System.IDisposable 'System.IDisposable')  
 
 | Properties | |

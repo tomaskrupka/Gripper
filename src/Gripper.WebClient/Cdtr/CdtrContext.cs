@@ -1,6 +1,7 @@
 ﻿using BaristaLabs.ChromeDevTools.Runtime.DOM;
 using BaristaLabs.ChromeDevTools.Runtime.Runtime;
 using Gripper.WebClient.Models;
+using Gripper.WebClient.Utils;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using System;
@@ -53,7 +54,7 @@ namespace Gripper.WebClient.Cdtr
         {
             try
             {
-                var chromeSession = await _cdpAdapter.GetChromeSessionAsync();
+                var chromeSession = _cdpAdapter.ChromeSession;
                 var result = await chromeSession.Runtime.Evaluate(new EvaluateCommand
                 {
                     Expression = script,
@@ -96,7 +97,7 @@ namespace Gripper.WebClient.Cdtr
         {
             try
             {
-                var chromeSession = await _cdpAdapter.GetChromeSessionAsync();
+                var chromeSession = _cdpAdapter.ChromeSession;
                 var expression = _jsBuilder.DocumentQuerySelector(cssSelector);
                 var evaluation = await chromeSession.Runtime.Evaluate(new EvaluateCommand
                 {
@@ -133,7 +134,7 @@ namespace Gripper.WebClient.Cdtr
                     return null;
                 }
 
-                return await _cdtrElementFactory.CreateElementAsync(node.Node.BackendNodeId);
+                return _cdtrElementFactory.CreateElement(node.Node.BackendNodeId);
             }
             catch (Exception e)
             {

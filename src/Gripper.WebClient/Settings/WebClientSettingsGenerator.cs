@@ -31,8 +31,8 @@ namespace Gripper.WebClient.Settings
             LaunchBrowser = true
         };
 
-
         private static int _lastUsedPort = DefaultSettings.RemoteDebuggingPort;
+
         private static object _lastUsedPortLock = new object();
 
         /// <summary>
@@ -65,13 +65,10 @@ namespace Gripper.WebClient.Settings
         /// <returns></returns>
         public static Action<WebClientSettings> GetForUnitTesting()
         {
-            var freshSettings =
+            return x => x.RewriteWith(
                 GetForTransient().
                 SetForLocalhost().
-                SetHeadless().
-                SetRandomUserDataDir();
-
-            return x => x.RewriteWith(freshSettings);
+                SetHeadless());
         }
     }
 }

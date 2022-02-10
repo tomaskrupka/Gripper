@@ -14,6 +14,6 @@ namespace Gripper.WebClient.Cdtr
         /// </summary>
         /// <param name="nodeId">The id of the backend node</param>
         /// <returns></returns>
-        internal Task<IElement> CreateElementAsync(long nodeId);
+        internal IElement CreateElement(long nodeId);
     }
 }

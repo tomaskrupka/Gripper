@@ -1,4 +1,4 @@
-﻿namespace Gripper.WebClient
+﻿namespace Gripper.WebClient.Utils
 {
     /// <summary>
     /// Provides builders for repetitive JS expressions.

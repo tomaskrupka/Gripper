@@ -17,42 +17,43 @@ namespace Gripper.WebClient.Cdtr
 {
     internal class CdpAdapter : ICdpAdapter
     {
+        private readonly ILoggerFactory _loggerFactory;
         private readonly ILogger _logger;
-        private readonly IBrowserManager _browserManager;
+        private IBrowserManager? _browserManager;
         private readonly WebClientSettings _webClientSettings;
-        private readonly ChromeSession _chromeSession;
+        private ChromeSession? _chromeSession;
 
         private async Task SubscribeToRdpEventsAsync(CancellationToken cancellationToken)
         {
-            await _chromeSession.Network.Enable(
+            await ChromeSession.Network.Enable(
                 new BaristaLabs.ChromeDevTools.Runtime.Network.EnableCommand { },
                 throwExceptionIfResponseNotReceived: false,
                 cancellationToken: cancellationToken);
 
-            _chromeSession.Network.SubscribeToRequestWillBeSentEvent(x =>
+            ChromeSession.Network.SubscribeToRequestWillBeSentEvent(x =>
             {
                 WebClientEvent?.Invoke(this, new Network_RequestWillBeSentEventArgs(x.RequestId, x.Request.Headers, x.Request.Method, x.Request.Url));
             });
 
-            await _chromeSession.Page.Enable(
+            await ChromeSession.Page.Enable(
                 throwExceptionIfResponseNotReceived: false,
                 cancellationToken: cancellationToken);
 
-            _chromeSession.Page.SubscribeToFrameStoppedLoadingEvent(x =>
+            ChromeSession.Page.SubscribeToFrameStoppedLoadingEvent(x =>
             {
                 _logger.LogDebug("Frame stopped loading: {id}", x.FrameId);
                 WebClientEvent?.Invoke(this, new Page_FrameStoppedLoadingEventArgs(x.FrameId));
             });
 
-            await _chromeSession.Runtime.Enable(throwExceptionIfResponseNotReceived: false, cancellationToken: cancellationToken);
+            await ChromeSession.Runtime.Enable(throwExceptionIfResponseNotReceived: false, cancellationToken: cancellationToken);
 
-            _chromeSession.Runtime.SubscribeToExecutionContextCreatedEvent(x =>
+            ChromeSession.Runtime.SubscribeToExecutionContextCreatedEvent(x =>
             {
                 _logger.LogDebug("execution context created: {id}, {name}, {origin}.", x.Context.Id, x.Context.Name, x.Context.Origin);
                 WebClientEvent?.Invoke(this, new Runtime_ExecutionContextCreatedEventArgs(x.Context));
             });
 
-            _chromeSession.Runtime.SubscribeToExecutionContextDestroyedEvent(x =>
+            ChromeSession.Runtime.SubscribeToExecutionContextDestroyedEvent(x =>
             {
                 _logger.LogDebug("execution context destroyed: {id}.", x.ExecutionContextId);
                 WebClientEvent?.Invoke(this, new Runtime_ExecutionContextDestroyedEventArgs(x.ExecutionContextId));
@@ -75,7 +76,7 @@ namespace Gripper.WebClient.Cdtr
                     {
                         if (e is Page_FrameStoppedLoadingEventArgs)
                         {
-                            await _chromeSession.Target.SetAutoAttach(new BaristaLabs.ChromeDevTools.Runtime.Target.SetAutoAttachCommand
+                            await ChromeSession.Target.SetAutoAttach(new BaristaLabs.ChromeDevTools.Runtime.Target.SetAutoAttachCommand
                             {
                                 AutoAttach = true,
                                 // Setting WaitForDebuggerOnStart = true requires releasing stalled frames by calling Runtime.RunIfWaitingForDebugger
@@ -99,32 +100,40 @@ namespace Gripper.WebClient.Cdtr
             }
         }
 
-        public CdpAdapter(ILoggerFactory loggerFactory, IOptions<WebClientSettings> options, IBrowserManager browserManager)
+        public CdpAdapter(ILoggerFactory loggerFactory, IOptions<WebClientSettings> options)
         {
+            _loggerFactory = loggerFactory;
             _logger = loggerFactory.CreateLogger<CdpAdapter>();
-            _browserManager = browserManager;
             _webClientSettings = options.Value;
-
-            var startupCts = new CancellationTokenSource(_webClientSettings.BrowserLaunchTimeoutMs);
-
-            _logger.LogInformation("{this} ctor binding {chromeSession}...", nameof(CdpAdapter), nameof(ChromeSession));
-
-            _chromeSession = new ChromeSession(
-                loggerFactory.CreateLogger<ChromeSession>(),
-                browserManager.DebuggerUrl);
-
-            _logger.LogDebug("{this} ctor subscribing to rdp events...", nameof(CdpAdapter));
-
-            SubscribeToRdpEventsAsync(startupCts.Token).Wait();
-
-            SetupTargetAttachment(_webClientSettings.TargetAttachment);
         }
 
         public event EventHandler<RdpEventArgs>? WebClientEvent;
 
-        public async Task<ChromeSession> GetChromeSessionAsync()
+        public ChromeSession ChromeSession
         {
-            return _chromeSession;
+            get => _chromeSession ??
+                throw new ApplicationException(
+                    string.Format(
+                        "You must first run {0} before accessing the {1}.",
+                        nameof(BindAsync),
+                        nameof(ChromeSession)));
+        }
+
+        public async Task BindAsync(IBrowserManager browserManager)
+        {
+            var startupCts = new CancellationTokenSource(_webClientSettings.BrowserLaunchTimeoutMs);
+
+            _browserManager = browserManager;
+            _logger.LogInformation("{this} ctor binding {chromeSession}...", nameof(CdpAdapter), nameof(ChromeSession));
+
+            _chromeSession = new ChromeSession(
+                _loggerFactory.CreateLogger<ChromeSession>(),
+                browserManager.DebuggerUrl);
+
+            _logger.LogDebug("{this} ctor subscribing to rdp events...", nameof(CdpAdapter));
+
+            await SubscribeToRdpEventsAsync(startupCts.Token);
+            SetupTargetAttachment(_webClientSettings.TargetAttachment);
         }
     }
 }
