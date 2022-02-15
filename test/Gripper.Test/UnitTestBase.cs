@@ -30,7 +30,7 @@ namespace Gripper.Test
         {
             var services = new ServiceCollection();
             var settingsAction = WebClient.Settings.WebClientSettingsGenerator.GetForUnitTesting();
-            settingsAction += x => x.Homepage = Facts.GovUkTestSite.Path;
+            settingsAction += x => x.Homepage = Facts.MainTestSite.Path;
 
             services.AddGripper(settingsAction);
 

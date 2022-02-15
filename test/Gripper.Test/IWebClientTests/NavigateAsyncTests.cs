@@ -12,21 +12,21 @@ namespace Gripper.Test.IWebClientTests
     public class NavigateAsyncTests : UnitTestBase 
     {
         [Test]
-        public async Task ShouldNavigate()
+        public async Task ShouldNavigateBackAndForth()
         {
             var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
 
-            await _commonWebClient.NavigateAsync(Facts.WikipediaTestSite.Path, PollSettings.ElementDetectionDefault, cts.Token);
+            await _commonWebClient.NavigateAsync(Facts.AltTestSites[0].Path, PollSettings.ElementDetectionDefault, cts.Token);
 
             var wikipediaUrl = await _commonWebClient.GetCurrentUrlAsync();
-            var escapedWikipediaUrlSubstring = Uri.EscapeDataString(Facts.WikipediaTestSite.MainContext.UrlSubstring);
+            var escapedWikipediaUrlSubstring = Uri.EscapeDataString(Facts.AltTestSites[0].MainContext.UrlSubstring);
 
             StringAssert.Contains(escapedWikipediaUrlSubstring, wikipediaUrl);
 
-            await _commonWebClient.NavigateAsync(Facts.GovUkTestSite.Path, PollSettings.ElementDetectionDefault, cts.Token);
+            await _commonWebClient.NavigateAsync(Facts.MainTestSite.Path, PollSettings.ElementDetectionDefault, cts.Token);
 
             var govUkUrl = await _commonWebClient.GetCurrentUrlAsync();
-            var escapedGovUkUrlSubstring = Uri.EscapeDataString(Facts.GovUkTestSite.MainContext.UrlSubstring);
+            var escapedGovUkUrlSubstring = Uri.EscapeDataString(Facts.MainTestSite.MainContext.UrlSubstring);
 
             StringAssert.Contains(escapedGovUkUrlSubstring, govUkUrl);
         }

@@ -26,7 +26,7 @@ namespace Gripper.Test.IWebClientTests
         {
             var url = await _commonWebClient.GetCurrentUrlAsync();
             var escapedUrl = System.Uri.EscapeDataString(url);
-            var expectedSubstring = Facts.GovUkTestSite.MainContext.UrlSubstring;
+            var expectedSubstring = Facts.MainTestSite.MainContext.UrlSubstring;
 
             StringAssert.Contains(expectedSubstring, escapedUrl);
         }
