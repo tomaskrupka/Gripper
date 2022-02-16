@@ -4,13 +4,12 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<Authors>Tomáš Krupka</Authors>
-		<Version>0.5.1-alpha</Version>
+		<Version>0.5.2-alpha</Version>
 		<NeutralLanguage>en-GB</NeutralLanguage>
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 		<Description>
-			Gripper.WebClient is a web scraping toolbox that operates in a browser window under its control, using the chrome devtools protocol (CDP).
-			Gripper.WebClient provides a slim, web-scraping focused facade while retaining full access to the CDP API.
+			Gripper.WebClient is a web scraping toolbox that operates in a browser window under its control, using the chrome devtools protocol (CDP). Gripper.WebClient provides a slim, web-scraping focused facade while retaining full access to the CDP API.
 		</Description>
 		<RepositoryUrl>https://github.com/tomaskrupka/Gripper</RepositoryUrl>
 		<PackageTags></PackageTags>
@@ -56,7 +55,7 @@
 
 
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)' == 'Debug'">
-	  <Exec Command="defaultdocumentation -a bin/Debug/net6.0/Gripper.WebClient.dll -x -o ../../docs/api" />
+		<Exec Command="defaultdocumentation -a bin/Debug/net6.0/Gripper.WebClient.dll -x -o ../../docs/api" />
 	</Target>
 
 </Project>
