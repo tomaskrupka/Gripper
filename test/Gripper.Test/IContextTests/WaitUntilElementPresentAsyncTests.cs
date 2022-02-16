@@ -39,9 +39,9 @@ namespace Gripper.Test.IContextTests
 
         [Test]
         public async Task ReturnsIfElementExists(
-            [ValueSource(typeof(Facts), nameof(Facts.MainTestSiteValidSelectors))] string validSelector)
+            [ValueSource(typeof(Facts), nameof(Facts.MainTestSiteValidSelectors))]
+            string validSelector)
         {
-            _logger.LogDebug("Testing {name} with valid selector {validSelector}", nameof(ReturnsIfElementExists), validSelector);
             var element = await _commonWebClient.MainContext.WaitUntilElementPresentAsync(
                 validSelector,
                 (10, 100),

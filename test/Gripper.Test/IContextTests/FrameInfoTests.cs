@@ -10,7 +10,7 @@ namespace Gripper.Test.IContextTests
     public class FrameInfoTests : UnitTestBase
     {
         [Test]
-        public void IsNotNull()
+        public void IsNotNullForValidContext()
         {
             Assert.IsNotNull(_commonWebClient.MainContext.FrameInfo);
         }

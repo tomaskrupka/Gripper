@@ -55,7 +55,7 @@ namespace Gripper.Test.IWebClientTests
 
             foreach (var embeddedContext in Facts.MainTestSite.ChildContexts)
             {
-                containsContextWithEmbeddedContextName &= _contexts.Any(x => x.FrameInfo.Name == embeddedContext.FrameId);
+                containsContextWithEmbeddedContextName &= _contexts.Any(x => x.FrameInfo.Name == embeddedContext.FrameName);
             }
 
             Assert.IsTrue(containsContextWithEmbeddedContextName);

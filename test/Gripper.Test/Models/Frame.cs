@@ -11,5 +11,6 @@ namespace Gripper.Test.Models
         public string FrameId { get; set; }
         public string FrameName { get; set; }
         public string UrlSubstring { get; set; }
+        public List<string> ValidSelectors { get; set; } = new List<string>();
     }
 }
