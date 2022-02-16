@@ -7,6 +7,7 @@
 | [CdtrChromeClient](Gripper_WebClient_Cdtr_CdtrChromeClient 'Gripper.WebClient.Cdtr.CdtrChromeClient') | Instantiate as transient.<br/> |
 | [CdtrContext](Gripper_WebClient_Cdtr_CdtrContext 'Gripper.WebClient.Cdtr.CdtrContext') |  |
 | [CdtrContextFactory](Gripper_WebClient_Cdtr_CdtrContextFactory 'Gripper.WebClient.Cdtr.CdtrContextFactory') |  |
+| [CdtrFrameInfo](Gripper_WebClient_Cdtr_CdtrFrameInfo 'Gripper.WebClient.Cdtr.CdtrFrameInfo') |  |
 
 | Interfaces | |
 | :--- | :--- |

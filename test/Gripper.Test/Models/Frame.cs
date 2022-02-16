@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 
 namespace Gripper.Test.Models
 {
-    internal class DomContext
+    public class DomContext
     {
-        internal string FrameId { get; set; }
-        internal string FrameName { get; set; }
-        internal string UrlSubstring { get; set; }
+        public string FrameId { get; set; }
+        public string FrameName { get; set; }
+        public string UrlSubstring { get; set; }
+        public List<string> ValidSelectors { get; set; } = new List<string>();
     }
 }

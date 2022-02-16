@@ -35,7 +35,7 @@ namespace Gripper.WebClient.Extensions
                 // Create as many as you want. Each will pull settings, bootstrap its own browser, resolve scoped services and clean up at dispose.
                 .AddTransient<IWebClient, CdtrChromeClient>()
 
-                // Don't pull these directly. IWebClient will resolve these within its scope.
+                // Don't pull scoped services directly. IWebClient will resolve these within its scope.
                 .AddScoped<IElementFactory, CdtrElementFactory>()
                 .AddScoped<IBrowserManager, BrowserManager>()
                 .AddScoped<ICdpAdapter, CdpAdapter>()

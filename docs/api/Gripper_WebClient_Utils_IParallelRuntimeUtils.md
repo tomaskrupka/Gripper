@@ -7,6 +7,7 @@ public interface IParallelRuntimeUtils
 ```
 ### Remarks
 Instantiate as a singleton.  
+This is a work-around the limitations of passing custom settings to transient [IWebClient](Gripper_WebClient_IWebClient 'Gripper.WebClient.IWebClient') instances.  
 
 | Methods | |
 | :--- | :--- |

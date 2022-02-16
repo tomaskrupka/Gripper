@@ -31,7 +31,7 @@ namespace Gripper.Test.IWebClientTests
         [Test]
         public void ContainsContextWithMainContextUrlSubstring()
         {
-            var containsContextWithMainContextUrlSubstring = _contexts.Any(x => x.FrameInfo.Url.Contains(Facts.GovUkTestSite.MainContext.UrlSubstring));
+            var containsContextWithMainContextUrlSubstring = _contexts.Any(x => x.FrameInfo.Url.Contains(Facts.MainTestSite.MainContext.UrlSubstring));
             Assert.IsTrue(containsContextWithMainContextUrlSubstring);
         }
 
@@ -40,7 +40,7 @@ namespace Gripper.Test.IWebClientTests
         {
             var containsContextWithEmbeddedContextUrlSubstring = true;
 
-            foreach (var embeddedContext in Facts.GovUkTestSite.ChildContexts)
+            foreach (var embeddedContext in Facts.MainTestSite.ChildContexts)
             {
                 containsContextWithEmbeddedContextUrlSubstring &= _contexts.Any(x => x.FrameInfo.Url.Contains(embeddedContext.UrlSubstring));
             }
@@ -53,9 +53,9 @@ namespace Gripper.Test.IWebClientTests
         {
             var containsContextWithEmbeddedContextName = true;
 
-            foreach (var embeddedContext in Facts.GovUkTestSite.ChildContexts)
+            foreach (var embeddedContext in Facts.MainTestSite.ChildContexts)
             {
-                containsContextWithEmbeddedContextName &= _contexts.Any(x => x.FrameInfo.Name == embeddedContext.FrameId);
+                containsContextWithEmbeddedContextName &= _contexts.Any(x => x.FrameInfo.Name == embeddedContext.FrameName);
             }
 
             Assert.IsTrue(containsContextWithEmbeddedContextName);

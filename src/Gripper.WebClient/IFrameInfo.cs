@@ -9,12 +9,17 @@
         /// <summary>
         /// Id of the Frame as defined by the browser backend.
         /// </summary>
-        string FrameId { get; }
+        string BackendFrameId { get; }
 
         /// <summary>
-        /// Value of the iFrame 'name' tag.
+        /// Value of the iFrame 'id' tag, or null.
         /// </summary>
-        string Name { get; }
+        string? Id { get; }
+
+        /// <summary>
+        /// Value of the iFrame 'name' tag, or null.
+        /// </summary>
+        string? Name { get; }
 
         /// <summary>
         /// Frame document's URL without fragment.

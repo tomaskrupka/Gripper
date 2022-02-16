@@ -26,7 +26,7 @@ namespace Gripper.Test.IWebClientTests
         [Test]
         public void MainContextContainsExpectedUrlSubstring()
         {
-            var expected = Facts.GovUkTestSite.MainContext.UrlSubstring;
+            var expected = Facts.MainTestSite.MainContext.UrlSubstring;
             var actual = _mainContext.FrameInfo.Url;
 
             StringAssert.Contains(expected, actual);

@@ -17,7 +17,7 @@ namespace Gripper.Test
     public abstract class UnitTestBase
     {
         private static readonly IServiceProvider _serviceProvider;
-        private const string _logFileName = "testlog.txt";
+        private static readonly string _logFileName = Path.GetFullPath("testlog.txt");
 
         protected static readonly ILogger _logger;
 
@@ -25,19 +25,19 @@ namespace Gripper.Test
         protected static readonly IWebClient _commonWebClient;
 
         protected static T GetRequiredService<T>() => _serviceProvider.GetRequiredService<T>();
+        protected static IWebClient CreateGripper() => _serviceProvider.GetRequiredService<IWebClient>();
 
         static UnitTestBase()
         {
             var services = new ServiceCollection();
             var settingsAction = WebClient.Settings.WebClientSettingsGenerator.GetForUnitTesting();
-            settingsAction += x => x.Homepage = Facts.GovUkTestSite.Path;
+            settingsAction += x => x.Homepage = Facts.MainTestSite.Path;
 
             services.AddGripper(settingsAction);
 
             services.AddLogging(x =>
             {
                 x.SetMinimumLevel(LogLevel.Debug)
-                .AddConsole()
                 .AddFile(_logFileName, LogLevel.Debug);
             });
 

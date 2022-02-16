@@ -25,7 +25,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<Folder Include="CdtrTests\ICdpAdapterTests\" />
+		<Folder Include="CdtrTests\IContextManagerTests\" />
+		<Folder Include="CdtrTests\IElementFactoryTests\" />
 		<Folder Include="IWebClientTests\" />
+		<Folder Include="IContextFactoryTests\" />
+		<Folder Include="IBrowserManagerTests\" />
+		<Folder Include="RuntimeTests\IChildProcessTrackerTests\" />
 	</ItemGroup>
 
 </Project>
