@@ -85,11 +85,11 @@ namespace Gripper.WebClient.Cdtr
         public async Task<IContext?> CreateContextAsync(IFrameInfo frameInfo)
         {
             var executionContexts = _contextManager.GetContextDescriptions();
-            var frameContexts = executionContexts.Where(x => ((JObject)x.AuxData)["frameId"]?.ToString() == frameInfo.FrameId).ToList();
+            var frameContexts = executionContexts.Where(x => ((JObject)x.AuxData)["frameId"]?.ToString() == frameInfo.BackendFrameId).ToList();
 
             if (frameContexts.Count == 0)
             {
-                _logger.LogInformation("{name} failed to find context by frameId {frameId}.", nameof(CreateContextAsync), frameInfo.FrameId);
+                _logger.LogInformation("{name} failed to find context by frameId {frameId}.", nameof(CreateContextAsync), frameInfo.BackendFrameId);
                 return null;
             }
             else if (frameContexts.Count == 1)
@@ -98,7 +98,7 @@ namespace Gripper.WebClient.Cdtr
 
                 if (frameContext == null)
                 {
-                    _logger.LogInformation("{name} error: Context with frameId {frameId} was null.", nameof(CreateContextAsync), frameInfo.FrameId);
+                    _logger.LogInformation("{name} error: Context with frameId {frameId} was null.", nameof(CreateContextAsync), frameInfo.BackendFrameId);
                     return null;
                 }
                 else
@@ -107,7 +107,7 @@ namespace Gripper.WebClient.Cdtr
 
                     if (documentBackendNodeId == null)
                     {
-                        _logger.LogInformation("{name} error: Context with frameId {frameId} had no DOM root.", nameof(CreateContextAsync), frameInfo.FrameId);
+                        _logger.LogInformation("{name} error: Context with frameId {frameId} had no DOM root.", nameof(CreateContextAsync), frameInfo.BackendFrameId);
                         return null;
                     }
                     else
@@ -127,7 +127,7 @@ namespace Gripper.WebClient.Cdtr
             }
             else
             {
-                _logger.LogInformation("{name} found more than one contexts for frame {frameId}.", nameof(CdtrContextFactory), frameInfo.FrameId);
+                _logger.LogInformation("{name} found more than one contexts for frame {frameId}.", nameof(CdtrContextFactory), frameInfo.BackendFrameId);
 
                 foreach (var frameContext in frameContexts)
                 {
@@ -147,7 +147,7 @@ namespace Gripper.WebClient.Cdtr
                         {
                             var documentBackendNodeIdValid = (long)documentBackendNodeId;
 
-                            _logger.LogInformation("{name} found valid context for frame {frameId}.", nameof(CreateContextAsync), frameInfo.FrameId);
+                            _logger.LogInformation("{name} found valid context for frame {frameId}.", nameof(CreateContextAsync), frameInfo.BackendFrameId);
 
                             return new CdtrContext(
                                 frameContext.Id,
@@ -161,7 +161,7 @@ namespace Gripper.WebClient.Cdtr
                     }
                 }
 
-                _logger.LogWarning("None of the contexts found for frame {frameId} had access to its DOM.", frameInfo.FrameId);
+                _logger.LogWarning("None of the contexts found for frame {frameId} had access to its DOM.", frameInfo.BackendFrameId);
                 return null;
             }
         }

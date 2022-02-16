@@ -193,7 +193,6 @@ namespace Gripper.WebClient.Cdtr
                 cancellationToken: _cancellationToken);
 
                 await WaitUntilFramesLoadedAsync(pollSettings, cancellationToken);
-
             }
             catch (Exception e)
             {
@@ -206,7 +205,9 @@ namespace Gripper.WebClient.Cdtr
         {
             try
             {
-                await _chromeSession.Page.Reload(new Page.ReloadCommand { }, throwExceptionIfResponseNotReceived: false, cancellationToken: _cancellationToken);
+                await _chromeSession.Page.Reload(new Page.ReloadCommand { }, throwExceptionIfResponseNotReceived: false, cancellationToken: cancellationToken);
+
+                await WaitUntilFramesLoadedAsync(pollSettings, cancellationToken);
             }
             catch (Exception e)
             {

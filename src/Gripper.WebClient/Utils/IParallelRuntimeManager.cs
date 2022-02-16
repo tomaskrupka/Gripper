@@ -11,6 +11,7 @@ namespace Gripper.WebClient.Utils
     /// </summary>
     /// <remarks>
     /// Instantiate as a singleton.
+    /// This is a work-around the limitations of passing custom settings to transient <see cref="IWebClient"/> instances.
     /// </remarks>
     public interface IParallelRuntimeUtils
     {
