@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using Gripper.ChromeDevTools.Page;
+using System.Threading.Tasks;
 
 namespace Gripper.WebClient
 {
@@ -13,8 +14,8 @@ namespace Gripper.WebClient
         /// If an iFrame has more than one execution contexts, matches the one with access to the DOM.
         /// If an iFrame has no execution contexts, returns null.
         /// </summary>
-        /// <param name="frameInfo">Frame to find the execution context for.</param>
+        /// <param name="frame">Frame to find the execution context for.</param>
         /// <returns>Resulting <see cref="IContext"/> object, or null if no context was matched.</returns>
-        public Task<IContext?> CreateContextAsync(IFrameInfo frameInfo);
+        public Task<IContext?> CreateContextAsync(Frame frame);
     }
 }

@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Gripper.Test.Models;
+using Gripper.ChromeDevTools;
+using Gripper.ChromeDevTools.Network;
 using NUnit.Framework;
 
 namespace Gripper.Test.IWebClientTests
@@ -14,10 +12,10 @@ namespace Gripper.Test.IWebClientTests
         private readonly ManualResetEventSlim _webClientEventRaised = new(false);
         private readonly string _url = Fakers.GetUrl();
 
-        private void HandleWebClientEvent(object sender, WebClient.RdpEventArgs e)
+        private void HandleWebClientEvent(object sender, IEvent e)
         {
             var isCorrectEvent =
-                e is WebClient.Events.Network_RequestWillBeSentEventArgs reqEvent &&
+                e is RequestWillBeSentEvent reqEvent &&
                 reqEvent.Request.Url.Contains(_url);
 
             if (isCorrectEvent)
@@ -43,6 +41,7 @@ namespace Gripper.Test.IWebClientTests
             _webClientEventRaised.Wait(cts.Token);
 
             Assert.IsTrue(_webClientEventRaised.IsSet);
+            await Task.Delay(12345);
         }
 
 

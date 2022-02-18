@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gripper.WebClient", "src\Gr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gripper.Test", "test\Gripper.Test\Gripper.Test.csproj", "{7F2832A9-E942-4781-9139-09451FDFE2E3}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gripper.ChromeDevTools", "src\Gripper.ChromeDevTools\Gripper.ChromeDevTools.csproj", "{BF21ECE7-0B5A-4945-B5FA-69A4D900E1D9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{7F2832A9-E942-4781-9139-09451FDFE2E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7F2832A9-E942-4781-9139-09451FDFE2E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7F2832A9-E942-4781-9139-09451FDFE2E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BF21ECE7-0B5A-4945-B5FA-69A4D900E1D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF21ECE7-0B5A-4945-B5FA-69A4D900E1D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF21ECE7-0B5A-4945-B5FA-69A4D900E1D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF21ECE7-0B5A-4945-B5FA-69A4D900E1D9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -34,6 +40,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{5CE69120-267A-468B-8964-9E017A0DD7E1} = {5C4F4040-26D4-438B-AD70-9C664C0621EC}
 		{7F2832A9-E942-4781-9139-09451FDFE2E3} = {5C4F4040-26D4-438B-AD70-9C664C0621EC}
+		{BF21ECE7-0B5A-4945-B5FA-69A4D900E1D9} = {5C4F4040-26D4-438B-AD70-9C664C0621EC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {26982ADE-AAD8-4E35-BA44-9CABAE113236}

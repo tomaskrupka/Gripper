@@ -23,18 +23,16 @@ namespace Gripper.WebClient
         /// <summary>
         /// Request headers.
         /// </summary>
-        public IReadOnlyDictionary<string, string> Headers { get; set; }
+        public IReadOnlyDictionary<string, string> Headers { get; private set; }
 
         /// <summary>
         /// Raw representation of the request Http method (POST, GET, PUT, OPTIONS, DELETE...)
         /// </summary>
-        public string Method { get; set; }
+        public string Method { get; private set; }
 
         /// <summary>
         /// Raw representation of the request destination Url
         /// </summary>
-        public string Url { get; set; }
-
+        public string Url { get; private set; }
     }
-
 }

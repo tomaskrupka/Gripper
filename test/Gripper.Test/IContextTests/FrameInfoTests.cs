@@ -12,7 +12,7 @@ namespace Gripper.Test.IContextTests
         [Test]
         public void IsNotNullForValidContext()
         {
-            Assert.IsNotNull(_commonWebClient.MainContext.FrameInfo);
+            Assert.IsNotNull(_commonWebClient.MainContext.Frame);
         }
     }
 }

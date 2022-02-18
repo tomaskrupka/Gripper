@@ -8,7 +8,7 @@ System.IDisposable
 ```
 
 Derived  
-&#8627; [CdtrChromeClient](Gripper_WebClient_Cdtr_CdtrChromeClient 'Gripper.WebClient.Cdtr.CdtrChromeClient')  
+&#8627; [ChromeClient](Gripper_WebClient_ChromeClient 'Gripper.WebClient.ChromeClient')  
 
 Implements [System.IDisposable](https://docs.microsoft.com/en-us/dotnet/api/System.IDisposable 'System.IDisposable')  
 

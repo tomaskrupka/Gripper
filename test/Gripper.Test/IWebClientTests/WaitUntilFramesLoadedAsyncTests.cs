@@ -19,7 +19,7 @@ namespace Gripper.Test.IWebClientTests
             await gripper.ReloadAsync(PollSettings.FrameDetectionDefault, cts.Token);
 
             var childContexts = await gripper.GetContextsAsync();
-            var firstChildContext = childContexts.First(x => x.FrameInfo.Name == Facts.MainTestSite.ChildContexts[0].FrameName);
+            var firstChildContext = childContexts.First(x => x.Frame.Name == Facts.MainTestSite.ChildContexts[0].FrameName);
 
             Assert.Multiple(async () =>
             {

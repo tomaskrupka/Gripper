@@ -1,4 +1,4 @@
-﻿using BaristaLabs.ChromeDevTools.Runtime.Runtime;
+﻿using Gripper.ChromeDevTools.Runtime;
 
 namespace Gripper.WebClient.Events
 {
