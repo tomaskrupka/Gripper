@@ -7,7 +7,7 @@ public interface IContextFactory
 ```
 
 Derived  
-&#8627; [CdtrContextFactory](Gripper_WebClient_CdtrContextFactory 'Gripper.WebClient.CdtrContextFactory')  
+&#8627; [ContextFactory](Gripper_WebClient_ContextFactory 'Gripper.WebClient.ContextFactory')  
 
 | Methods | |
 | :--- | :--- |
