@@ -7,8 +7,8 @@ public interface IContextFactory
 ```
 
 Derived  
-&#8627; [CdtrContextFactory](Gripper_WebClient_Cdtr_CdtrContextFactory 'Gripper.WebClient.Cdtr.CdtrContextFactory')  
+&#8627; [CdtrContextFactory](Gripper_WebClient_CdtrContextFactory 'Gripper.WebClient.CdtrContextFactory')  
 
 | Methods | |
 | :--- | :--- |
-| [CreateContextAsync(IFrameInfo)](Gripper_WebClient_IContextFactory_CreateContextAsync(Gripper_WebClient_IFrameInfo) 'Gripper.WebClient.IContextFactory.CreateContextAsync(Gripper.WebClient.IFrameInfo)') | Tries to find the DOM execution context of an iFrame and create an [IContext](Gripper_WebClient_IContext 'Gripper.WebClient.IContext') representation of it.<br/>If an iFrame has more than one execution contexts, matches the one with access to the DOM.<br/>If an iFrame has no execution contexts, returns null.<br/> |
+| [CreateContextAsync(Frame)](Gripper_WebClient_IContextFactory_CreateContextAsync(Gripper_ChromeDevTools_Page_Frame) 'Gripper.WebClient.IContextFactory.CreateContextAsync(Gripper.ChromeDevTools.Page.Frame)') | Tries to find the DOM execution context of an iFrame and create an [IContext](Gripper_WebClient_IContext 'Gripper.WebClient.IContext') representation of it.<br/>If an iFrame has more than one execution contexts, matches the one with access to the DOM.<br/>If an iFrame has no execution contexts, returns null.<br/> |

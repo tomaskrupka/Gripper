@@ -3,8 +3,10 @@
 
 | Classes | |
 | :--- | :--- |
-| [HttpRequest](Gripper_WebClient_HttpRequest 'Gripper.WebClient.HttpRequest') | Contains Http Request metadata.<br/> |
-| [RdpEventArgs](Gripper_WebClient_RdpEventArgs 'Gripper.WebClient.RdpEventArgs') | The base event args container for any event from all CDP domains.<br/> |
+| [CdpAdapter](Gripper_WebClient_CdpAdapter 'Gripper.WebClient.CdpAdapter') |  |
+| [CdtrContextFactory](Gripper_WebClient_CdtrContextFactory 'Gripper.WebClient.CdtrContextFactory') |  |
+| [ChromeClient](Gripper_WebClient_ChromeClient 'Gripper.WebClient.ChromeClient') | Instantiate as transient.<br/> |
+| [Context](Gripper_WebClient_Context 'Gripper.WebClient.Context') |  |
 | [WebClientSettings](Gripper_WebClient_WebClientSettings 'Gripper.WebClient.WebClientSettings') |  |
 
 | Structs | |
@@ -14,10 +16,12 @@
 | Interfaces | |
 | :--- | :--- |
 | [IBrowserManager](Gripper_WebClient_IBrowserManager 'Gripper.WebClient.IBrowserManager') | Provides methods and members to launch, manage, access and destroy a web browser instance.<br/>At mininum, implementations must configure connecting to the CDP endpoint of the browser and pre-startup and post-destroy cleanup.<br/> |
+| [ICdpAdapter](Gripper_WebClient_ICdpAdapter 'Gripper.WebClient.ICdpAdapter') | Dependency inversion for BaristaLabs.chrome-dev-tools. Creates the ChromeSession for existing CDP client WS endpoint, then manages its lifetime. Tunnels the incoming CDP events and handles execution of CDP calls. <br/> |
 | [IContext](Gripper_WebClient_IContext 'Gripper.WebClient.IContext') | Represents a [browsing context](https://developer.mozilla.org/en-US/docs/Glossary/Browsing_context 'https://developer.mozilla.org/en-US/docs/Glossary/Browsing_context'), the environment in which the browser displays a Document.<br/> |
 | [IContextFactory](Gripper_WebClient_IContextFactory 'Gripper.WebClient.IContextFactory') | Facilitates 1-1-1 mapping between iFrame-Execution context-IContext.<br/> |
+| [IContextManager](Gripper_WebClient_IContextManager 'Gripper.WebClient.IContextManager') | Maintains and provides interface to the up-to-date data structure representing the execution contexts on the page.<br/> |
 | [IElement](Gripper_WebClient_IElement 'Gripper.WebClient.IElement') | Provides methods and members to interact with an HTML element on the page.<br/> |
-| [IFrameInfo](Gripper_WebClient_IFrameInfo 'Gripper.WebClient.IFrameInfo') | Provides access to information about an iFrame on the page,<br/>as defined by the browser backend.<br/> |
+| [IElementFactory](Gripper_WebClient_IElementFactory 'Gripper.WebClient.IElementFactory') | Dependency inversion vehicle for [Gripper.WebClient.CdtrElement](https://docs.microsoft.com/en-us/dotnet/api/Gripper.WebClient.CdtrElement 'Gripper.WebClient.CdtrElement') implementations.<br/> |
 | [IWebClient](Gripper_WebClient_IWebClient 'Gripper.WebClient.IWebClient') | Enables interaction with the hooked web browser window.<br/> |
 
 | Enums | |

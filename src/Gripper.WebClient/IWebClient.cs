@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Gripper.ChromeDevTools;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -24,7 +25,7 @@ namespace Gripper.WebClient
         /// Note that target attachment is handled automatically, see <see cref="WebClientSettings"/> for configuration.
         /// Call <see cref="ExecuteCdpCommandAsync"/> commands 'domain.Subscribe()' and 'domain.Unsubscribe()' to a specific CDP domain to start/stop receiving these events.
         /// </remarks>
-        public event EventHandler<RdpEventArgs> WebClientEvent;
+        public event EventHandler<IEvent> WebClientEvent;
 
         /// <summary>
         /// Gets all cookies stored by the browser.

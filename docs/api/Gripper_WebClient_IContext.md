@@ -7,13 +7,13 @@ public interface IContext
 ```
 
 Derived  
-&#8627; [CdtrContext](Gripper_WebClient_Cdtr_CdtrContext 'Gripper.WebClient.Cdtr.CdtrContext')  
+&#8627; [Context](Gripper_WebClient_Context 'Gripper.WebClient.Context')  
 ### Remarks
 For an iFrame with more than one execution contexts (e.g. background workers), this interface will bind the one that maps the DOM.  
 
 | Properties | |
 | :--- | :--- |
-| [FrameInfo](Gripper_WebClient_IContext_FrameInfo 'Gripper.WebClient.IContext.FrameInfo') | Information about the Frame containing the context.<br/> |
+| [Frame](Gripper_WebClient_IContext_Frame 'Gripper.WebClient.IContext.Frame') | Information about the Frame containing the context.<br/> |
 | [Id](Gripper_WebClient_IContext_Id 'Gripper.WebClient.IContext.Id') | Id of the context as defined by the browser backend.<br/> |
 
 | Methods | |
