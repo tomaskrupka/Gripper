@@ -1,7 +1,7 @@
 #### [Gripper.WebClient](index 'index')
 ### [Gripper.WebClient](Gripper_WebClient 'Gripper.WebClient')
 ## IElementFactory Interface
-Dependency inversion vehicle for [Gripper.WebClient.CdtrElement](https://docs.microsoft.com/en-us/dotnet/api/Gripper.WebClient.CdtrElement 'Gripper.WebClient.CdtrElement') implementations.  
+Dependency inversion vehicle for [Gripper.WebClient.Element](https://docs.microsoft.com/en-us/dotnet/api/Gripper.WebClient.Element 'Gripper.WebClient.Element') implementations.  
 ```csharp
 internal interface IElementFactory
 ```

@@ -4,9 +4,9 @@
 | Classes | |
 | :--- | :--- |
 | [CdpAdapter](Gripper_WebClient_CdpAdapter 'Gripper.WebClient.CdpAdapter') |  |
-| [CdtrContextFactory](Gripper_WebClient_CdtrContextFactory 'Gripper.WebClient.CdtrContextFactory') |  |
 | [ChromeClient](Gripper_WebClient_ChromeClient 'Gripper.WebClient.ChromeClient') | Instantiate as transient.<br/> |
 | [Context](Gripper_WebClient_Context 'Gripper.WebClient.Context') |  |
+| [ContextFactory](Gripper_WebClient_ContextFactory 'Gripper.WebClient.ContextFactory') |  |
 | [WebClientSettings](Gripper_WebClient_WebClientSettings 'Gripper.WebClient.WebClientSettings') |  |
 
 | Structs | |
@@ -21,7 +21,7 @@
 | [IContextFactory](Gripper_WebClient_IContextFactory 'Gripper.WebClient.IContextFactory') | Facilitates 1-1-1 mapping between iFrame-Execution context-IContext.<br/> |
 | [IContextManager](Gripper_WebClient_IContextManager 'Gripper.WebClient.IContextManager') | Maintains and provides interface to the up-to-date data structure representing the execution contexts on the page.<br/> |
 | [IElement](Gripper_WebClient_IElement 'Gripper.WebClient.IElement') | Provides methods and members to interact with an HTML element on the page.<br/> |
-| [IElementFactory](Gripper_WebClient_IElementFactory 'Gripper.WebClient.IElementFactory') | Dependency inversion vehicle for [Gripper.WebClient.CdtrElement](https://docs.microsoft.com/en-us/dotnet/api/Gripper.WebClient.CdtrElement 'Gripper.WebClient.CdtrElement') implementations.<br/> |
+| [IElementFactory](Gripper_WebClient_IElementFactory 'Gripper.WebClient.IElementFactory') | Dependency inversion vehicle for [Gripper.WebClient.Element](https://docs.microsoft.com/en-us/dotnet/api/Gripper.WebClient.Element 'Gripper.WebClient.Element') implementations.<br/> |
 | [IWebClient](Gripper_WebClient_IWebClient 'Gripper.WebClient.IWebClient') | Enables interaction with the hooked web browser window.<br/> |
 
 | Enums | |

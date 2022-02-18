@@ -4,7 +4,7 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<Authors>Tomas Krupka</Authors>
-		<Version>0.6.0-alpha</Version>
+		<Version>0.6.1-alpha</Version>
 		<NeutralLanguage>en-GB</NeutralLanguage>
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
@@ -28,19 +28,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="Events\**" />
-	  <Compile Remove="Models\**" />
-	  <EmbeddedResource Remove="Events\**" />
-	  <EmbeddedResource Remove="Models\**" />
-	  <None Remove="Events\**" />
-	  <None Remove="Models\**" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<Content Include="icon_gripper.ico" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<None Include="..\..\assets\icon_gripper.png">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>

@@ -1,12 +1,12 @@
 #### [Gripper.WebClient](index 'index')
-### [Gripper.WebClient](Gripper_WebClient 'Gripper.WebClient').[CdtrContextFactory](Gripper_WebClient_CdtrContextFactory 'Gripper.WebClient.CdtrContextFactory')
-## CdtrContextFactory.GetDocumentBackendNodeIdAsync(long) Method
+### [Gripper.WebClient](Gripper_WebClient 'Gripper.WebClient').[ContextFactory](Gripper_WebClient_ContextFactory 'Gripper.WebClient.ContextFactory')
+## ContextFactory.GetDocumentBackendNodeIdAsync(long) Method
 Get root node backend node id. If context has no DOM (e.g. background worker thread) or nothing has been loaded yet, returns null.  
 ```csharp
 private System.Threading.Tasks.Task<System.Nullable<long>> GetDocumentBackendNodeIdAsync(long contextId);
 ```
 #### Parameters
-<a name='Gripper_WebClient_CdtrContextFactory_GetDocumentBackendNodeIdAsync(long)_contextId'></a>
+<a name='Gripper_WebClient_ContextFactory_GetDocumentBackendNodeIdAsync(long)_contextId'></a>
 `contextId` [System.Int64](https://docs.microsoft.com/en-us/dotnet/api/System.Int64 'System.Int64')  
 Id of context to try and find the root node id for.
   
