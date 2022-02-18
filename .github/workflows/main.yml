@@ -23,10 +23,7 @@ jobs:
     
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    
-#     - name: install chrome
-#       uses: browser-actions/setup-chrome@latest
-    
+  
     - name: checkout
       uses: actions/checkout@v2
       
@@ -34,18 +31,9 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.0.x
-    
-#     - name: test
-#       run: dotnet test
-      
-#     - uses: actions/upload-artifact@v2
-#       if: failure()
-#       with:
-#         name: log_test_fail.txt
-#         path: ${{ github.workspace }}/test/Gripper.Test/bin/Debug/net6.0/logs
-    
+
     - name: Pack
-      run: dotnet pack --configuration="Release"
+      run: dotnet pack ${{ github.workspace }}/src/Gripper.WebClient --configuration="Release"
       
     - name: Add github source to nuget
       run: dotnet nuget add source --username ${{ github.repository_owner }} --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
