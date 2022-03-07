@@ -1,7 +1,7 @@
 #### [Gripper.WebClient](index 'index')
 ### [Gripper.WebClient](Gripper_WebClient 'Gripper.WebClient')
 ## ICdpAdapter Interface
-Dependency inversion for BaristaLabs.chrome-dev-tools. Creates the ChromeSession for existing CDP client WS endpoint, then manages its lifetime. Tunnels the incoming CDP events and handles execution of CDP calls.   
+Creates the [ChromeSession](Gripper_WebClient_ICdpAdapter_ChromeSession 'Gripper.WebClient.ICdpAdapter.ChromeSession') for existing CDP client WS endpoint, then manages its lifetime. Tunnels the incoming CDP events and executes outgoing CDP commands.   
 ```csharp
 internal interface ICdpAdapter
 ```

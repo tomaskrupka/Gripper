@@ -52,6 +52,11 @@ namespace Gripper.WebClient
                 _logger.LogDebug("execution context destroyed: {id}.", x.ExecutionContextId);
                 WebClientEvent?.Invoke(this, x);
             });
+
+            ChromeSession.Network.SubscribeToWebSocketFrameReceivedEvent(x =>
+            {
+                WebClientEvent?.Invoke(this, x);
+            });
         }
 
         /// <summary>

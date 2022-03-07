@@ -89,7 +89,7 @@ namespace Gripper.WebClient
         /// <param name="commandParams"></param>
         /// <returns>A <see cref="Task"/> that represents the command execution.</returns>
         /// <remarks>
-        /// Implementations should xecute the command literally (no validation), and pass the result unmodified.
+        /// Implementations should execute the command literally (no validation), and pass the result unmodified.
         /// </remarks>
         public Task<JToken> ExecuteCdpCommandAsync(string commandName, JToken commandParams);
     }

@@ -292,7 +292,7 @@ namespace Gripper.ChromeDevTools
             if (m_logger == null)
                 return;
 
-            m_logger.LogTrace(message, args);
+            m_logger.LogDebug(message, args);
         }
 
         private void LogError(string message, params object[] args)

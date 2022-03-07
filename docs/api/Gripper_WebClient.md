@@ -16,7 +16,7 @@
 | Interfaces | |
 | :--- | :--- |
 | [IBrowserManager](Gripper_WebClient_IBrowserManager 'Gripper.WebClient.IBrowserManager') | Provides methods and members to launch, manage, access and destroy a web browser instance.<br/>At mininum, implementations must configure connecting to the CDP endpoint of the browser and pre-startup and post-destroy cleanup.<br/> |
-| [ICdpAdapter](Gripper_WebClient_ICdpAdapter 'Gripper.WebClient.ICdpAdapter') | Dependency inversion for BaristaLabs.chrome-dev-tools. Creates the ChromeSession for existing CDP client WS endpoint, then manages its lifetime. Tunnels the incoming CDP events and handles execution of CDP calls. <br/> |
+| [ICdpAdapter](Gripper_WebClient_ICdpAdapter 'Gripper.WebClient.ICdpAdapter') | Creates the [ChromeSession](Gripper_WebClient_ICdpAdapter_ChromeSession 'Gripper.WebClient.ICdpAdapter.ChromeSession') for existing CDP client WS endpoint, then manages its lifetime. Tunnels the incoming CDP events and executes outgoing CDP commands. <br/> |
 | [IContext](Gripper_WebClient_IContext 'Gripper.WebClient.IContext') | Represents a [browsing context](https://developer.mozilla.org/en-US/docs/Glossary/Browsing_context 'https://developer.mozilla.org/en-US/docs/Glossary/Browsing_context'), the environment in which the browser displays a Document.<br/> |
 | [IContextFactory](Gripper_WebClient_IContextFactory 'Gripper.WebClient.IContextFactory') | Facilitates 1-1-1 mapping between iFrame-Execution context-IContext.<br/> |
 | [IContextManager](Gripper_WebClient_IContextManager 'Gripper.WebClient.IContextManager') | Maintains and provides interface to the up-to-date data structure representing the execution contexts on the page.<br/> |

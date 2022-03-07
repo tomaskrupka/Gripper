@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace Gripper.WebClient
 {
     /// <summary>
-    /// Dependency inversion for BaristaLabs.chrome-dev-tools. Creates the ChromeSession for existing CDP client WS endpoint, then manages its lifetime. Tunnels the incoming CDP events and handles execution of CDP calls. 
+    /// Creates the <see cref="ChromeSession"/> for existing CDP client WS endpoint, then manages its lifetime. Tunnels the incoming CDP events and executes outgoing CDP commands. 
     /// </summary>
     internal interface ICdpAdapter
     {

@@ -17,4 +17,4 @@ Name of the command, e.g. 'Page.navigate'. [https://chromedevtools.github.io/dev
 [System.Threading.Tasks.Task&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Threading.Tasks.Task-1 'System.Threading.Tasks.Task`1')[Newtonsoft.Json.Linq.JToken](https://docs.microsoft.com/en-us/dotnet/api/Newtonsoft.Json.Linq.JToken 'Newtonsoft.Json.Linq.JToken')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Threading.Tasks.Task-1 'System.Threading.Tasks.Task`1')  
 A [System.Threading.Tasks.Task](https://docs.microsoft.com/en-us/dotnet/api/System.Threading.Tasks.Task 'System.Threading.Tasks.Task') that represents the command execution.
 ### Remarks
-Implementations should xecute the command literally (no validation), and pass the result unmodified.  
+Implementations should execute the command literally (no validation), and pass the result unmodified.  
