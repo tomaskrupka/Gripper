@@ -5,12 +5,26 @@
 Gripper is a browser automation toolbox that operates in a browser window under its control,
 using the Chrome Devtools Protocol (CDP).
 
-While retaining full access to the CDP, Gripper offers two sets of features built on top.
+While providing full access to the CDP, Gripper offers two sets of features built on top.
 
 1. Web-scraping of Single Page Applications.
-1. Deployment of the resulting web-scraping agent.
+1. Reliable, distributed deployment of the resulting web-scraping agent.
 
-## Scraping SPAs
+- [Features](#features)
+  - [Web-scraping of SPAs](#web-scraping-of-spas)
+    - [Full CDP API Access](#full-cdp-api-access)
+    - [Target Discovery and Attachment](#target-discovery-and-attachment)
+    - [Browsing Context to Execution Context mapping](#browsing-context-to-execution-context-mapping)
+    - [Smart waiting](#smart-waiting)
+  - [Deployment](#deployment)
+    - [Service oriented design](#service-oriented-design)
+    - [Automated browser launch and disposal (Windows only)](#automated-browser-launch-and-disposal-windows-only)
+    - [Fingerprint management](#fingerprint-management)
+    - [CDP forward compatibility](#cdp-forward-compatibility)
+    - [Chrome forward compatibility](#chrome-forward-compatibility)
+  - [Soon™](#soon)
+
+## Web-scraping of SPAs
 
 These features are designed around the following requirements:
 - Scraping SPAs with Service Workers actively rebuilding the DOM.
