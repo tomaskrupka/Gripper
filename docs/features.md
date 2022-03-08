@@ -5,26 +5,26 @@
 Gripper is a browser automation toolbox that operates in a browser window under its control,
 using the Chrome Devtools Protocol (CDP).
 
-While providing full access to the CDP, Gripper offers two sets of features built on top.
+While providing a full, type-safe access to the CDP, Gripper offers two sets of features built on top:
 
 1. Web-scraping of Single Page Applications.
 1. Reliable, distributed deployment of the resulting web-scraping agent.
 
 - [Features](#features)
-  - [Web-scraping of SPAs](#web-scraping-of-spas)
+  - [1. Web-scraping of SPAs](#1-web-scraping-of-spas)
     - [Full CDP API Access](#full-cdp-api-access)
     - [Target Discovery and Attachment](#target-discovery-and-attachment)
     - [Browsing Context to Execution Context mapping](#browsing-context-to-execution-context-mapping)
     - [Smart waiting](#smart-waiting)
-  - [Deployment](#deployment)
+  - [2. Deployment](#2-deployment)
     - [Service oriented design](#service-oriented-design)
     - [Automated browser launch and disposal (Windows only)](#automated-browser-launch-and-disposal-windows-only)
     - [Fingerprint management](#fingerprint-management)
     - [CDP forward compatibility](#cdp-forward-compatibility)
     - [Chrome forward compatibility](#chrome-forward-compatibility)
-  - [Soon™](#soon)
+- [Soon™](#soon)
 
-## Web-scraping of SPAs
+## 1. Web-scraping of SPAs
 
 These features are designed around the following requirements:
 - Scraping SPAs with Service Workers actively rebuilding the DOM.
@@ -64,7 +64,7 @@ Blocking until the DOM is stable is a reliable way to avoid errors like clicking
 
 Also, compared to polling for a specific element or even blind hardcoded waiting, it is less prone to variance across different deployments.
 
-## Deployment
+## 2. Deployment
 
 These features aim at solving:
 - Reliable, long-running and low-upkeep remote deployment.
@@ -108,7 +108,7 @@ The built-in CDP wrapper targets a version of the protocol, not the browser. Thi
 
 The only time a Chrome update breaks a running Gripper deployment is when the new version's CDP API introduces breaking changes to a signature that the application *actively uses*.
 
-## Soon™
+# Soon™
 
 Although Gripper is under active development, it won't be getting any new killer features anytime soon. The current focus is on polishing existing features, distributed deployment, performance, test and documentation coverage and general stability and reliability.
 
