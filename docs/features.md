@@ -2,9 +2,6 @@
 
 # Features
 
-Gripper is a browser automation toolbox that operates in a browser window under its control,
-using the Chrome Devtools Protocol (CDP).
-
 While providing a full, type-safe access to the CDP, Gripper offers two sets of features built on top:
 
 1. Web-scraping of Single Page Applications.
@@ -104,7 +101,7 @@ This fallback makes it possible to use an older build of Gripper against Chrome 
 
 Gripper aims to work reliably with out-of-the-box [Stable](https://chromereleases.googleblog.com/) Chrome on Windows/Windows Server, including robust handling of automatic Chrome updates that take place about once a month.
 
-The built-in CDP wrapper targets a version of the protocol, not the browser. This makes any breaking impact of automatic Chrome update on a running Gripper very unlikely
+The built-in CDP wrapper targets a version of the protocol, not the browser. This makes any breaking impact of an automatic Chrome update on a running Gripper very unlikely.
 
 The only time a Chrome update breaks a running Gripper deployment is when the new version's CDP API introduces breaking changes to a signature that the application *actively uses*.
 
