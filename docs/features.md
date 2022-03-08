@@ -13,7 +13,7 @@ While retaining full access to the CDP, Gripper offers two sets of features buil
 ## Scraping SPAs
 
 These features are designed around the following requirements:
-- Scraping SPAs with service workers actively rebuilding the DOM.
+- Scraping SPAs with Service Workers actively rebuilding the DOM.
 - Reliable JavaScript evaluation in iFrames.
 
 ### Full CDP API Access
@@ -96,12 +96,14 @@ The only time a Chrome update breaks a running Gripper deployment is when the ne
 
 ## Soon™
 
-Although Gripper is under active development, it won't be getting any new killer features anytime soon. The current focus is on distributed deployment, performance, test and documentation coverage and general stability and reliability.
+Although Gripper is under active development, it won't be getting any new killer features anytime soon. The current focus is on polishing existing features, distributed deployment, performance, test and documentation coverage and general stability and reliability.
 
-The following features are half-baked or under development and will be getting some attention soon™:
+That includes:
 
 - Discovery and attachment of isolated targets (when site-per-process, IsolateOrigins is not disabled).
 - Forward compatibility for CDP events (relaying unknown events in a raw form).
 - Passing custom parameters to new browser windows programmatically, adding to the ability of each instance to alter its fingerprint.
 - Programmatically configuring new browser windows.
 - Automated browser launch and disposal outside Windows.
+
+
