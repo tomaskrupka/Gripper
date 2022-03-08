@@ -2,11 +2,10 @@
 
 # About Gripper
 
-What is Gripper?
+Gripper is .NET toolbox for creating powerful browser automation agents.
+Gripper operates in a browser window under its control, using the Chrome Devtools Protocol (CDP).
+Gripper provides a full, type-safe access to the CDP and a set of own features built on top.
 
-- Gripper is toolbox for creating powerful browser automation agents in .NET.
-- Gripper operates in a browser window under its control, using the Chrome Devtools Protocol (CDP).
-- Gripper provides a full, type-safe access to the CDP and a set of own features built on top.
 
 - [About Gripper](#about-gripper)
   - [Use Cases for Browser Automation](#use-cases-for-browser-automation)
