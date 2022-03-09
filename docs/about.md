@@ -2,8 +2,6 @@
 
 # About Gripper
 
-about gripper, about automation, features, quickstart, principles.
-
 Gripper is `.NET` toolbox for creating powerful browser automation agents.
 Gripper operates in a browser window under its control, using the Chrome Devtools Protocol (CDP).
 Gripper provides a full, type-safe access to the CDP and a set of own features built on top.
@@ -20,7 +18,7 @@ Gripper provides a full, type-safe access to the CDP and a set of own features b
 
 # Automating the Browser with Gripper
 
-Prior to creating a browser automation agent, the target must be manually reverse-engineered, resulting in some kind of a  proof-of-concept prototype. The next step is turning the prototype into a reliable agent.
+Prior to creating a browser automation agent, the target must be manually reverse-engineered, resulting in a proof-of-concept prototype. The next step is turning the prototype into a reliable agent.
 
 That is where Gripper fits into the workflow.
 
@@ -48,11 +46,11 @@ For common painpoints, Gripper is equipped with services that either solve the p
 
 | Problem | Solution |
 | :--- | :--- |
-| Authorized session timeout | |
-| Crash or restart | |
-| Automatic browser update | |
-| Horizontal scaling | |
-| Memory leaks | |
+| Zombie artifacts on crash or restart | The [`IChildProcessTracker`](api/Gripper_WebClient_Runtime_IChildProcessTracker) service automatically registers and kills on exit Gripper child processes. This prevents zombie artifacts like hanging browser windows from accummulating. |
+| Horizontal scaling | The root [`IWebClient`](api/Gripper_WebClient_IWebClient) interface that represents a browser window is designed as a [transient service](features#service-oriented-design). Any number of instances can be resolved in parallel and configured independently. |
+| Authorized session timeout | Gripper enables purging selected data from the user profile before launch, or launching from a fresh profile directory. This makes it easy to implement reliable login renewal by just ditching the old instance and re-running the login routine using a fresh [`IWebClient`](api/Gripper_WebClient_IWebClient) instance. |
+| Automatic browser update | The built-in CDP wrapper targets a version of the protocol, not the browser, making Gripper [forward compatible](features/#chrome-forward-compatibility) with Chrome versions.  |
+| Memory leaks | Gripper prevents two major sources of memory leaks. First, Gripper prevents hanging pointers to destroyed Execution Contexts by tracking the [executionContextDestroyed](https://chromedevtools.github.io/devtools-protocol/tot/Runtime/#event-executionContextDestroyed) event. Second, by exposing the [`WebClientEvent`](api/Gripper_WebClient_IWebClient_WebClientEvent) delegate, Gripper enables proactive unsubscribing from events. |
 
 
 ## Handling Edge Cases
@@ -69,7 +67,7 @@ For common painpoints, Gripper is equipped with services that either solve the p
 
 ## Transparency
 
-Gripper aims to be a zero-opacity layer.
+Gripper aims to be a completely transparent layer.
 
 Gripper passes ownership to the user by exposing the resources it creates or binds. This includes the browser OS `Process` handle, the root `ChromeSession` instance or full raw access to the browser CDP API endpoint.
 
