@@ -2,81 +2,78 @@
 
 # About Gripper
 
-Gripper is .NET toolbox for creating powerful browser automation agents.
+about gripper, about automation, features, quickstart, principles.
+
+Gripper is `.NET` toolbox for creating powerful browser automation agents.
 Gripper operates in a browser window under its control, using the Chrome Devtools Protocol (CDP).
 Gripper provides a full, type-safe access to the CDP and a set of own features built on top.
 
-
 - [About Gripper](#about-gripper)
-  - [Use Cases for Browser Automation](#use-cases-for-browser-automation)
-- [Gripper Workflow](#gripper-workflow)
-  - [Reverse Engineering the Target](#reverse-engineering-the-target)
-  - [Building the Agent with Gripper](#building-the-agent-with-gripper)
+- [Automating the Browser with Gripper](#automating-the-browser-with-gripper)
+  - [Reducing Routines to CDP](#reducing-routines-to-cdp)
+  - [Deployment](#deployment)
+  - [Handling Edge Cases](#handling-edge-cases)
 - [Principles](#principles)
   - [Transparency](#transparency)
   - [Low Level Access](#low-level-access)
   - [Easy to keep up-to-date](#easy-to-keep-up-to-date)
 
-## Use Cases for Browser Automation
+# Automating the Browser with Gripper
 
-In any of the following (and many more) use cases, when the target does not offer a sufficient API, browser automation is the go-to solution:
+Prior to creating a browser automation agent, the target must be manually reverse-engineered, resulting in some kind of a  proof-of-concept prototype. The next step is turning the prototype into a reliable agent.
 
-- Booking a ticket before other bots book them out.
-- Replying to an online post programmatically.
-- Placing a bet on a live sports-betting site.
-- Placing an order on an exchange.
-- Timing a bid in an online auction.
-- Aggregating a live stream into a dataset.
-- Integration testing.
+That is where Gripper fits into the workflow.
 
-# Gripper Workflow
+## Reducing Routines to CDP
 
-How does Gripper fit into the workflow of creating a browser automation agent?
+While the prototype routine may contain manual steps, the agent must be fully automated. Furthermore, every step that involves browser interaction must be expressed in terms of CDP commands.
 
-In general, the process consists of two parts:
+Gripper enables the implementation of any simple CDP command sequence by providing a full, type-safe access to the CDP endpoint of the hooked browser.
 
-1. Reverse engineering the target, creating a prototype. This is a manual chore.
-2. Turning the prototype into a reliable agent. This is what Gripper is for.
+For more complex tasks, Gripper provides own APIs:
 
-## Reverse Engineering the Target
+| Problem | Solution |
+| :--- | :--- |
+| Intercepting HTTP, WebSocket traffic | Subscribe to [`WebClientEvent`](api/Gripper_WebClient_IWebClient_WebClientEvent)s. No missed events as targets are [automatically attached](features#target-discovery-and-attachment). |
+| Emulating inputs | The [`IElement`](api/Gripper_WebClient_IElement) interface automatically handles focusing and presents a unified abstraction for mouse and keyboard actions. |
+| JS Evaluation: CORS | Gripper [tracks](features#browsing-context-to-execution-context-mapping) the execution contexts of iFrames. The [`IContext`](api/Gripper_WebClient_IContext) interface then abstracts script evaluation in an iFrame, complying with the rule that the DOM can only be touched from its own Execution Context. |
+| JS Evaluation: CSRF | Thanks to the [`IContext`](api/Gripper_WebClient_IContext) interface, any iFrame can be used to evaluate a Fetch request against its origin, within the browser CSRF policy. |
 
-This is an exploratory stage aiming to figure out a proof-of-concept routine.
+## Deployment
 
-Any tools can be used, but it has to be possible to reliably automate the used techniques later. For instance, hand-picking tokens from WebSocket messages to see if they work is fine, the polished agent can intercept WebSocket messages programmatically.
+A proof-of-concept prototype can't reveal issues related to long-running remote deployment.
 
-Exploring and rapidly iterating on dead-ends is key. Therefore, this is manual work with little automation potential and Gripper can't be used to speed up the process.
+For issues unique to the specific agent-deployment combination, Gripper enables implementing custom solutions by [passing ownership](#transparency) of its resources.
+For common painpoints, Gripper is equipped with services that either solve the problem or provide useful tooling.
 
-## Building the Agent with Gripper
+| Problem | Solution |
+| :--- | :--- |
+| Authorized session timeout | |
+| Crash or restart | |
+| Automatic browser update | |
+| Horizontal scaling | |
+| Memory leaks | |
 
-Gripper is designed to handle challenges that come with turning a prototype into a reliable agent:
 
-1. Implementing all browser automation routines using the CDP.
-   -  Intercepting HTTP traffic and WebSockets.
-   -  Emulating inputs.
-   -  Evaluating custom JavaScript in proper context.
-   -  Triggering custom Fetch requests.
-   -  Accessing the DOM.
-2. Handling edge-cases.
-   -  Responsive resizing.
-   -  Failed-to-load iFrames/elements.
-   -  Unexpected overlays and popups ([Newsletter, anyone?](https://how-i-experience-web-today.com/))
-3. Handling issues related to long-running remote deployment.
-   -  Sustaining an active authorized session indefinitely.
-   -  Cleaning up dead browser instances.
-   -  Automatic browser updates.
-   -  Horizontal scaling of demanding data-mining operations.
+## Handling Edge Cases
 
-Gripper greatly simplifies meeting these objectives by offering well-tested, predictable low-level routines.
 
-When Gripper does not offer a feature for a task, its built-in CDP wrapper offers a type-safe way to perform any task manually.
+| Problem | Solution |
+| :--- | :--- |
+| Timed-out iFrames/Elements | |
+| Responsive resizing | |
+| Unexpected overlays/popups | |
+
 
 # Principles
 
 ## Transparency
 
-Gripper exposes its resources, effectively passing ownership to the user. This includes the browser OS `Process` handle, the root `ChromeSession` instance or full raw access to the browser CDP API endpoint.
+Gripper aims to be a zero-opacity layer.
 
-The rule of thumb is that it should be possible to build Gripper on top of itself without too much hacking.
+Gripper passes ownership to the user by exposing the resources it creates or binds. This includes the browser OS `Process` handle, the root `ChromeSession` instance or full raw access to the browser CDP API endpoint.
+
+The rule of thumb is that it should be possible to build Gripper on top of itself.
 
 ## Low Level Access
 
@@ -86,7 +83,7 @@ While Gripper does wrap the CDP with own code, the types, commands and events ar
 
 ## Easy to keep up-to-date
 
-The main [Gripper.WebClient](https://www.nuget.org/packages/Gripper.WebClient/) package depends on [Gripper.ChromeDevTools](https://www.nuget.org/packages/Gripper.ChromeDevTools/) for the CDP wrapper. Both packages are being kept up-to-date with the latest CDP API.
+The main [`Gripper.WebClient`](https://www.nuget.org/packages/Gripper.WebClient/) package depends on [`Gripper.ChromeDevTools`](https://www.nuget.org/packages/Gripper.ChromeDevTools/) for the CDP wrapper. Both packages are being kept up-to-date with the latest CDP API.
 
 Furthermore, the `Gripper.ChromeDevTools` library can be [autogenerated](https://github.com/tomaskrupka/chrome-dev-tools-generator) against any version of the CDP API (defaults to [latest tip-of-tree](https://github.com/ChromeDevTools/devtools-protocol/tree/master/json)).
 

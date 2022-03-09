@@ -49,7 +49,7 @@ The `IContext` interface represents the mapping of a Browsing Context to the Exe
 
 This enables handy abstractions such as evaluating a script in an iFrame or accessing an HTML Node both with JavaScript and through the [browser domains](https://github.com/ChromeDevTools/devtools-protocol/blob/master/json/browser_protocol.json) such as `DOM` and `Network`.
 
-Under the hood, Gripper tracks the lifetime of execution contexts and their associated iFrames. When the `IWebClient.GetContextsAsync()` is called, Gripper resolves the current Frame Tree and binds each of the present Browsing Contexts to the proper Execution Context.
+Under the hood, the [IContextManager](api/Gripper_WebClient_IContextManager) service tracks the lifetime of present execution contexts and their associated iFrames. When `IWebClient.GetContextsAsync()` is called, Gripper resolves the current Frame Tree and binds each of the present Browsing Contexts to the proper Execution Context.
 
 ### Smart waiting
 
