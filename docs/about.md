@@ -19,7 +19,7 @@ Gripper provides a full, type-safe access to the CDP and a set of own features b
 
 Gripper enables straightforward implementation of any CDP command sequence by providing a full, type-safe access to the CDP endpoint of the hooked browser.
 
-Furthermore, Gripper provides own APIs with an out-of-the-box implementation of the most common pain points:
+Furthermore, Gripper provides own APIs targetting the most common pain points:
 
 1. Problems related to the automation of Single Page Applications.
 2. Reliable, distributed deployment of the resulting agent.
