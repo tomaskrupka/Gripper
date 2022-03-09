@@ -8,9 +8,8 @@ Gripper provides a full, type-safe access to the CDP and a set of own features b
 
 - [About Gripper](#about-gripper)
 - [Automating the Browser with Gripper](#automating-the-browser-with-gripper)
-  - [Reducing Routines to CDP](#reducing-routines-to-cdp)
+  - [Automating SPAs](#automating-spas)
   - [Deployment](#deployment)
-  - [Handling Edge Cases](#handling-edge-cases)
 - [Principles](#principles)
   - [Transparency](#transparency)
   - [Low Level Access](#low-level-access)
@@ -18,17 +17,14 @@ Gripper provides a full, type-safe access to the CDP and a set of own features b
 
 # Automating the Browser with Gripper
 
-Prior to creating a browser automation agent, the target must be manually reverse-engineered, resulting in a proof-of-concept prototype. The next step is turning the prototype into a reliable agent.
+Gripper enables straightforward implementation of any CDP command sequence by providing a full, type-safe access to the CDP endpoint of the hooked browser.
 
-That is where Gripper fits into the workflow.
+Furthermore, Gripper provides own APIs with an out-of-the-box implementation of the most common pain points:
 
-## Reducing Routines to CDP
+1. Problems related to the automation of Single Page Applications.
+2. Reliable, distributed deployment of the resulting agent.
 
-While the prototype routine may contain manual steps, the agent must be fully automated. Furthermore, every step that involves browser interaction must be expressed in terms of CDP commands.
-
-Gripper enables the implementation of any simple CDP command sequence by providing a full, type-safe access to the CDP endpoint of the hooked browser.
-
-For more complex tasks, Gripper provides own APIs:
+## Automating SPAs
 
 | Problem | Solution |
 | :--- | :--- |
@@ -36,6 +32,7 @@ For more complex tasks, Gripper provides own APIs:
 | Emulating inputs | The [`IElement`](api/Gripper_WebClient_IElement) interface automatically handles focusing and presents a unified abstraction for mouse and keyboard actions. |
 | JS Evaluation: CORS | Gripper [tracks](features#browsing-context-to-execution-context-mapping) the execution contexts of iFrames. The [`IContext`](api/Gripper_WebClient_IContext) interface then abstracts script evaluation in an iFrame, complying with the rule that the DOM can only be touched from its own Execution Context. |
 | JS Evaluation: CSRF | Thanks to the [`IContext`](api/Gripper_WebClient_IContext) interface, any iFrame can be used to evaluate a Fetch request against its origin, within the browser CSRF policy. |
+| Unexpected overlays/popups | |
 
 ## Deployment
 
@@ -49,19 +46,9 @@ For common painpoints, Gripper is equipped with services that either solve the p
 | Zombie artifacts on crash or restart | The [`IChildProcessTracker`](api/Gripper_WebClient_Runtime_IChildProcessTracker) service automatically registers and kills on exit Gripper child processes. This prevents zombie artifacts like hanging browser windows from accummulating. |
 | Horizontal scaling | The root [`IWebClient`](api/Gripper_WebClient_IWebClient) interface that represents a browser window is designed as a [transient service](features#service-oriented-design). Any number of instances can be resolved in parallel and configured independently. |
 | Authorized session timeout | Gripper enables purging selected data from the user profile before launch, or launching from a fresh profile directory. This makes it easy to implement reliable login renewal by just ditching the old instance and re-running the login routine using a fresh [`IWebClient`](api/Gripper_WebClient_IWebClient) instance. |
-| Automatic browser update | The built-in CDP wrapper targets a version of the protocol, not the browser, making Gripper [forward compatible](features/#chrome-forward-compatibility) with Chrome versions.  |
-| Memory leaks | Gripper prevents two major sources of memory leaks. First, Gripper prevents hanging pointers to destroyed Execution Contexts by tracking the [executionContextDestroyed](https://chromedevtools.github.io/devtools-protocol/tot/Runtime/#event-executionContextDestroyed) event. Second, by exposing the [`WebClientEvent`](api/Gripper_WebClient_IWebClient_WebClientEvent) delegate, Gripper enables proactive unsubscribing from events. |
-
-
-## Handling Edge Cases
-
-
-| Problem | Solution |
-| :--- | :--- |
-| Timed-out iFrames/Elements | |
+| Automatic browser update | The built-in CDP wrapper targets a version of the protocol, not the browser, making Gripper [forward compatible](features/#chrome-forward-compatibility) with Chrome versions. It is [unlikely](features/#cdp-forward-compatibility) that Chrome update will break the agent. |
 | Responsive resizing | |
-| Unexpected overlays/popups | |
-
+| Memory leaks | Gripper prevents two major sources of memory leaks. First, Gripper prevents hanging pointers to destroyed Execution Contexts by tracking the [executionContextDestroyed](https://chromedevtools.github.io/devtools-protocol/tot/Runtime/#event-executionContextDestroyed) event. Second, by exposing the [`WebClientEvent`](api/Gripper_WebClient_IWebClient_WebClientEvent) delegate, Gripper enables proactive unsubscribing from events. |
 
 # Principles
 

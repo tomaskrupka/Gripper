@@ -1,15 +1,5 @@
 [← Home](index.md) [About →](about.md) [Features →](features.md)
 
-- [Packaging](#packaging)
-- [Deployment](#deployment)
-- [Installation](#installation)
-  - [Windows](#windows)
-  - [Linux, MacOS](#linux-macos)
-- [Runtime](#runtime)
-  - [Hosting](#hosting)
-  - [Configuration](#configuration)
-  - [Launching the browser](#launching-the-browser)
-
 # Package
 
 Gripper is packed as [Gripper.WebClient](https://www.nuget.org/packages/Gripper.WebClient/) on Nuget.

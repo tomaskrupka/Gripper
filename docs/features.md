@@ -4,11 +4,11 @@
 
 While providing a full, type-safe access to the CDP, Gripper offers two sets of features built on top:
 
-1. Web-scraping of Single Page Applications.
-1. Reliable, distributed deployment of the resulting web-scraping agent.
+1. Automation of Single Page Applications.
+2. Reliable, distributed deployment of the resulting agent.
 
 - [Features](#features)
-  - [1. Web-scraping of SPAs](#1-web-scraping-of-spas)
+  - [1. Automation of SPAs](#1-automation-of-spas)
     - [Full CDP API Access](#full-cdp-api-access)
     - [Target Discovery and Attachment](#target-discovery-and-attachment)
     - [Browsing Context to Execution Context mapping](#browsing-context-to-execution-context-mapping)
@@ -21,7 +21,7 @@ While providing a full, type-safe access to the CDP, Gripper offers two sets of 
     - [Chrome forward compatibility](#chrome-forward-compatibility)
 - [Soon™](#soon)
 
-## 1. Web-scraping of SPAs
+## 1. Automation of SPAs
 
 These features are designed around the following requirements:
 - Scraping SPAs with Service Workers actively rebuilding the DOM.
@@ -65,7 +65,7 @@ Also, compared to polling for a specific element or even blind hardcoded waiting
 
 These features aim at solving:
 - Reliable, long-running and low-upkeep remote deployment.
-- Running parallel web-scraping tasks in independent browser windows.
+- Running parallel automation tasks in independent browser windows.
 
 ### Service oriented design
 
