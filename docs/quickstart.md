@@ -1,9 +1,12 @@
-[← Home](index.md) [About →](about.md) [Features →](features.md)
+[← Home](index.md) [About →](about.md) [Features→](features.md)
 
 # Package
 
 Gripper is packed as [Gripper.WebClient](https://www.nuget.org/packages/Gripper.WebClient/) on Nuget.
 The standard implementation separated as `Gripper.WebClient.Cdtr` namespace within the same package.
+
+The main [`Gripper.WebClient`](https://www.nuget.org/packages/Gripper.WebClient/) package depends on [`Gripper.ChromeDevTools`](https://www.nuget.org/packages/Gripper.ChromeDevTools/) for the CDP wrapper. Both packages are being kept up-to-date with the latest CDP API.
+
 
 The dependencies of Gripper are:
 - .NET6.0

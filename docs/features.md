@@ -55,9 +55,9 @@ Under the hood, the [IContextManager](api/Gripper_WebClient_IContextManager) ser
 
 The way an SPA bootstraps often depends on deployment-related factors like zone (varying round-trips to iFrames sourced from distant origins), hardware or headless/headed setup.
 
-Gripper provides a configurable `IWebClient.WaitUntilFramesLoadedAsync()` method that polls for changes in the Frame Tree and waits until all frames have been loaded and no new iFrames have started loading for a period of time.
+Gripper provides a configurable `IWebClient.WaitUntilFramesLoadedAsync()` method that polls for changes in the Frame Tree and waits until all iFrames have been loaded and no new iFrames have started loading for a period of time.
 
-Blocking until the DOM is stable is a reliable way to avoid errors like clicking stale elements or dereferencing destroyed execution contexts.
+Resolving the Frame Tree only after the DOM has been fully loaded is a reliable way to avoid errors like clicking stale elements or dereferencing destroyed execution contexts.
 
 Also, compared to polling for a specific element or even blind hardcoded waiting, it is less prone to variance across different deployments.
 
