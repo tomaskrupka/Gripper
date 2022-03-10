@@ -111,6 +111,7 @@ Although Gripper is under active development, it won't be getting any new killer
 
 That includes:
 
+- Removing the [`Gripper.ChromeDevTools`](https://www.nuget.org/packages/Gripper.ChromeDevTools/) legacy dependencies.
 - Discovery and attachment of isolated targets (when site-per-process, IsolateOrigins is not disabled).
 - Forward compatibility for CDP events (relaying unknown events in a raw form).
 - Passing custom parameters to new browser windows programmatically, adding to the ability of each instance to alter its fingerprint.
