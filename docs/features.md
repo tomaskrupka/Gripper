@@ -1,4 +1,4 @@
-[←Home](index.md) [Quickstart→](quickstart.md) [API→](api_reference.md)
+[←Home](index.md) [About→](about.md) [Quickstart→](quickstart.md) [API→](api_reference.md)
 
 # Features
 
