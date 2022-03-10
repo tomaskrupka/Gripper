@@ -33,3 +33,8 @@ That is where Gripper fits into the workflow.
 
 
 While the prototype routine may contain manual steps, the agent must be fully automated. Furthermore, every step that involves browser interaction must be expressed in terms of CDP commands.
+
+
+
+
+A proof-of-concept prototype can't reveal issues related to long-running remote deployment.
