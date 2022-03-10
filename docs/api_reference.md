@@ -1,4 +1,4 @@
-[← Home](index.md) [About →](about.md) [Quickstart→](quickstart.md) [Features→](features.md)
+[←Home](index.md) [About→](about.md) [Quickstart→](quickstart.md) [Features→](features.md)
 
 The public interface of Gripper is separated from the standard implementation. 
 Both are packed within the [Gripper.WebClient](https://www.nuget.org/packages/Gripper.WebClient/) package.

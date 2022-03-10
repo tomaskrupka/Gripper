@@ -4,7 +4,7 @@
 
 The following quickstart
 
-# Package
+# How to Get Gripper
 
 Gripper is released as [`Gripper.WebClient`](https://www.nuget.org/packages/Gripper.WebClient/) on Nuget.
 
@@ -57,20 +57,7 @@ Gripper can be obtained directly from the [repo](https://github.com/tomaskrupka/
 - Including the `Gripper.WebClient` project into the solution and building the agent as a [single-file app](https://docs.microsoft.com/en-us/dotnet/core/deploying/single-file) for deployment onto a target without a .NET Runtime installation.
 - Building Gripper outside the solution and referencing the `Gripper\src\Gripper.WebClient\bin\<configuration>\net6.0\Gripper.WebClient.dll` library.
 
-# Installation
-
-How to add Gripper to your .NET project.
-
-## Windows
-
-
-Creating a console app, adding the `Gripper.WebClient` package reference and running it looks as follows.
-
-## Linux, MacOS
-
-Soon™
-
-# Hosting
+# How to Host Gripper
 
 Let's create a standalone service called ``GripperService`` that uses Gripper.
 It can be built and packed separately depending just on the API package.
@@ -100,7 +87,7 @@ public class Worker : BackgroundService
             await _webClient.ReloadAsync(PollSettings.FrameDetectionDefault, cancellationToken);
             var contexts = await _webClient.GetContextsAsync();
 
-            _logger.LogInformation("Gripper found {contextsCount} contexts.", contexts.Count);
+            _logger.LogInformation("Today, Gripper found {contextsCount} contexts.", contexts.Count);
 
             await Task.Delay(TimeSpan.FromDays(1), cancellationToken);
         }
@@ -136,9 +123,9 @@ IHost host = Host.CreateDefaultBuilder(args)
 await host.RunAsync();
 ```
 
-# Configuration
+## Configuration
 
 In order to avoid hardcoding Gripper configuration explicitly,
 you may prefer to take advantage of the built-in configuration extensions.
 
-# Launching the browser
+# How to Interface Gripper
