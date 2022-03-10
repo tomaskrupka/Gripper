@@ -19,10 +19,10 @@ Gripper provides a full, type-safe access to the CDP and a set of own features b
 
 Gripper enables straightforward implementation of any CDP command sequence by providing a full, type-safe access to the CDP endpoint of the hooked browser.
 
-Furthermore, Gripper provides own APIs targetting the most common painpoints:
+Furthermore, Gripper provides own APIs targetting the most common challenges:
 
-1. Automation of Single Page Applications.
-2. Reliable, distributed deployment of the resulting agent.
+1. Automation of Single Page Applications. [Features→](features.md/#1-automation-of-spas)
+2. Reliable, long-running deployment of the resulting agent. [Features→](features.md/#2-deployment)
 
 ## Automating SPAs
 
@@ -32,8 +32,8 @@ For common tasks that can't be expressed as a simple CDP routine, Gripper abstra
 | :--- | :--- |
 | Intercepting HTTP, WebSocket traffic | Subscribe to [`WebClientEvent`](api/Gripper_WebClient_IWebClient_WebClientEvent)s. No missed events as targets are [automatically attached](features#target-discovery-and-attachment). |
 | Emulating inputs | The [`IElement`](api/Gripper_WebClient_IElement) interface automatically handles focusing and presents a unified abstraction for mouse and keyboard actions. |
-| JS Evaluation: CORS | Gripper [tracks](features#browsing-context-to-execution-context-mapping) the execution contexts of iFrames. The [`IContext`](api/Gripper_WebClient_IContext) interface then abstracts script evaluation in an iFrame, complying with the rule that the DOM can only be touched from its own Execution Context. |
-| JS Evaluation: CSRF | Thanks to the [`IContext`](api/Gripper_WebClient_IContext) interface, any iFrame can be used to evaluate a Fetch request against its origin, within the browser CSRF policy. |
+| JS Evaluation: CORS compliance | Gripper [tracks](features#browsing-context-to-execution-context-mapping) the execution contexts of iFrames. The [`IContext`](api/Gripper_WebClient_IContext) interface then abstracts script evaluation in an iFrame, complying with the rule that the DOM can only be touched from its own Execution Context. |
+| JS Evaluation: CSRF compliance | Thanks to the [`IContext`](api/Gripper_WebClient_IContext) interface, any iFrame can be used to evaluate a Fetch request against its origin, within the browser CSRF policy. |
 | Unexpected overlays/popups | |
 
 ## Deployment
