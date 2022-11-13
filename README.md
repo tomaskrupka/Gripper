@@ -11,4 +11,4 @@ The main focus is on dynamic SPAs with background workers that are hard to get a
 
 ### [Latest&nbsp;Build&nbsp;→](https://www.nuget.org/packages/Gripper.WebClient)
 - Get the `.nupkg`.
-- Read the release notes.
+- Read the release notes. <> comment
